@@ -19,7 +19,8 @@ export async function GET(): Promise<Response> {
     // Gérer les erreurs
     return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
   }
-}
+} 
+
 
 export async function POST(request: Request): Promise<Response> {
   try {
