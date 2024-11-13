@@ -8,7 +8,7 @@ interface VehicleRequestBody {
   year: number;
   price: number;
   description: string;
-}
+} 
 
 export async function GET(): Promise<Response> {
   try {
