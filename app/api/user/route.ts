@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 interface UserData {
   firstName: string;
   lastName: string;
-  dateOfBirth: string; // ou Date, si tu traites directement la date
+  dateOfBirth: string;
   identityNumber: string;
   address: string;
   city: string;
@@ -17,9 +17,12 @@ export async function GET() {
     try {
       const users = await prisma.user.findMany();
       return new Response(JSON.stringify(users), { status: 200 });
-    } catch (error: any) {
-      console.error(error);
-      return new Response('Error fetching users: ' + error.message, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+        console.error(error);
+        return new Response('Error fetching users: ' + error.message, { status: 500 });
+        }
+        return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
     }
   }
 
@@ -49,9 +52,12 @@ export async function POST(req: Request) {
       });
   
       return new Response(JSON.stringify(newUser), { status: 201 });
-    } catch (error: any) {
-      console.error(error); // Afficher l'erreur dans la console pour le débogage
-      return new Response('Error creating user: ' + error.message, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+        console.error(error); // Afficher l'erreur dans la console pour le débogage
+        return new Response('Error creating user: ' + error.message, { status: 500 });
+        }
+        return new Response(JSON.stringify({ error: 'Erreur inconnue' }), { status: 500 });
     }
   }
   
