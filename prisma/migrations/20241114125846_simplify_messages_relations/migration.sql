@@ -22,6 +22,7 @@ CREATE TABLE "User" (
     "identityNumber" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "city" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
     "profilePhoto" TEXT,
     "email" TEXT NOT NULL,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
