@@ -9,106 +9,153 @@ datasource db {
   url      = env("POSTGRES_URL")  // Utilise la variable d'environnement
 }
 
-
-// Modèle pour les utilisateurs
 model User {
-  id             String   @id @default(uuid())
-  firstName      String
-  lastName       String
-  dateOfBirth    DateTime
-  identityNumber String   @unique
-  address        String
-  city           String
-  country        String   
-  profilePhoto   String?
-  email          String   @unique
-  emailVerified  Boolean  @default(false)
-  role           Role     @default(USER)
-  active         Boolean  @default(true)
+  id              String   @id @default(uuid())  // ID unique de l'utilisateur
+  username        String   @unique  // Nom d'utilisateur unique
+  password        String   // Mot de passe (doit être haché)
+  firstName       String   // Prénom
+  lastName        String   // Nom
+  email           String   @unique  // Email unique
+  emailVerified   Boolean  @default(false)  // Si l'email est vérifié
+  role            Role     @default(USER)  // Rôle de l'utilisateur (par exemple, USER)
+  active          Boolean  @default(true)  // Statut actif ou non de l'utilisateur
+  idCardNumber    String?  @unique  // Numéro de carte d'identité unique
+  idCardVerified  Boolean  @default(false)  // Si la carte d'identité est vérifiée
+  birthDate       DateTime? // Date de naissance
+  profilePicture  String?  // URL de la photo de profil
+  city            String?  // Ville
+  country         String?  // Pays
+  createdAt       DateTime @default(now())  // Date de création
+  updatedAt       DateTime @updatedAt  // Date de dernière mise à jour
 
-  // Relation avec les offres
-  offers         Offer[]  
+  // Relations avec les offres
+  vehicleOffers   VehicleOffer[]
+  realEstateOffers RealEstateOffer[]
+  commercialOffers CommercialOffer[]
 
   // Messages envoyés et reçus
-  messagesSent   Message[] @relation("UserSentMessages")
+  messagesSent    Message[] @relation("UserSentMessages")
   messagesReceived Message[] @relation("UserReceivedMessages")
 
-  // Signalements d'offres
+  // Signalements soumis
   reportsSubmitted Report[] @relation("UserSubmittedReports")
-
-  @@index([identityNumber], name: "idx_identityNumber")
 }
 
 // Modèle pour les entreprises
 model Company {
-  id                String   @id @default(uuid())
-  companyName       String
-  registrationNumber String   @unique
-  address           String
-  city              String
-  country           String   
-  companyLogo       String?
-  email             String   @unique
-  emailVerified     Boolean  @default(false)
-  role              Role     @default(COMPANY)
-  active            Boolean  @default(true)
+  id             String   @id @default(uuid())  // ID unique de l'entreprise
+  companyName    String  // Nom de l'entreprise
+  password       String   // Mot de passe (doit être haché)
+  email          String   @unique  // Email unique
+  emailVerified  Boolean  @default(false)  // Si l'email est vérifié
+  role           Role     @default(COMPANY)  // Rôle de l'entreprise (par exemple, COMPANY)
+  active         Boolean  @default(true)  // Statut actif ou non de l'entreprise
+  companyNumber  String?  @unique  // Numéro d'enregistrement unique de l'entreprise
+  birthDate      DateTime? // Date de création de l'entreprise (ou date d'enregistrement)
+  profilePicture String?  // URL de la photo de profil ou logo de l'entreprise
+  city           String?  // Ville
+  country        String?  // Pays
+  street         String?  // Pays
+  createdAt      DateTime @default(now())  // Date de création
+  updatedAt      DateTime @updatedAt  // Date de dernière mise à jour
 
-  // Relation avec les offres
-  offers            Offer[]  
+  // Relations avec les offres
+  vehicleOffers  VehicleOffer[]
+  realEstateOffers RealEstateOffer[]
+  commercialOffers CommercialOffer[]
 
   // Messages envoyés et reçus
   messagesSent      Message[] @relation("CompanySentMessages")
   messagesReceived  Message[] @relation("CompanyReceivedMessages")
 
-  // Signalements d'offres
-  reportsSubmitted Report[] @relation("CompanySubmittedReports")
-
-  @@index([registrationNumber], name: "idx_registrationNumber")
+  // Signalements soumis
+  reportsSubmitted  Report[] @relation("CompanySubmittedReports")
 }
 
-// Modèle pour les catégories (marques de voitures)
-model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique  // Le nom de la marque de voiture
-  offers    Offer[]  // Relation avec les offres
-}
 
-// Mise à jour du modèle Offer pour inclure une relation avec Category
-model Offer {
-  id          Int       @id @default(autoincrement())
+// Table pour les offres de véhicules
+model VehicleOffer {
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
   price       Float
   city        String
-  country     String  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  status      String    @default("active")
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  model         String     // Modèle de la voiture (ex : 308, Corolla, etc.)
-  year          Int        // Année de fabrication
-  mileage       Int        // Kilométrage de la voiture en kilomètres
-  fuelType      String     // Type de carburant (Essence, Diesel, Électrique, etc.)
-  color         String     // Couleur de la voiture
-  transmission  String     // Type de transmission (Manuelle, Automatique)
+  // Champs spécifiques aux véhicules
+  model         String
+  year          Int
+  mileage       Int
+  fuelType      String
+  color         String
+  transmission  String
 
-  userId      String?
-  companyId   String?
+  userId       String?
+  companyId    String?
 
-  user        User?     @relation(fields: [userId], references: [id])
-  company     Company?  @relation(fields: [companyId], references: [id])
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
 
-  reports     Report[]
-
-  messages    Message[] @relation("OfferMessageRelation")
-
-  // Ajout de la relation avec Category
-  categoryId  Int?
-  category    Category? @relation(fields: [categoryId], references: [id])
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("VehicleOfferMessages")
+  reports      Report[]
 }
 
+// Table pour les offres immobilières
+model RealEstateOffer {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  city        String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  // Champs spécifiques à l'immobilier
+  propertyType String   // Type de propriété (Appartement, Maison, etc.)
+  surface      Float    // Surface en m²
+  rooms        Int      // Nombre de pièces
+  furnished    Boolean  // Meublé ou non
 
+  userId       String?
+  companyId    String?
+
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
+
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("RealEstateOfferMessages")
+  reports      Report[]
+}
+
+// Table pour les offres commerciales
+model CommercialOffer {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  city        String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Champs spécifiques au commercial
+  commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
+  duration       Int?    // Durée de validité de l'offre (en jours)
+
+  userId       String?
+  companyId    String?
+
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
+
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("CommercialOfferMessages")
+  reports      Report[]
+}
 
 // Modèle pour les messages
 model Message {
@@ -119,16 +166,18 @@ model Message {
   sentAt           DateTime @default(now())
   read             Boolean  @default(false)
 
-  // Relation avec l'utilisateur qui envoie le message
-  senderUser       User?     @relation("UserSentMessages", fields: [senderId], references: [id], map: "Message_senderUser_fkey")
+  // Relation avec l'utilisateur ou entreprise qui envoie le message
+  senderUser       User?       @relation("UserSentMessages", fields: [senderId], references: [id], map: "Message_senderUser_fkey")
+  senderCompany    Company?    @relation("CompanySentMessages", fields: [senderId], references: [id], map: "Message_senderCompany_fkey")
 
-  // Relation avec l'utilisateur qui reçoit le message
-  receiverUser     User?     @relation("UserReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverUser_fkey")
+  // Relation avec l'utilisateur ou entreprise qui reçoit le message
+  receiverUser     User?       @relation("UserReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverUser_fkey")
+  receiverCompany  Company?    @relation("CompanyReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverCompany_fkey")
 
-  senderCompany    Company?  @relation("CompanySentMessages", fields: [senderId], references: [id], map: "Message_senderCompany_fkey")
-  receiverCompany  Company?  @relation("CompanyReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverCompany_fkey")
-
-  offer            Offer?    @relation("OfferMessageRelation", fields: [offerId], references: [id], map: "Message_offer_fkey")
+  // Relation avec les différentes catégories d'offres
+  vehicleOffer     VehicleOffer?    @relation("VehicleOfferMessages", fields: [offerId], references: [id], map: "Message_vehicleOffer_fkey")
+  realEstateOffer  RealEstateOffer? @relation("RealEstateOfferMessages", fields: [offerId], references: [id], map: "Message_realEstateOffer_fkey")
+  commercialOffer  CommercialOffer? @relation("CommercialOfferMessages", fields: [offerId], references: [id], map: "Message_commercialOffer_fkey")
   offerId          Int?
 
   @@index([senderId], name: "idx_senderId")
@@ -136,28 +185,34 @@ model Message {
   @@index([offerId], name: "idx_offerId")
 }
 
-
+// Modèle pour les signalements
 model Report {
-  id            Int           @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   reason        String
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime @default(now())
+  status        String   @default("pending")
 
-  offerId       Int
-  offer         Offer         @relation(fields: [offerId], references: [id], map: "Report_offer_fkey")
+  // Relation avec les différentes catégories d'offres
+  vehicleOfferId     Int?
+  vehicleOffer       VehicleOffer?    @relation(fields: [vehicleOfferId], references: [id], map: "Report_vehicleOffer_fkey")
 
+  realEstateOfferId  Int?
+  realEstateOffer    RealEstateOffer? @relation(fields: [realEstateOfferId], references: [id], map: "Report_realEstateOffer_fkey")
+
+  commercialOfferId  Int?
+  commercialOffer    CommercialOffer? @relation(fields: [commercialOfferId], references: [id], map: "Report_commercialOffer_fkey")
+
+  // Relation avec le rapporteur
   reporterId    String
   reporterType  ReporterType
-
   reporterUser  User?         @relation("UserSubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterUser_fkey")
   reporterCompany Company?    @relation("CompanySubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterCompany_fkey")
 
-  status        String        @default("pending")
-
-  @@index([offerId], name: "idx_report_offerId")
-  @@index([reporterId], name: "idx_report_reporterId")
+  @@index([vehicleOfferId], name: "idx_vehicleOfferId")
+  @@index([realEstateOfferId], name: "idx_realEstateOfferId")
+  @@index([commercialOfferId], name: "idx_commercialOfferId")
+  @@index([reporterId], name: "idx_reporterId")
 }
-
-
 
 // Enum pour les rôles
 enum Role {
