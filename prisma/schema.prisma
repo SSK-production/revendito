@@ -9,14 +9,251 @@ datasource db {
   url      = env("POSTGRES_URL")  // Utilise la variable d'environnement
 }
 
-// Exemple de modèle pour les véhicules
-model Vehicle {
-  id          Int     @id @default(autoincrement())
-  make        String
-  model       String
-  year        Int
+model User {
+  id              String   @id @default(uuid())  // ID unique de l'utilisateur
+  username        String   @unique  // Nom d'utilisateur unique
+  password        String   // Mot de passe (doit être haché)
+  firstName       String   // Prénom
+  lastName        String   // Nom
+  email           String   @unique  // Email unique
+  emailVerified   Boolean  @default(false)  // Si l'email est vérifié
+  role            Role     @default(USER)  // Rôle de l'utilisateur (par exemple, USER)
+  active          Boolean  @default(true)  // Statut actif ou non de l'utilisateur
+  idCardVerified  Boolean  @default(false)  // Si la carte d'identité est vérifiée
+  birthDate       DateTime? // Date de naissance
+  profilePicture  String?  // URL de la photo de profil
+  city            String?  // Ville
+  country         String?  // Pays
+  createdAt       DateTime @default(now())  // Date de création
+  updatedAt       DateTime @updatedAt  // Date de dernière mise à jour
+
+  // Relations avec les offres
+  vehicleOffers   VehicleOffer[]
+  realEstateOffers RealEstateOffer[]
+  commercialOffers CommercialOffer[]
+
+  // Messages envoyés et reçus
+  messagesSent    Message[] @relation("UserSentMessages")
+  messagesReceived Message[] @relation("UserReceivedMessages")
+
+  // Signalements soumis
+  reportsSubmitted Report[] @relation("UserSubmittedReports")
+}
+
+// Modèle pour les entreprises
+model Company {
+  id             String   @id @default(uuid())  // ID unique de l'entreprise
+  companyName    String  // Nom de l'entreprise
+  password       String   // Mot de passe (doit être haché)
+  email          String   @unique  // Email unique
+  emailVerified  Boolean  @default(false)  // Si l'email est vérifié
+  role           Role     @default(COMPANY)  // Rôle de l'entreprise (par exemple, COMPANY)
+  active         Boolean  @default(true)  // Statut actif ou non de l'entreprise
+  companyNumber  String?  @unique  // Numéro d'enregistrement unique de l'entreprise
+  birthDate      DateTime? // Date de création de l'entreprise (ou date d'enregistrement)
+  profilePicture String?  // URL de la photo de profil ou logo de l'entreprise
+  city           String?  // Ville
+  country        String?  // Pays
+  street         String?  // Pays
+  createdAt      DateTime @default(now())  // Date de création
+  updatedAt      DateTime @updatedAt  // Date de dernière mise à jour
+
+  // Relations avec les offres
+  vehicleOffers  VehicleOffer[]
+  realEstateOffers RealEstateOffer[]
+  commercialOffers CommercialOffer[]
+
+  // Messages envoyés et reçus
+  messagesSent      Message[] @relation("CompanySentMessages")
+  messagesReceived  Message[] @relation("CompanyReceivedMessages")
+
+  // Signalements soumis
+  reportsSubmitted  Report[] @relation("CompanySubmittedReports")
+}
+
+
+model SubCategory {
+  id          Int      @id @default(autoincrement())  // ID unique de la sous-catégorie
+  name        String   // Nom de la sous-catégorie
+  description String?  // Description de la sous-catégorie
+  type        Category     
+  createdAt   DateTime @default(now())  // Date de création
+  updatedAt   DateTime @updatedAt  // Date de dernière mise à jour
+
+  // Relation avec les catégories d'offres
+  vehicleOffers  VehicleOffer[]  // Les véhicules peuvent avoir cette sous-catégorie
+  realEstateOffers RealEstateOffer[]  // Les offres immobilières peuvent avoir cette sous-catégorie
+  commercialOffers CommercialOffer[]  // Les offres commerciales peuvent avoir cette sous-catégorie
+}
+
+
+model VehicleOffer {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
   price       Float
-  description String
+  city        String
+  country     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Champs spécifiques aux véhicules
+  model         String
+  year          Int
+  mileage       Int
+  fuelType      String
+  color         String
+  transmission  String
+
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
+  userId       String?
+  companyId    String?
+
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
+
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("VehicleOfferMessages")
+  reports      Report[]
+}
+
+model RealEstateOffer {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  city        String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Champs spécifiques à l'immobilier
+  propertyType String   // Type de propriété (Appartement, Maison, etc.)
+  surface      Float    // Surface en m²
+  rooms        Int      // Nombre de pièces
+  furnished    Boolean  // Meublé ou non
+
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
+  userId       String?
+  companyId    String?
+
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
+
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("RealEstateOfferMessages")
+  reports      Report[]
+}
+
+model CommercialOffer {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  price       Float
+  city        String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Champs spécifiques au commercial
+  commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
+  duration       Int?    // Durée de validité de l'offre (en jours)
+
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
+  userId       String?
+  companyId    String?
+
+  user         User?    @relation(fields: [userId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
+
+  // Messages et signalements liés à l'offre
+  messages     Message[] @relation("CommercialOfferMessages")
+  reports      Report[]
+}
+
+
+// Modèle pour les messages
+model Message {
+  id               Int      @id @default(autoincrement())
+  senderId         String?
+  receiverId       String?
+  content          String
+  sentAt           DateTime @default(now())
+  read             Boolean  @default(false)
+
+  // Relation avec l'utilisateur ou entreprise qui envoie le message
+  senderUser       User?       @relation("UserSentMessages", fields: [senderId], references: [id], map: "Message_senderUser_fkey")
+  senderCompany    Company?    @relation("CompanySentMessages", fields: [senderId], references: [id], map: "Message_senderCompany_fkey")
+
+  // Relation avec l'utilisateur ou entreprise qui reçoit le message
+  receiverUser     User?       @relation("UserReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverUser_fkey")
+  receiverCompany  Company?    @relation("CompanyReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverCompany_fkey")
+
+  // Relation avec les différentes catégories d'offres
+  vehicleOffer     VehicleOffer?    @relation("VehicleOfferMessages", fields: [offerId], references: [id], map: "Message_vehicleOffer_fkey")
+  realEstateOffer  RealEstateOffer? @relation("RealEstateOfferMessages", fields: [offerId], references: [id], map: "Message_realEstateOffer_fkey")
+  commercialOffer  CommercialOffer? @relation("CommercialOfferMessages", fields: [offerId], references: [id], map: "Message_commercialOffer_fkey")
+  offerId          Int?
+
+  @@index([senderId], name: "idx_senderId")
+  @@index([receiverId], name: "idx_receiverId")
+  @@index([offerId], name: "idx_offerId")
+}
+
+// Modèle pour les signalements
+model Report {
+  id            Int      @id @default(autoincrement())
+  reason        String
+  createdAt     DateTime @default(now())
+  status        String   @default("pending")
+
+  // Relation avec les différentes catégories d'offres
+  vehicleOfferId     Int?
+  vehicleOffer       VehicleOffer?    @relation(fields: [vehicleOfferId], references: [id], map: "Report_vehicleOffer_fkey")
+
+  realEstateOfferId  Int?
+  realEstateOffer    RealEstateOffer? @relation(fields: [realEstateOfferId], references: [id], map: "Report_realEstateOffer_fkey")
+
+  commercialOfferId  Int?
+  commercialOffer    CommercialOffer? @relation(fields: [commercialOfferId], references: [id], map: "Report_commercialOffer_fkey")
+
+  // Relation avec le rapporteur
+  reporterId    String
+  reporterType  ReporterType
+  reporterUser  User?         @relation("UserSubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterUser_fkey")
+  reporterCompany Company?    @relation("CompanySubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterCompany_fkey")
+
+  @@index([vehicleOfferId], name: "idx_vehicleOfferId")
+  @@index([realEstateOfferId], name: "idx_realEstateOfferId")
+  @@index([commercialOfferId], name: "idx_commercialOfferId")
+  @@index([reporterId], name: "idx_reporterId")
+}
+
+// Enum pour les rôles
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+  COMPANY
+}
+
+// enum pour les sous catègories
+enum Category {
+  Vehicle
+  RealEstate
+  commercial
+}
+// Enum pour les types de reporteur (utilisateur ou entreprise)
+enum ReporterType {
+  USER
+  COMPANY
 }
