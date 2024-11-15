@@ -19,7 +19,6 @@ model User {
   emailVerified   Boolean  @default(false)  // Si l'email est vérifié
   role            Role     @default(USER)  // Rôle de l'utilisateur (par exemple, USER)
   active          Boolean  @default(true)  // Statut actif ou non de l'utilisateur
-  idCardNumber    String?  @unique  // Numéro de carte d'identité unique
   idCardVerified  Boolean  @default(false)  // Si la carte d'identité est vérifiée
   birthDate       DateTime? // Date de naissance
   profilePicture  String?  // URL de la photo de profil
@@ -73,7 +72,21 @@ model Company {
 }
 
 
-// Table pour les offres de véhicules
+model SubCategory {
+  id          Int      @id @default(autoincrement())  // ID unique de la sous-catégorie
+  name        String   // Nom de la sous-catégorie
+  description String?  // Description de la sous-catégorie
+  type        Category     
+  createdAt   DateTime @default(now())  // Date de création
+  updatedAt   DateTime @updatedAt  // Date de dernière mise à jour
+
+  // Relation avec les catégories d'offres
+  vehicleOffers  VehicleOffer[]  // Les véhicules peuvent avoir cette sous-catégorie
+  realEstateOffers RealEstateOffer[]  // Les offres immobilières peuvent avoir cette sous-catégorie
+  commercialOffers CommercialOffer[]  // Les offres commerciales peuvent avoir cette sous-catégorie
+}
+
+
 model VehicleOffer {
   id          Int      @id @default(autoincrement())
   title       String
@@ -92,6 +105,10 @@ model VehicleOffer {
   color         String
   transmission  String
 
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
   userId       String?
   companyId    String?
 
@@ -103,7 +120,6 @@ model VehicleOffer {
   reports      Report[]
 }
 
-// Table pour les offres immobilières
 model RealEstateOffer {
   id          Int      @id @default(autoincrement())
   title       String
@@ -120,6 +136,10 @@ model RealEstateOffer {
   rooms        Int      // Nombre de pièces
   furnished    Boolean  // Meublé ou non
 
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
   userId       String?
   companyId    String?
 
@@ -131,7 +151,6 @@ model RealEstateOffer {
   reports      Report[]
 }
 
-// Table pour les offres commerciales
 model CommercialOffer {
   id          Int      @id @default(autoincrement())
   title       String
@@ -146,6 +165,10 @@ model CommercialOffer {
   commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
   duration       Int?    // Durée de validité de l'offre (en jours)
 
+  // Relation avec la sous-catégorie
+  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+
   userId       String?
   companyId    String?
 
@@ -156,6 +179,7 @@ model CommercialOffer {
   messages     Message[] @relation("CommercialOfferMessages")
   reports      Report[]
 }
+
 
 // Modèle pour les messages
 model Message {
@@ -222,6 +246,12 @@ enum Role {
   COMPANY
 }
 
+// enum pour les sous catègories
+enum Category {
+  Vehicle
+  RealEstate
+  commercial
+}
 // Enum pour les types de reporteur (utilisateur ou entreprise)
 enum ReporterType {
   USER

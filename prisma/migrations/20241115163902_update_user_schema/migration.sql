@@ -2,6 +2,9 @@
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'MODERATOR', 'COMPANY');
 
 -- CreateEnum
+CREATE TYPE "Category" AS ENUM ('Vehicle', 'RealEstate', 'commercial');
+
+-- CreateEnum
 CREATE TYPE "ReporterType" AS ENUM ('USER', 'COMPANY');
 
 -- CreateTable
@@ -15,7 +18,6 @@ CREATE TABLE "User" (
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "role" "Role" NOT NULL DEFAULT 'USER',
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "idCardNumber" TEXT,
     "idCardVerified" BOOLEAN NOT NULL DEFAULT false,
     "birthDate" TIMESTAMP(3),
     "profilePicture" TEXT,
@@ -49,6 +51,18 @@ CREATE TABLE "Company" (
 );
 
 -- CreateTable
+CREATE TABLE "SubCategory" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "type" "Category" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SubCategory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "VehicleOffer" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
@@ -64,6 +78,7 @@ CREATE TABLE "VehicleOffer" (
     "fuelType" TEXT NOT NULL,
     "color" TEXT NOT NULL,
     "transmission" TEXT NOT NULL,
+    "subCategoryId" INTEGER,
     "userId" TEXT,
     "companyId" TEXT,
 
@@ -84,6 +99,7 @@ CREATE TABLE "RealEstateOffer" (
     "surface" DOUBLE PRECISION NOT NULL,
     "rooms" INTEGER NOT NULL,
     "furnished" BOOLEAN NOT NULL,
+    "subCategoryId" INTEGER,
     "userId" TEXT,
     "companyId" TEXT,
 
@@ -102,6 +118,7 @@ CREATE TABLE "CommercialOffer" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "commercialType" TEXT NOT NULL,
     "duration" INTEGER,
+    "subCategoryId" INTEGER,
     "userId" TEXT,
     "companyId" TEXT,
 
@@ -143,9 +160,6 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_idCardNumber_key" ON "User"("idCardNumber");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Company_email_key" ON "Company"("email");
 
 -- CreateIndex
@@ -173,16 +187,25 @@ CREATE INDEX "idx_commercialOfferId" ON "Report"("commercialOfferId");
 CREATE INDEX "idx_reporterId" ON "Report"("reporterId");
 
 -- AddForeignKey
+ALTER TABLE "VehicleOffer" ADD CONSTRAINT "VehicleOffer_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "VehicleOffer" ADD CONSTRAINT "VehicleOffer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "VehicleOffer" ADD CONSTRAINT "VehicleOffer_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "RealEstateOffer" ADD CONSTRAINT "RealEstateOffer_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "RealEstateOffer" ADD CONSTRAINT "RealEstateOffer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RealEstateOffer" ADD CONSTRAINT "RealEstateOffer_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

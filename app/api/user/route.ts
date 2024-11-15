@@ -10,7 +10,6 @@ interface UserData {
   lastName: string;
   email: string;
   birthDate: string;  // Date de naissance
-  idCardNumber: string;
   city: string;
   country: string;
   profilePicture?: string;  // Photo de profil
@@ -28,12 +27,14 @@ export async function GET() {
     return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
   }
 }
+
+
 export async function POST(req: Request) {
     try {
       const requestBody = await req.json();
        // Vérifiez ce qui est envoyé
       
-      const { username, password, firstName, lastName, email, birthDate, idCardNumber, city, country, profilePicture }: UserData = requestBody;
+      const { username, password, firstName, lastName, email, birthDate, city, country, profilePicture }: UserData = requestBody;
        
       // Vérification des champs obligatoires
       if (!username || !password || !firstName || !lastName || !email || !birthDate) {
@@ -52,7 +53,6 @@ export async function POST(req: Request) {
           lastName,
           email,
           birthDate: new Date(birthDate),  // Convertir birthDate en objet Date
-          idCardNumber,
           city,
           country,
           profilePicture,
