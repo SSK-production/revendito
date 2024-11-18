@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { verifyAccessToken, refreshAccessToken } from '@/app/lib/tokenManager';
 
 dotenv.config();
 
@@ -73,3 +75,67 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500 });
   }
 }
+
+export async function GET(req: Request) {
+    try {
+      // Retrieve cookies from the request
+      const cookie = req.headers.get("cookie");
+      const accessToken = cookie?.split(";").find((c) => c.trim().startsWith("access_token="))?.split("=")[1];
+      const refreshToken = cookie?.split(";").find((c) => c.trim().startsWith("refresh_token="))?.split("=")[1];
+        console.log(accessToken);
+        console.log(refreshToken);
+        
+      // Check authentication with the access token
+      if (accessToken) {
+        const user = verifyAccessToken(accessToken);
+  
+        if (user) {
+          // If the access token is valid, return a response with the user's email
+          return new NextResponse(
+            JSON.stringify({ message: "User authenticated", email: user.email }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        } else {
+          // If the access token is invalid or expired, try to refresh the token with the refresh token
+          if (refreshToken) {
+            return refreshAccessToken(refreshToken); // Use the existing function to refresh the token
+          }
+  
+          // If no refresh token is available, return an error
+          return new NextResponse(
+            JSON.stringify({ error: "Access token expired, and no refresh token available" }),
+            {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        }
+      }
+      else {
+        if (refreshToken) {
+            return refreshAccessToken(refreshToken); // Use the existing function to refresh the token
+          }
+      }
+  
+      // If no access token is found, return an error
+      return new NextResponse(
+        JSON.stringify({ message: "User not authenticated" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    } catch (error) {
+      console.error("Error during authentication check:", error);
+      return new NextResponse(
+        JSON.stringify({ error: "Failed to check authentication" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }
