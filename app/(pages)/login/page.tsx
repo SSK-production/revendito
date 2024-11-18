@@ -28,8 +28,8 @@ export default function LoginPage() {
       }
 
       setError(null);
-      //Attention la page dashboard n'existe pas encore, une erreur 404 sera donc génèré
-      router.push('/dashboard');
+      // on changera la route plus tard c'est juste pour tester
+      router.push('/check-login');
     } catch (err) {
       setError('Failed to log in. Please try again.');
       console.error(err);
