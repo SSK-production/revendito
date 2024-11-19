@@ -13,69 +13,128 @@ const prisma = new PrismaClient();
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_JWT_SECRET || 'fallback_secret';
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_JWT_SECRET || 'fallback_refresh_secret';
 
-export async function POST(req: Request) {
-  try {
-    const { email, password } = await req.json();
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-    }
-
-    // Compare the password
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return new Response(JSON.stringify({ error: 'Incorrect password' }), { status: 401 });
-    }
-
-    // Generate the access token
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-      },
-      ACCESS_TOKEN_SECRET,
-      { expiresIn: '3h' }
-    );
-
-    // Generate the refresh token
-    const refreshToken = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-      },
-      REFRESH_TOKEN_SECRET,
-      { expiresIn: '7d' } 
-    );
-
-    // Create cookies
-    const accessCookie = `access_token=${accessToken}; HttpOnly; Path=/; Secure; SameSite=Strict; Max-Age=900`;
-    const refreshCookie = `refresh_token=${refreshToken}; HttpOnly; Path=/; Secure; SameSite=Strict; Max-Age=604800`;
-
-    // Respond with cookies
-    return new Response(
-      JSON.stringify({ message: 'Login successful' }),
-      {
-        status: 200,
-        headers: {
-          'Set-Cookie': [accessCookie, refreshCookie].join(', '), // Add both cookies
-          'Content-Type': 'application/json',
-        },
+type AuthenticatedEntity = {
+    id: string;
+    email: string;
+    password: string;
+    role: string;
+    active: boolean;
+    birthDate: Date | null;
+  };
+  
+  export async function POST(req: Request) {
+    try {
+      const { email, password } = await req.json();
+  
+      let user: AuthenticatedEntity | null = null;
+      let isCompany = false;
+  
+      // Search in the "user" table
+      const foundUser = await prisma.user.findUnique({
+        where: { email },
+      });
+  
+      if (foundUser) {
+        user = {
+          id: foundUser.id,
+          email: foundUser.email,
+          password: foundUser.password,
+          role: foundUser.role,
+          active: foundUser.active,
+          birthDate: foundUser.birthDate,
+        };
+      } else {
+        // If not found, search in the "company" table
+        const foundCompany = await prisma.company.findUnique({
+          where: { email },
+        });
+  
+        if (foundCompany) {
+          user = {
+            id: foundCompany.id,
+            email: foundCompany.email,
+            password: foundCompany.password,
+            role: foundCompany.role,
+            active: foundCompany.active,
+            birthDate: foundCompany.birthDate,
+          };
+          isCompany = true; // Indicates that it is a company
+        }
       }
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error);
-      return new Response('Error during login: ' + error.message, { status: 500 });
+  
+      // If no user or company found, return an error
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Email not found' }), {
+          status: 404,
+        });
+      }
+  
+      const passwordMatch = await bcrypt.compare(password, user.password);
+  
+      if (!passwordMatch) {
+        return new Response(
+          JSON.stringify({ error: 'Incorrect password' }),
+          { status: 401 }
+        );
+      }
+  
+      // Generate the access token
+      const accessToken = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          entity: isCompany ? 'company' : 'user', // Add an entity indicator
+        },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: '3h' }
+      );
+  
+      // Generate the refresh token
+      const refreshToken = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          entity: isCompany ? 'company' : 'user',
+        },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }
+      );
+  
+      // Create cookies
+      const accessCookie = `access_token=${accessToken}; HttpOnly; Path=/; Secure; SameSite=Strict; Max-Age=10800`; // 3h
+      const refreshCookie = `refresh_token=${refreshToken}; HttpOnly; Path=/; Secure; SameSite=Strict; Max-Age=604800`; // 7d
+  
+      // Respond with cookies and a success message
+      return new Response(
+        JSON.stringify({ message: 'Login successful' }),
+        {
+          status: 200,
+          headers: {
+            'Set-Cookie': [accessCookie, refreshCookie].join(', '),
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error);
+        return new Response(
+          JSON.stringify({ error: 'Error during login: ' + error.message }),
+          { status: 500 }
+        );
+      }
+  
+      return new Response(
+        JSON.stringify({ error: 'Unknown error' }),
+        { status: 500 }
+      );
     }
-    return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500 });
   }
-}
+   
 
+// function for refresh token if user is login
 export async function GET(req: Request) {
     try {
       // Retrieve cookies from the request
