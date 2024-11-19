@@ -51,6 +51,14 @@ export async function POST(req: Request) {
       return new Response("Missing required fields", { status: 400 });
     }
 
+    const foundUser = await prisma.user.findUnique({
+        where: { email },
+      });
+      if (foundUser) {
+        return new Response(JSON.stringify({ error: 'this email is already used' }), {
+            status: 404,
+        });
+      }
     // Hachage du mot de passe avant de le stocker dans la base de données
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log(requestBody);

@@ -40,6 +40,15 @@ export async function POST(req: Request) {
       if (!username || !password || !firstName || !lastName || !email || !birthDate) {
         return new Response('Missing required fields', { status: 400 });
       }
+
+      const foundCompany = await prisma.company.findUnique({
+        where: { email },
+      });
+      if (foundCompany) {
+        return new Response(JSON.stringify({ error: 'this email is already used' }), {
+            status: 404,
+        });
+      }
   
       // Hachage du mot de passe avant de le stocker dans la base de données
       const hashedPassword = await bcrypt.hash(password, 10);
