@@ -43,7 +43,7 @@ model User {
 // Modèle pour les entreprises
 model Company {
   id             String   @id @default(uuid())  // ID unique de l'entreprise
-  companyName    String  // Nom de l'entreprise
+  companyName    String  // Nom de l'entreprise DOIT ÊTRE UNIQUE
   password       String   // Mot de passe (doit être haché)
   email          String   @unique  // Email unique
   emailVerified  Boolean  @default(false)  // Si l'email est vérifié
