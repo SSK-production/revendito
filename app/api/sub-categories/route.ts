@@ -1,5 +1,5 @@
 import { Category, PrismaClient, SubCategory } from '@prisma/client';
-
+import { createSubCategorieSchema } from '@/app/validation';
 const prisma = new PrismaClient();
 interface SubCategoryData {
     name : string;
@@ -28,6 +28,17 @@ export async function POST(req: Request) {
         const {name, description, type} : SubCategoryData = requestBody;
         if (!name || !description || !type) {
             return new Response('Missing required fields', { status: 400 });
+        }
+        const { error } = createSubCategorieSchema.validate(
+          { name, description, type },
+          { abortEarly: false }
+        );
+    
+        if (error) {
+          const validationErrors = error.details.map((err) => err.message);
+          return new Response(JSON.stringify({ error: validationErrors }), {
+            status: 400,
+          });
         }
 
         const newSubCategorie : SubCategory = await prisma.subCategory.create({
