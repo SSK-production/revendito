@@ -23,5 +23,5 @@ export interface userData {
     birthDate: string;
     city: string;
     country: string;
-    profilePicture?: File;
+    profilePicture?: File | null;
 }

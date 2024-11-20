@@ -1,21 +1,12 @@
 "use client";
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
-
-// Définir un type pour les données du formulaire
-interface FormData {
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  birthDate: string;
-  city: string;
-  country: string;
-  profilePicture?: File;
-}
+import { handleChange } from "@/utils/forms/allFunctionsForm"; // Assurez-vous que cette fonction est bien définie
+import { handleSubmit } from "@/utils/forms/allFunctionsForm"; // Import de handleSubmit
+import { userData } from "@/utils/interfaces/formsInterface"; // L'interface des données du formulaire
+import { useState } from "react";
 
 export default function FormCompanyRegister() {
-  const [formData, setFormData] = useState<FormData>({
+  // Initialisation de l'état pour les données du formulaire
+  const [formData, setFormData] = useState<userData>({
     username: "",
     password: "",
     firstName: "",
@@ -24,215 +15,146 @@ export default function FormCompanyRegister() {
     birthDate: "",
     city: "",
     country: "",
-    profilePicture: new File([], "default"), // Fournir une valeur par défaut valide
+    profilePicture: null, // Initialiser avec null, car aucun fichier n'est sélectionné par défaut
   });
 
-  const [emailError, setEmailError] = useState<string>("");
+  // État pour afficher les erreurs de validation
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
 
-  const [showPassword, setShowPassword] = useState(false); // État pour afficher ou masquer le mot de passe
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword); // Inverse l'état actuel
-  };
-  const [passwordError, setPasswordError] = useState("");
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/;
-
-  const handleChange = (changeValue: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = changeValue.target;
-
-    // Vérifie si c'est un champ de type fichier
-    if (name === "profilePicture" && files && files[0]) {
-      const file = files[0];
-
-      // Vérification de la taille (limite à 5 Mo)
-      const maxSize = 5 * 1024 * 1024; // 5 Mo en octets
-      if (file.size > maxSize) {
-        alert("La taille du fichier ne doit pas dépasser 5 Mo.");
-        return;
-      }
-      // Vérifie le type MIME
-      if (
-        !["image/png", "image/jpeg", "image/jpg", "image/gif"].includes(
-          file.type
-        )
-      ) {
-        alert(
-          "Veuillez sélectionner un fichier image valide (PNG, JPEG, JPG, GIF)."
-        );
-        return;
-
-      }
-      // Vérification de la validité du mot de passe à chaque changement
-      if (formData.password === "password") {
-        if (!passwordRegex.test(value)) {
-          setPasswordError(
-            "Le mot de passe doit contenir une majuscule, un chiffre et un caractère spécial."
-          );
-        } else {
-          setPasswordError("");
-        }
-      }
-      // Met à jour l'état avec le fichier
-      setFormData({
-        ...formData,
-        profilePicture: file, // Ajoute l'objet File au state
-      });
-    } else if (name === "email") {
-      // Validation de l'email avec regex
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(value)) {
-        setEmailError("L'email doit contenir des lettres, chiffres, et '@'.");
-      } else {
-        setEmailError(""); // Pas d'erreur
-      }
-      setFormData({ ...formData, [name]: value });
-    } else {
-      // Gère les autres types de champs (text, email, etc.)
-      setFormData({
-        ...formData,
-        [name]: value, // Met à jour dynamiquement les autres champs
-      });
-    }
+  // Fonction de soumission des données après validation
+  const submitHandler = (data: userData) => {
+    console.log("User Data Submitted:", data);
+    // Vous pouvez envoyer les données via fetch ou axios par exemple ici
+    // fetch("url", { method: "POST", body: JSON.stringify(data) });
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Empêche le rechargement de la page
-
-    // Vérifie si des erreurs sont présentes avant l'envoi
-    if (emailError) {
-      alert("Veuillez corriger les erreurs avant de soumettre.");
-      return;
-    }
-
-    // Affiche les données du formulaire dans la console
-    console.log("Form Data on Submit:", formData);
+  // Fonction pour gérer l'affichage des erreurs de validation
+  const handleError = (errors: Record<string, string | null>) => {
+    setErrors(errors); // Met à jour l'état avec les erreurs
   };
-
-  useEffect(() => {
-    console.clear(); // Efface la console
-    console.log("Form Data Updated:", formData);
-  }, [formData]);
-
 
   return (
     <div>
-      <h1>Company Register</h1>
-      <form onSubmit={handleSubmit}>
+      <h1>User Register</h1>
+      <form onSubmit={(e) => handleSubmit(e, formData, submitHandler, "userData", handleError)}>
+
         <div>
           <label htmlFor="username">Username:</label>
           <input
             type="text"
             id="username"
             name="username"
-            maxLength={20}
             value={formData.username}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
             required
           />
+          {errors.username && <span style={{ color: "red" }}>{errors.username}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <label htmlFor="password">Password:</label>
           <input
-            type={showPassword ? "text" : "password"}
-            name="password"
+            type="password"
             id="password"
+            name="password"
             value={formData.password}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             required
           />
-          <span
-            onClick={togglePasswordVisibility}
+          {errors.password && <span style={{ color: "red" }}>{errors.password}</span>}  {/* Affichage de l'erreur */}
+        </div>
 
-          >
-            {showPassword ? (
-              <img src="/icons/eye-open.svg" alt="Voir le mot de passe" width="24" height="24" />
-            ) : (
-              <img src="/icons/eye-close.svg" alt="Masquer le mot de passe" width="24" height="24" />
-            )}
-            {/* Affichage de l'erreur si le mot de passe ne respecte pas les critères */}
-            {passwordError && (
-              <p style={{ color: "red", fontSize: "12px" }}>{passwordError}</p>
-            )}
-          </span>
-        </div>
         <div>
-          <label htmlFor="firstName">firstName:</label>
+          <label htmlFor="firstName">First Name:</label>
           <input
             type="text"
-            name="firstName"
             id="firstName"
+            name="firstName"
             value={formData.firstName}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             required
           />
+          {errors.firstName && <span style={{ color: "red" }}>{errors.firstName}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
-          <label htmlFor="lastName">lastName:</label>
+          <label htmlFor="lastName">Last Name:</label>
           <input
             type="text"
-            name="lastName"
             id="lastName"
+            name="lastName"
             value={formData.lastName}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
             required
           />
+          {errors.lastName && <span style={{ color: "red" }}>{errors.lastName}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <label htmlFor="email">Email:</label>
           <input
-            type="text"
-            name="email"
+            type="email"
             id="email"
+            name="email"
             value={formData.email}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
           />
-          {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+          {errors.email && <span style={{ color: "red" }}>{errors.email}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
-          <label htmlFor="birthDate">birthDate:</label>
+          <label htmlFor="birthDate">Birth Date:</label>
           <input
             type="date"
-            name="birthDate"
             id="birthDate"
+            name="birthDate"
             value={formData.birthDate}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
             required
           />
+          {errors.birthDate && <span style={{ color: "red" }}>{errors.birthDate}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <label htmlFor="city">City:</label>
           <input
             type="text"
-            name="city"
             id="city"
+            name="city"
             value={formData.city}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             required
           />
+          {errors.city && <span style={{ color: "red" }}>{errors.city}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <label htmlFor="country">Country:</label>
           <input
             type="text"
-            name="country"
             id="country"
+            name="country"
             value={formData.country}
-            onChange={handleChange}
+            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
             required
           />
+          {errors.country && <span style={{ color: "red" }}>{errors.country}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <label htmlFor="profilePicture">Profile Picture:</label>
           <input
             type="file"
-            name="profilePicture"
             id="profilePicture"
+            name="profilePicture"
             accept="image/png, image/jpeg, image/jpg, image/gif"
-            onChange={handleChange}
+            onChange={(e) => handleChange(e, setFormData)}  // Utilisation de handleChange pour gérer le fichier
             required
           />
+          {errors.profilePicture && <span style={{ color: "red" }}>{errors.profilePicture}</span>}  {/* Affichage de l'erreur */}
         </div>
+
         <div>
           <button type="submit">Submit</button>
         </div>
