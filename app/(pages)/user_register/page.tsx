@@ -3,6 +3,10 @@ import { handleChange } from "@/utils/forms/allFunctionsForm"; // Assurez-vous q
 import { handleSubmit } from "@/utils/forms/allFunctionsForm"; // Import de handleSubmit
 import { userData } from "@/utils/interfaces/formsInterface"; // L'interface des données du formulaire
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import DOMPurify from 'dompurify'; //sanitze content 
+
+
 
 export default function FormCompanyRegister() {
   // Initialisation de l'état pour les données du formulaire
@@ -18,14 +22,30 @@ export default function FormCompanyRegister() {
     profilePicture: null, // Initialiser avec null, car aucun fichier n'est sélectionné par défaut
   });
 
+
   // État pour afficher les erreurs de validation
   const [errors, setErrors] = useState<Record<string, string | null>>({});
-
+  const router = useRouter();
   // Fonction de soumission des données après validation
   const submitHandler = (data: userData) => {
-    console.log("User Data Submitted:", data);
-    // Vous pouvez envoyer les données via fetch ou axios par exemple ici
-    // fetch("url", { method: "POST", body: JSON.stringify(data) });
+    // Désinfecter les données sensibles
+    const sanitizedData = {
+      ...data,
+      username: DOMPurify.sanitize(data.username),
+      password: DOMPurify.sanitize(data.password),
+      firstName: DOMPurify.sanitize(data.firstName),
+      lastName: DOMPurify.sanitize(data.lastName),
+      email: DOMPurify.sanitize(data.email),
+      city: DOMPurify.sanitize(data.city),
+      country: DOMPurify.sanitize(data.country),
+    };
+
+    console.log("User Data Submitted:", sanitizedData);
+
+    // Vous pouvez envoyer les données via fetch ou axios ici
+    // fetch("url", { method: "POST", body: JSON.stringify(sanitizedData) });
+
+    router.push("/login"); // Rediriger vers la page de connexion
   };
 
   // Fonction pour gérer l'affichage des erreurs de validation
