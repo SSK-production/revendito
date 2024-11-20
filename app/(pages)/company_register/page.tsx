@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { handleChange } from "@/utils/forms/allFunctionsForm";  // Assurez-vous que cette fonction est bien définie
 import { handleSubmit } from "@/utils/forms/allFunctionsForm"; // Import de handleSubmit
 import { CompanyData } from "@/utils/interfaces/formsInterface"; // L'interface des données du formulaire
+import { useRouter } from "next/navigation";
+import DOMPurify from "dompurify";
 
 // Composant de formulaire d'enregistrement de l'entreprise
 export default function CompanyRegister() {
@@ -21,12 +23,27 @@ export default function CompanyRegister() {
 
     // État pour afficher les erreurs de validation
     const [errors, setErrors] = useState<Record<string, string | null>>({});
-
+    const router = useRouter();
     // Fonction de soumission des données après validation
     const submitHandler = (data: CompanyData) => {
+        const sanitizedData = {
+            ...data,
+            companyName: DOMPurify.sanitize(data.companyName),
+            password: DOMPurify.sanitize(data.password),
+            email: DOMPurify.sanitize(data.email),
+            companyNumber: DOMPurify.sanitize(data.companyNumber),
+            birthDate: DOMPurify.sanitize(data.birthDate),
+            city: DOMPurify.sanitize(data.city),
+            country: DOMPurify.sanitize(data.country),
+            street: DOMPurify.sanitize(data.street)
+        };
+
+        console.log("User Data Submitted:", sanitizedData);
+
+
+        router.push("/login"); // Rediriger vers la page de connexion
         console.log("Company Data Submitted:", data);
-        // Vous pouvez envoyer les données via fetch ou axios par exemple ici
-        // fetch("url", { method: "POST", body: JSON.stringify(data) });
+
     };
 
     // Fonction pour gérer l'affichage des erreurs de validation
