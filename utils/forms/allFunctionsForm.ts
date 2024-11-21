@@ -7,17 +7,29 @@ export const handleChange = <T>(
     setFormData: Dispatch<SetStateAction<T>>  // Utilisation d'un type générique
 ) => {
     const { name, value } = e.target;
+    /*  */
+    // Define allowed file extensions
+    const allowedExtensions = ["jpg", "jpeg", "png"]; // you can add other extension file 
 
     // Vérifie si l'élément est un input de type "file"
     if (e.target instanceof HTMLInputElement && e.target.type === "file") {
         const files = (e.target as HTMLInputElement).files;  // Cast explicite pour accéder à "files"
 
         if (files && files.length > 0) {
-            // Si des fichiers sont présents, on les ajoute dans le state
-            setFormData((prevData) => ({
-                ...prevData,
-                [name]: files[0],  // Stocke le premier fichier sélectionné
-            }));
+            const uploadedFile = files[0];
+            const fileExtension = uploadedFile.name.split(".").pop()?.toLowerCase();
+
+            if (fileExtension && allowedExtensions.includes(fileExtension)) {
+                // If the extension is valid, update the state
+                setFormData((prevData) => ({
+                    ...prevData,
+                    [name]: uploadedFile,  // Stocke le fichier
+                }));
+            } else {
+                // If the file type is invalid, log an error or take appropriate action
+                console.error("Invalid file type. Allowed types:", allowedExtensions.join(", "));
+                alert(`Invalid file type. Allowed types: ${allowedExtensions.join(", ")}`);
+            }
         }
     } else {
         // Sinon, on gère les champs classiques (texte, email, etc.)
@@ -27,6 +39,7 @@ export const handleChange = <T>(
         }));
     }
 };
+
 
 
 export const handleSubmit = <T extends object>(
