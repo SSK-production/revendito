@@ -121,7 +121,7 @@ type AuthenticatedEntity = {
   
       // Respond with cookies and a success message
       return new Response(
-        JSON.stringify({ message: 'Login successful' }),
+        JSON.stringify({ message: 'Login successful ' + accessCookie }),
         {
           status: 200,
           headers: {

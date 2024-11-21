@@ -1,49 +1,85 @@
-import { PrismaClient, Vehicle } from '@prisma/client';
-
+import { PrismaClient, VehicleOffer } from '@prisma/client';
+import { vehicleSchema } from '@/app/validation';
+import { getTokenFromCookies, verifyAccessToken } from '@/app/lib/tokenManager';
 const prisma = new PrismaClient();
 
-interface VehicleRequestBody {
-  make: string;
-  model: string;
-  year: number;
-  price: number;
-  description: string;
-} 
-
-export async function GET(): Promise<Response> {
+export async function POST(req: Request) {
   try {
-    // Récupérer les véhicules depuis la base de données
-    const vehicles: Vehicle[] = await prisma.vehicle.findMany();
-    return new Response(JSON.stringify(vehicles), { status: 200 });
-  } catch (error) {
-    // Gérer les erreurs
-    return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
-  }
-} 
+    const token = getTokenFromCookies(req);
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'Access token is missing' }), { status: 401 });
+    }
 
+    let decodedToken;
+    try {
+      decodedToken = verifyAccessToken(token);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error);
+        return new Response(JSON.stringify({ error: 'Invalid token'+ error.message, }), { status: 403 });
+      }
+      return new Response(JSON.stringify({ error: 'Erreur inconnue' }), { status: 500 });
+    }
 
-export async function POST(request: Request): Promise<Response> {
-  try {
-    // Extraire les données envoyées dans le corps de la requête
-    const { make, model, year, price, description }: VehicleRequestBody = await request.json();
+    const { id, entity } = decodedToken as { id: string; entity: 'user' | 'company' };
 
-    // Ajouter un nouveau véhicule dans la base de données
-    const newVehicle: Vehicle = await prisma.vehicle.create({
-      data: {
-        make,
+    if (!id || !entity) {
+      return new Response(JSON.stringify({ error: 'Invalid token payload' }), { status: 400 });
+    }
+
+    // Vérification si l'entité existe (optionnel)
+    if (entity === 'user') {
+      const userExists = await prisma.user.findUnique({ where: { id } });
+      if (!userExists) {
+        return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+      }
+    } else if (entity === 'company') {
+      const companyExists = await prisma.company.findUnique({ where: { id } });
+      if (!companyExists) {
+        return new Response(JSON.stringify({ error: 'Company not found' }), { status: 404 });
+      }
+    }
+
+    const requestBody = await req.json();
+    const { title, description, price, city, country, model, year, mileage, fuelType, color, transmission, subCategoryId } : VehicleOffer = requestBody;
+
+    const { error } = vehicleSchema.validate(
+      { title, description, price, city, country, model, year, mileage, fuelType, color, transmission, subCategoryId },
+      { abortEarly: false }
+    );
+
+    if (error) {
+      const validationErrors = error.details.map((err) => err.message);
+      return new Response(JSON.stringify({ error: validationErrors }), {
+        status: 400,
+      });
+    }
+
+    const newVehicleOffer : VehicleOffer = await prisma.vehicleOffer.create({
+      data : {
+        title,
+        description,
+        price,
+        city,
+        country,
         model,
         year,
-        price,
-        description,
-      },
-    });
+        mileage,
+        fuelType,
+        color,
+        transmission,
+        subCategoryId,
+        userId: entity === 'user' ? id : null,
+        companyId: entity === 'company' ? id : null,
+      }
+    })
 
-    // Réponse en cas de succès
-    return new Response(JSON.stringify(newVehicle), { status: 201 });
+    return new Response(JSON.stringify(newVehicleOffer), {status: 201})
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return new Response(JSON.stringify({ error: `Erreur serveur lors de l'ajout du véhicule: ${error.message}` }), { status: 500 });
+      console.error(error);
+      return new Response('Error creating offer: ' + error.message, { status: 500 });
     }
     return new Response(JSON.stringify({ error: 'Erreur inconnue' }), { status: 500 });
   }
-}
+} 
