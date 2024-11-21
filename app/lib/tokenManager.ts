@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 interface UserPayload {
   id: string;
   email: string;
+  entity: string;
 }
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_JWT_SECRET || "fallback_secret";
@@ -34,6 +35,7 @@ export function refreshAccessToken(refreshToken: string): NextResponse | null {
     const newAccessToken = generateAccessToken({
       id: user.id,
       email: user.email,
+      entity: user.entity
     });
 
     // Create the response with the new access token
@@ -70,3 +72,16 @@ export function refreshAccessToken(refreshToken: string): NextResponse | null {
     );
   }
 }
+
+
+export function getTokenFromCookies(req: Request): string | null {
+    const cookieHeader = req.headers.get('cookie');
+    if (!cookieHeader) return null;
+  
+    const cookies = Object.fromEntries(
+      cookieHeader.split('; ').map((c) => c.split('=').map(decodeURIComponent))
+    );
+    console.log(cookies);
+    
+    return cookies.access_token || null;
+  }

@@ -140,8 +140,10 @@ export const vehicleSchema = Joi.object({
     "string.max": "Title must not exceed 100 characters.",
     "any.required": "The 'title' field is required.",
   }),
-  description: Joi.string().max(500).optional().messages({
+  description: Joi.string().min(3).max(500).required().messages({
+    "string.min": "Description must be at least 3 characters long.",
     "string.max": "Description must not exceed 500 characters.",
+    "any.required": "The 'description' field is required.",
   }),
   price: Joi.number().positive().required().messages({
     "number.base": "Price must be a valid number.",
@@ -196,8 +198,9 @@ export const vehicleSchema = Joi.object({
     "string.valid": "Transmission must be either 'Manual' or 'Automatic'.",
     "any.required": "The 'transmission' field is required.",
   }),
-  subCategoryId: Joi.number().integer().optional().messages({
+  subCategoryId: Joi.number().integer().required().messages({
     "number.base": "SubCategory ID must be a valid number.",
+    "any.required": "The 'subCategory' field is required.",
   }),
   userId: Joi.string().uuid().optional().messages({
     "string.uuid": "User ID must be a valid UUID.",
