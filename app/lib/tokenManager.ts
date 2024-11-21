@@ -81,7 +81,6 @@ export function getTokenFromCookies(req: Request): string | null {
     const cookies = Object.fromEntries(
       cookieHeader.split('; ').map((c) => c.split('=').map(decodeURIComponent))
     );
-    console.log(cookies);
     
     return cookies.access_token || null;
   }

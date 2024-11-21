@@ -64,6 +64,14 @@ export const createCompanySchema = Joi.object({
     "string.email": "Email must be a valid email address.",
     "any.required": "The 'email' field is required.",
   }),
+  companyNumber: Joi.string()
+    .pattern(/^[A-Za-z0-9\-]+$/)  // Remplace cette regex par celle correspondant à ton format de numéro d'entreprise
+    .trim()
+    .required()
+    .messages({
+      "string.pattern.base": "The 'companyNumber' must be a valid company number.",
+      "any.required": "The 'companyNumber' field is required."
+    }),
   birthDate: Joi.date().optional().messages({
     "date.base": "Birth date must be a valid date.",
   }),
