@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { verifyAccessToken, refreshAccessToken } from '@/app/lib/tokenManager';
+import { createAuthSchema } from '@/app/validation';
 
 dotenv.config();
 
@@ -24,10 +25,22 @@ type AuthenticatedEntity = {
   
   export async function POST(req: Request) {
     try {
-      const { email, password } = await req.json();
+      const { email, password } : AuthenticatedEntity = await req.json();
   
       let user: AuthenticatedEntity | null = null;
       let isCompany = false;
+
+      const { error } = createAuthSchema.validate(
+        { email, password },
+        { abortEarly: false }
+      );
+  
+      if (error) {
+        const validationErrors = error.details.map((err) => err.message);
+        return new Response(JSON.stringify({ error: validationErrors }), {
+          status: 400,
+        });
+      }
   
       // Search in the "user" table
       const foundUser = await prisma.user.findUnique({

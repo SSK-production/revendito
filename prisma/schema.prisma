@@ -22,8 +22,8 @@ model User {
   idCardVerified  Boolean  @default(false)  // Si la carte d'identité est vérifiée
   birthDate       DateTime? // Date de naissance
   profilePicture  String?  // URL de la photo de profil
-  city            String?  // Ville
-  country         String?  // Pays
+  city            String?  // Ville Doit pas être optionnel
+  country         String?  // Pays Doit pas être optionnel
   createdAt       DateTime @default(now())  // Date de création
   updatedAt       DateTime @updatedAt  // Date de dernière mise à jour
 

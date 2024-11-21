@@ -1,18 +1,18 @@
 import { PrismaClient, Company } from "@prisma/client";
 import bcrypt from "bcrypt";
-
+import { createCompanySchema } from "@/app/validation";
 const prisma = new PrismaClient();
 
-interface CompanyData {
-  companyName: string;
-  password: string;
-  email: string;
-  companyNumber: string;
-  birthDate: string;
-  city: string;
-  country: string;
-  street: string;
-}
+// interface CompanyData {
+//   companyName: string;
+//   password: string;
+//   email: string;
+//   companyNumber: string;
+//   birthDate: string;
+//   city: string;
+//   country: string;
+//   street: string;
+// }
 
 export async function GET() {
   try {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       birthDate,
       city,
       country,
-    }: CompanyData = requestBody;
+    }: Company = requestBody;
 
     // Vérification des champs obligatoires
     if (!companyName || !password || !email || !companyNumber || !birthDate) {
@@ -52,13 +52,28 @@ export async function POST(req: Request) {
     }
 
     const foundUser = await prisma.user.findUnique({
-        where: { email },
+      where: { email },
+    });
+    if (foundUser) {
+      return new Response(
+        JSON.stringify({ error: "this email is already used" }),
+        {
+          status: 404,
+        }
+      );
+    }
+
+    const { error } = createCompanySchema.validate(
+      { companyName, password, email, companyNumber, birthDate, city, country },
+      { abortEarly: false }
+    );
+
+    if (error) {
+      const validationErrors = error.details.map((err) => err.message);
+      return new Response(JSON.stringify({ error: validationErrors }), {
+        status: 400,
       });
-      if (foundUser) {
-        return new Response(JSON.stringify({ error: 'this email is already used' }), {
-            status: 404,
-        });
-      }
+    }
     // Hachage du mot de passe avant de le stocker dans la base de données
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log(requestBody);
