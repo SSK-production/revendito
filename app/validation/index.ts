@@ -206,6 +206,14 @@ export const vehicleSchema = Joi.object({
     "string.valid": "Transmission must be either 'Manual' or 'Automatic'.",
     "any.required": "The 'transmission' field is required.",
   }),
+  photos: Joi.array()
+    .items(Joi.string())  // Valider que chaque élément est une chaîne (pas nécessairement une URI)
+    .required()
+    .messages({
+      "array.base": "Photos must be an array of URLs.",
+      "array.includesRequiredUnknowns": "Each photo must be a valid URL.",
+      "any.required": "The 'photos' field is required.",
+    }),
   subCategoryId: Joi.number().integer().required().messages({
     "number.base": "SubCategory ID must be a valid number.",
     "any.required": "The 'subCategory' field is required.",

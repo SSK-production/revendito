@@ -19,10 +19,10 @@ CREATE TABLE "User" (
     "role" "Role" NOT NULL DEFAULT 'USER',
     "active" BOOLEAN NOT NULL DEFAULT true,
     "idCardVerified" BOOLEAN NOT NULL DEFAULT false,
-    "birthDate" TIMESTAMP(3),
+    "birthDate" TIMESTAMP(3) NOT NULL,
     "profilePicture" TEXT,
-    "city" TEXT,
-    "country" TEXT,
+    "city" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -38,12 +38,12 @@ CREATE TABLE "Company" (
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "role" "Role" NOT NULL DEFAULT 'COMPANY',
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "companyNumber" TEXT,
+    "companyNumber" TEXT NOT NULL,
     "birthDate" TIMESTAMP(3),
     "profilePicture" TEXT,
-    "city" TEXT,
-    "country" TEXT,
-    "street" TEXT,
+    "city" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "street" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -54,7 +54,7 @@ CREATE TABLE "Company" (
 CREATE TABLE "SubCategory" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT,
+    "description" TEXT NOT NULL,
     "type" "Category" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE "SubCategory" (
 CREATE TABLE "VehicleOffer" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT,
+    "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "city" TEXT NOT NULL,
     "country" TEXT NOT NULL,
@@ -78,6 +78,7 @@ CREATE TABLE "VehicleOffer" (
     "fuelType" TEXT NOT NULL,
     "color" TEXT NOT NULL,
     "transmission" TEXT NOT NULL,
+    "photos" TEXT[],
     "subCategoryId" INTEGER,
     "userId" TEXT,
     "companyId" TEXT,
@@ -89,7 +90,7 @@ CREATE TABLE "VehicleOffer" (
 CREATE TABLE "RealEstateOffer" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT,
+    "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "city" TEXT NOT NULL,
     "country" TEXT NOT NULL,
@@ -99,6 +100,7 @@ CREATE TABLE "RealEstateOffer" (
     "surface" DOUBLE PRECISION NOT NULL,
     "rooms" INTEGER NOT NULL,
     "furnished" BOOLEAN NOT NULL,
+    "photos" TEXT[],
     "subCategoryId" INTEGER,
     "userId" TEXT,
     "companyId" TEXT,
@@ -110,7 +112,7 @@ CREATE TABLE "RealEstateOffer" (
 CREATE TABLE "CommercialOffer" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
-    "description" TEXT,
+    "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "city" TEXT NOT NULL,
     "country" TEXT NOT NULL,
@@ -118,7 +120,8 @@ CREATE TABLE "CommercialOffer" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "commercialType" TEXT NOT NULL,
     "duration" INTEGER,
-    "subCategoryId" INTEGER,
+    "photos" TEXT[],
+    "subCategoryId" INTEGER NOT NULL,
     "userId" TEXT,
     "companyId" TEXT,
 
@@ -128,8 +131,8 @@ CREATE TABLE "CommercialOffer" (
 -- CreateTable
 CREATE TABLE "Message" (
     "id" SERIAL NOT NULL,
-    "senderId" TEXT,
-    "receiverId" TEXT,
+    "senderId" TEXT NOT NULL,
+    "receiverId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "sentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "read" BOOLEAN NOT NULL DEFAULT false,
@@ -158,6 +161,9 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Company_companyName_key" ON "Company"("companyName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Company_email_key" ON "Company"("email");
@@ -205,7 +211,7 @@ ALTER TABLE "RealEstateOffer" ADD CONSTRAINT "RealEstateOffer_userId_fkey" FOREI
 ALTER TABLE "RealEstateOffer" ADD CONSTRAINT "RealEstateOffer_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -214,16 +220,16 @@ ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_userId_fkey" FOREI
 ALTER TABLE "CommercialOffer" ADD CONSTRAINT "CommercialOffer_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_senderUser_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_senderUser_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_senderCompany_fkey" FOREIGN KEY ("senderId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_senderCompany_fkey" FOREIGN KEY ("senderId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_receiverUser_fkey" FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_receiverUser_fkey" FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_receiverCompany_fkey" FOREIGN KEY ("receiverId") REFERENCES "Company"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_receiverCompany_fkey" FOREIGN KEY ("receiverId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_vehicleOffer_fkey" FOREIGN KEY ("offerId") REFERENCES "VehicleOffer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
