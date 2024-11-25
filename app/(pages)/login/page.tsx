@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import {FormEvent, useState} from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit: (e: FormEvent) => Promise<void> = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
     try {
