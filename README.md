@@ -35,3 +35,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Library used
+
+- @prisma/client@5.22.0
+- @types/bcrypt@5.0.2
+- @types/jsonwebtoken@9.0.7
+- bcrypt@5.1.1
+- dompurify@3.2.1
+- dotenv@16.4.5
+- i18n-iso-countries@7.13.0
+- joi@17.13.3
+- jsonwebtoken@9.0.2
+- prisma@5.22.0
+- tailwindcss@3.4.14
+- typescript@5.6.3
+

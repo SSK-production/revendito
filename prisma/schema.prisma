@@ -20,10 +20,10 @@ model User {
   role            Role     @default(USER)  // Rôle de l'utilisateur (par exemple, USER)
   active          Boolean  @default(true)  // Statut actif ou non de l'utilisateur
   idCardVerified  Boolean  @default(false)  // Si la carte d'identité est vérifiée
-  birthDate       DateTime? // Date de naissance
+  birthDate       DateTime // Date de naissance
   profilePicture  String?  // URL de la photo de profil
-  city            String?  // Ville Doit pas être optionnel
-  country         String?  // Pays Doit pas être optionnel
+  city            String  // Ville Doit pas être optionnel
+  country         String  // Pays Doit pas être optionnel
   createdAt       DateTime @default(now())  // Date de création
   updatedAt       DateTime @updatedAt  // Date de dernière mise à jour
 
@@ -43,18 +43,18 @@ model User {
 // Modèle pour les entreprises
 model Company {
   id             String   @id @default(uuid())  // ID unique de l'entreprise
-  companyName    String  // Nom de l'entreprise DOIT ÊTRE UNIQUE
+  companyName    String   @unique// Nom de l'entreprise DOIT ÊTRE UNIQUE
   password       String   // Mot de passe (doit être haché)
   email          String   @unique  // Email unique
   emailVerified  Boolean  @default(false)  // Si l'email est vérifié
   role           Role     @default(COMPANY)  // Rôle de l'entreprise (par exemple, COMPANY)
   active         Boolean  @default(true)  // Statut actif ou non de l'entreprise
-  companyNumber  String?  @unique  // Numéro d'enregistrement unique de l'entreprise
+  companyNumber  String  @unique  // Numéro d'enregistrement unique de l'entreprise
   birthDate      DateTime? // Date de création de l'entreprise (ou date d'enregistrement)
   profilePicture String?  // URL de la photo de profil ou logo de l'entreprise
-  city           String?  // Ville
-  country        String?  // Pays
-  street         String?  // Pays
+  city           String  // Ville
+  country        String  // Pays
+  street         String  // Pays
   createdAt      DateTime @default(now())  // Date de création
   updatedAt      DateTime @updatedAt  // Date de dernière mise à jour
 
@@ -75,7 +75,7 @@ model Company {
 model SubCategory {
   id          Int      @id @default(autoincrement())  // ID unique de la sous-catégorie
   name        String   // Nom de la sous-catégorie
-  description String?  // Description de la sous-catégorie
+  description String  // Description de la sous-catégorie
   type        Category     
   createdAt   DateTime @default(now())  // Date de création
   updatedAt   DateTime @updatedAt  // Date de dernière mise à jour
@@ -90,7 +90,7 @@ model SubCategory {
 model VehicleOffer {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String
   price       Float
   city        String
   country     String
@@ -104,6 +104,8 @@ model VehicleOffer {
   fuelType      String
   color         String
   transmission  String
+
+  photos        String[]
 
   // Relation avec la sous-catégorie
   subCategoryId Int?  // Clé étrangère vers SubCategory
@@ -123,7 +125,7 @@ model VehicleOffer {
 model RealEstateOffer {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String
   price       Float
   city        String
   country     String
@@ -135,6 +137,8 @@ model RealEstateOffer {
   surface      Float    // Surface en m²
   rooms        Int      // Nombre de pièces
   furnished    Boolean  // Meublé ou non
+
+  photos        String[]
 
   // Relation avec la sous-catégorie
   subCategoryId Int?  // Clé étrangère vers SubCategory
@@ -154,7 +158,7 @@ model RealEstateOffer {
 model CommercialOffer {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String
   price       Float
   city        String
   country     String
@@ -164,9 +168,9 @@ model CommercialOffer {
   // Champs spécifiques au commercial
   commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
   duration       Int?    // Durée de validité de l'offre (en jours)
-
+  photos         String[]
   // Relation avec la sous-catégorie
-  subCategoryId Int?  // Clé étrangère vers SubCategory
+  subCategoryId Int  // Clé étrangère vers SubCategory
   subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
 
   userId       String?
@@ -184,8 +188,8 @@ model CommercialOffer {
 // Modèle pour les messages
 model Message {
   id               Int      @id @default(autoincrement())
-  senderId         String?
-  receiverId       String?
+  senderId         String
+  receiverId       String
   content          String
   sentAt           DateTime @default(now())
   read             Boolean  @default(false)

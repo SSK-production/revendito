@@ -44,10 +44,11 @@ export async function POST(req: Request) {
       birthDate,
       city,
       country,
+      street
     }: Company = requestBody;
 
     // Vérification des champs obligatoires
-    if (!companyName || !password || !email || !companyNumber || !birthDate) {
+    if (!companyName || !password || !email || !companyNumber || !birthDate || !street) {
       return new Response("Missing required fields", { status: 400 });
     }
 
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
     }
 
     const { error } = createCompanySchema.validate(
-      { companyName, password, email, companyNumber, birthDate, city, country },
+      { companyName, password, email, companyNumber, birthDate, city, country, street },
       { abortEarly: false }
     );
 
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
         birthDate: new Date(birthDate), // Convertir birthDate en objet Date
         city,
         country,
+        street
       },
     });
 

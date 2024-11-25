@@ -64,6 +64,14 @@ export const createCompanySchema = Joi.object({
     "string.email": "Email must be a valid email address.",
     "any.required": "The 'email' field is required.",
   }),
+  companyNumber: Joi.string()
+    .pattern(/^[A-Za-z0-9\-]+$/)  // Remplace cette regex par celle correspondant à ton format de numéro d'entreprise
+    .trim()
+    .required()
+    .messages({
+      "string.pattern.base": "The 'companyNumber' must be a valid company number.",
+      "any.required": "The 'companyNumber' field is required."
+    }),
   birthDate: Joi.date().optional().messages({
     "date.base": "Birth date must be a valid date.",
   }),
@@ -198,6 +206,14 @@ export const vehicleSchema = Joi.object({
     "string.valid": "Transmission must be either 'Manual' or 'Automatic'.",
     "any.required": "The 'transmission' field is required.",
   }),
+  photos: Joi.array()
+    .items(Joi.string())  // Valider que chaque élément est une chaîne (pas nécessairement une URI)
+    .required()
+    .messages({
+      "array.base": "Photos must be an array of URLs.",
+      "array.includesRequiredUnknowns": "Each photo must be a valid URL.",
+      "any.required": "The 'photos' field is required.",
+    }),
   subCategoryId: Joi.number().integer().required().messages({
     "number.base": "SubCategory ID must be a valid number.",
     "any.required": "The 'subCategory' field is required.",
