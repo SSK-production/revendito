@@ -2,10 +2,32 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, VehicleOffer } from '@prisma/client';
 import { vehicleSchema } from '@/app/validation';
 import { getTokenFromCookies, verifyAccessToken } from '@/app/lib/tokenManager';
-
 import { processFormData } from '@/app/lib/processFormData';
 
 const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    const vehicleOffers = await prisma.vehicleOffer.findMany();
+
+    return NextResponse.json(vehicleOffers, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Error fetching vehicle offers:", error);
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Error fetching vehicle offers: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    // Retour générique pour les autres types d'erreurs
+    return NextResponse.json(
+      { error: "An unexpected error occurred." },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
@@ -105,4 +127,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur inconnue lors de la création de l\'offre' }, { status: 500 });
   }
 }
-
