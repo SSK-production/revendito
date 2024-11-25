@@ -26,7 +26,7 @@ export function generateAccessToken(user: UserPayload): string {
   return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
 }
 
-export function refreshAccessToken(refreshToken: string): NextResponse | null {
+export function refreshAccessToken(refreshToken: string): string | null {
   try {
     // Verify and decode the refresh token
     const user = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as UserPayload;
@@ -38,7 +38,7 @@ export function refreshAccessToken(refreshToken: string): NextResponse | null {
       entity: user.entity
     });
 
-    // Create the response with the new access token
+    // Create the response with the new access token (if needed elsewhere)
     const response = new NextResponse(
       JSON.stringify({
         email: user.email,
@@ -59,28 +59,38 @@ export function refreshAccessToken(refreshToken: string): NextResponse | null {
       path: "/",
     });
 
-    return response;
+    // Return the new access token
+    return newAccessToken;
   } catch (error) {
-    // In case of an error (invalid or expired token), return an appropriate error
+    // Log the error and return null in case of an invalid or expired token
     console.error("Error during token refresh:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "Invalid or expired refresh token" }),
-      {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return null;
   }
 }
 
 
-export function getTokenFromCookies(req: Request): string | null {
-    const cookieHeader = req.headers.get('cookie');
-    if (!cookieHeader) return null;
-  
-    const cookies = Object.fromEntries(
-      cookieHeader.split('; ').map((c) => c.split('=').map(decodeURIComponent))
-    );
-    
-    return cookies.access_token || null;
+
+export async function getTokenFromCookies(req: Request): Promise<string | null> {
+  const cookieHeader = req.headers.get("cookie");
+  if (!cookieHeader) return null;
+
+  const cookies = Object.fromEntries(
+    cookieHeader.split("; ").map((c) => c.split("=").map(decodeURIComponent))
+  );
+
+  let accessToken = cookies.access_token || null;
+  const refreshToken = cookies.refresh_token || null;
+
+  if (!accessToken && refreshToken) {
+    // Tentative de rafraîchissement de l'access token
+    console.log("Access token manquant, tentative de rafraîchissement...");
+    accessToken = refreshAccessToken(refreshToken);
+
+    if (!accessToken) {
+      console.error("Erreur lors du rafraîchissement de l'access token");
+      return null;
+    }
   }
+
+  return accessToken;
+}
