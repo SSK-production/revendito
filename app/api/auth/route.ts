@@ -28,7 +28,7 @@ type AuthenticatedEntity = {
       const { email, password } : AuthenticatedEntity = await req.json();
   
       let user: AuthenticatedEntity | null = null;
-      let isCompany = false;
+      let isCompany: boolean = false;
 
       const { error } = createAuthSchema.validate(
         { email, password },
