@@ -72,21 +72,6 @@ model Company {
 }
 
 
-model SubCategory {
-  id          Int      @id @default(autoincrement())  // ID unique de la sous-catégorie
-  name        String   // Nom de la sous-catégorie
-  description String  // Description de la sous-catégorie
-  type        Category     
-  createdAt   DateTime @default(now())  // Date de création
-  updatedAt   DateTime @updatedAt  // Date de dernière mise à jour
-
-  // Relation avec les catégories d'offres
-  vehicleOffers  VehicleOffer[]  // Les véhicules peuvent avoir cette sous-catégorie
-  realEstateOffers RealEstateOffer[]  // Les offres immobilières peuvent avoir cette sous-catégorie
-  commercialOffers CommercialOffer[]  // Les offres commerciales peuvent avoir cette sous-catégorie
-}
-
-
 model VehicleOffer {
   id          Int      @id @default(autoincrement())
   title       String
@@ -98,6 +83,7 @@ model VehicleOffer {
   updatedAt   DateTime @updatedAt
 
   // Champs spécifiques aux véhicules
+  vehicleType  String   // Type de vehicule (voiture, Moto, etc.)
   model         String
   year          Int
   mileage       Int
@@ -107,9 +93,6 @@ model VehicleOffer {
 
   photos        String[]
 
-  // Relation avec la sous-catégorie
-  subCategoryId Int?  // Clé étrangère vers SubCategory
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
 
   userId       String?
   companyId    String?
@@ -123,37 +106,39 @@ model VehicleOffer {
 }
 
 model RealEstateOffer {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  price       Float
-  city        String
-  country     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String
+  price         Float
+  city          String
+  country       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Champs spécifiques à l'immobilier
-  propertyType String   // Type de propriété (Appartement, Maison, etc.)
-  surface      Float    // Surface en m²
-  rooms        Int      // Nombre de pièces
-  furnished    Boolean  // Meublé ou non
-
+  propertyType  String   // Type de propriété (Appartement, Maison, etc.)
+  surface       Float    // Surface en m²
+  rooms         Int      // Nombre de pièces
+  bedrooms      Int      // Nombre de chambres
+  bathrooms     Int      // Nombre de salles de bain
+  heatingType   String   // Type de chauffage (Gaz, Électrique, etc.)
+  energyClass   String   // Classe énergétique (A, B, C, etc.)
+  furnished     Boolean  // Meublé ou non
+  
   photos        String[]
 
-  // Relation avec la sous-catégorie
-  subCategoryId Int?  // Clé étrangère vers SubCategory
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
 
-  userId       String?
-  companyId    String?
+  userId        String?
+  companyId     String?
 
-  user         User?    @relation(fields: [userId], references: [id])
-  company      Company? @relation(fields: [companyId], references: [id])
+  user          User?    @relation(fields: [userId], references: [id])
+  company       Company? @relation(fields: [companyId], references: [id])
 
   // Messages et signalements liés à l'offre
-  messages     Message[] @relation("RealEstateOfferMessages")
-  reports      Report[]
+  messages      Message[] @relation("RealEstateOfferMessages")
+  reports       Report[]
 }
+
 
 model CommercialOffer {
   id          Int      @id @default(autoincrement())
@@ -169,9 +154,6 @@ model CommercialOffer {
   commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
   duration       Int?    // Durée de validité de l'offre (en jours)
   photos         String[]
-  // Relation avec la sous-catégorie
-  subCategoryId Int  // Clé étrangère vers SubCategory
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
 
   userId       String?
   companyId    String?
