@@ -11,13 +11,13 @@ export default function Header() {
                     <h1><span className="text-orange-700 dark:text-orange-600 font-medium">Re</span>Ventures</h1>
                     <nav>
                         <ul className="flex flex-row space-x-4">
-                            <li>
+                            <li className="hover:*:underline hover:*:decoration-orange-700">
                                 <a href="#">Sign up</a>
                             </li>
-                            <li>
+                            <li className="hover:*:underline hover:*:decoration-orange-700">
                                 <a href="#">Log in</a>
                             </li>
-                            <li>
+                            <li className="hover:scale-110 transition-all duration-500">
                                 <a href="#" className="text-orange-700 font-bold"> <FontAwesomeIcon icon={faPlusCircle} /> Post an ad</a>
                             </li>
                         </ul>
