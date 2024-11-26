@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 
 const VehicleOfferForm = () => {
@@ -8,6 +8,7 @@ const VehicleOfferForm = () => {
     price: '',
     city: '',
     country: '',
+    vehicleType: 'Car', // Added vehicleType field with default value
     model: '',
     year: '',
     mileage: '',
@@ -15,14 +16,13 @@ const VehicleOfferForm = () => {
     color: '',
     transmission: '',
     photos: [] as File[],  // Modifier photos pour être un tableau de fichiers
-    subCategoryId: '',
   });
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -78,6 +78,7 @@ const VehicleOfferForm = () => {
           price: '',
           city: '',
           country: '',
+          vehicleType: 'Car', // Reset vehicleType to default
           model: '',
           year: '',
           mileage: '',
@@ -85,7 +86,6 @@ const VehicleOfferForm = () => {
           color: '',
           transmission: '',
           photos: [],
-          subCategoryId: '',
         });
       } else {
         setError(data.error || 'Une erreur est survenue');
@@ -112,6 +112,7 @@ const VehicleOfferForm = () => {
             value={formData.title}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
         
@@ -122,6 +123,7 @@ const VehicleOfferForm = () => {
             value={formData.description}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -133,6 +135,7 @@ const VehicleOfferForm = () => {
             value={formData.price}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -144,6 +147,7 @@ const VehicleOfferForm = () => {
             value={formData.city}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -155,7 +159,26 @@ const VehicleOfferForm = () => {
             value={formData.country}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
+        </label>
+
+        <label>
+          Type de véhicule:
+          <select
+            name="vehicleType"
+            value={formData.vehicleType}
+            onChange={handleChange}
+            required
+            style={{ color: 'black' }} // Texte en noir
+          >
+            <option value="Car">Voiture</option>
+            <option value="Truck">Camion</option>
+            <option value="Motorcycle">Moto</option>
+            <option value="Van">Van</option>
+            <option value="Bicycle">Vélo</option>
+            <option value="Boat">Bateau</option>
+          </select>
         </label>
 
         <label>
@@ -166,6 +189,7 @@ const VehicleOfferForm = () => {
             value={formData.model}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -177,6 +201,7 @@ const VehicleOfferForm = () => {
             value={formData.year}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -188,6 +213,7 @@ const VehicleOfferForm = () => {
             value={formData.mileage}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -199,6 +225,7 @@ const VehicleOfferForm = () => {
             value={formData.fuelType}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -210,6 +237,7 @@ const VehicleOfferForm = () => {
             value={formData.color}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -221,6 +249,7 @@ const VehicleOfferForm = () => {
             value={formData.transmission}
             onChange={handleChange}
             required
+            style={{ color: 'black' }} // Texte en noir
           />
         </label>
 
@@ -231,17 +260,6 @@ const VehicleOfferForm = () => {
             name="photos"
             multiple
             onChange={handleFileChange}
-            required
-          />
-        </label>
-
-        <label>
-          Sous-catégorie:
-          <input
-            type="text"
-            name="subCategoryId"
-            value={formData.subCategoryId}
-            onChange={handleChange}
             required
           />
         </label>

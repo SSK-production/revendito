@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, VehicleOffer } from '@prisma/client';
-import { vehicleSchema } from '@/app/validation';
+import { PrismaClient, RealEstateOffer} from '@prisma/client';
+import { propertySchema } from '@/app/validation';
 import { getTokenFromCookies, verifyAccessToken } from '@/app/lib/tokenManager';
 import { processFormData } from '@/app/lib/processFormData';
 
@@ -8,15 +8,15 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const vehicleOffers = await prisma.vehicleOffer.findMany();
+    const realEstateOffers = await prisma.realEstateOffer.findMany();
 
-    return NextResponse.json(vehicleOffers, { status: 200 });
+    return NextResponse.json(realEstateOffers, { status: 200 });
   } catch (error: unknown) {
-    console.error("Error fetching vehicle offers:", error);
+    console.error("Error fetching property offers:", error);
 
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: `Error fetching vehicle offers: ${error.message}` },
+        { error: `Error fetching property offers: ${error.message}` },
         { status: 500 }
       );
     }
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     console.log('Uploaded Photos:', photos);
 
     // Validation des champs, y compris les photos (qui sont maintenant des chaînes)
-    const { error } = vehicleSchema.validate({ ...fields, photos }, { abortEarly: false });
+    const { error } = propertySchema.validate({ ...fields, photos }, { abortEarly: false });
 
     if (error) {
       const validationErrors = error.details.map((err) => err.message);
@@ -97,28 +97,29 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Début de la création de l\'offre');
-    const newVehicleOffer: VehicleOffer = await prisma.vehicleOffer.create({
+    const newRealEstateOffer: RealEstateOffer = await prisma.realEstateOffer.create({
       data: {
         title: fields.title,
         description: fields.description,
         price: parseFloat(fields.price),
         city: fields.city,
         country: fields.country,
-        vehicleType: fields.vehicleType,
-        model: fields.model,
-        year: parseInt(fields.year),
-        mileage: parseInt(fields.mileage),
-        fuelType: fields.fuelType,
-        color: fields.color,
-        transmission: fields.transmission,
-        photos,
+        propertyType: fields.propertyType,
+        surface: parseInt(fields.surface),
+        rooms: parseInt(fields.rooms),
+        bedrooms: parseInt(fields.bedrooms),
+        bathrooms: parseInt(fields.bathrooms),
+        heatingType: fields.heatingType,
+        energyClass: fields.energyClass,
+        furnished: Boolean(fields.furnished),
+        photos,  
         userId: entity === 'user' ? id : null,
         companyId: entity === 'company' ? id : null,
       }
     });
-    console.log('Nouvelle offre créée:', newVehicleOffer);
+    console.log('Nouvelle offre créée:', newRealEstateOffer);
 
-    return NextResponse.json(newVehicleOffer, { status: 201 });
+    return NextResponse.json(newRealEstateOffer, { status: 201 });
   } catch (error: unknown) {
     console.error('Erreur lors de la création de l\'offre:', error);
     if (error instanceof Error) {
