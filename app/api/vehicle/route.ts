@@ -2,21 +2,45 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, VehicleOffer } from '@prisma/client';
 import { vehicleSchema } from '@/app/validation';
 import { getTokenFromCookies, verifyAccessToken } from '@/app/lib/tokenManager';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { processFormData } from '@/app/lib/processFormData';
 
 const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    const vehicleOffers = await prisma.vehicleOffer.findMany();
+
+    return NextResponse.json(vehicleOffers, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Error fetching vehicle offers:", error);
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Error fetching vehicle offers: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    // Retour générique pour les autres types d'erreurs
+    return NextResponse.json(
+      { error: "An unexpected error occurred." },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
-    const token = getTokenFromCookies(req);
+    // Récupération et gestion du token
+    const token = await getTokenFromCookies(req);
     if (!token) {
       console.log('Token d\'accès manquant');
       return NextResponse.json({ error: 'Token d\'accès manquant' }, { status: 401 });
     }
+    console.log('Token reçu:', token);
 
-    let decodedToken;
+    let decodedToken = null;
     try {
       decodedToken = verifyAccessToken(token);
     } catch (error: unknown) {
@@ -27,9 +51,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur inconnue lors de la vérification du token' }, { status: 500 });
     }
 
+    // Vérification que decodedToken n'est pas nul ou indéfini
+    if (!decodedToken) {
+      console.log('Le token décodé est null ou indéfini.');
+      return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 403 });
+    }
+
     const { id, entity } = decodedToken as { id: string; entity: 'user' | 'company' };
     if (!id || !entity) {
-      console.log('Payload du token invalide');
+      console.log('Payload du token invalide:', decodedToken);
       return NextResponse.json({ error: 'Payload du token invalide' }, { status: 400 });
     }
 
@@ -49,39 +79,22 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const fields: Record<string, string> = {};
+    const uploadDir = 'public/offer';
 
-    
-    // Parcours des fichiers et champs
-    const photos: string[] = [];  // Tableau de chaînes pour les chemins des fichiers
+    // Traitement des données de formulaire et des fichiers
+    const { fields, photos } = await processFormData(formData, uploadDir);
 
-for (const [key, value] of formData.entries()) {
-  if (value instanceof Blob) {
-    const buffer = Buffer.from(await value.arrayBuffer());
-    const filename = `${Date.now()}-${value.name}`;
-    const filepath = join(process.cwd(), 'public/uploads', filename);
-    
-    // Sauvegarde du fichier
-    await writeFile(filepath, buffer);
+    console.log('Fields:', fields);
+    console.log('Uploaded Photos:', photos);
 
-    // Ajout du chemin du fichier dans le tableau photos
-    photos.push(`/uploads/${filename}`);
-  } else {
-    fields[key] = value.toString();
-  }
-}
-console.log("photos: "+photos);
+    // Validation des champs, y compris les photos (qui sont maintenant des chaînes)
+    const { error } = vehicleSchema.validate({ ...fields, photos }, { abortEarly: false });
 
-
-// Validation des champs, y compris les photos (qui sont maintenant des chaînes)
-const { error } = vehicleSchema.validate({ ...fields, photos }, { abortEarly: false });
-
-if (error) {
-  const validationErrors = error.details.map((err) => err.message);
-  console.log('Erreurs de validation:', validationErrors);
-  return NextResponse.json({ error: validationErrors }, { status: 400 });
+    if (error) {
+      const validationErrors = error.details.map((err) => err.message);
+      console.log('Erreurs de validation:', validationErrors);
+      return NextResponse.json({ error: validationErrors }, { status: 400 });
     }
-    
 
     console.log('Début de la création de l\'offre');
     const newVehicleOffer: VehicleOffer = await prisma.vehicleOffer.create({
