@@ -362,9 +362,6 @@ export const commercialOfferSchema = Joi.object({
       "array.includesRequiredUnknowns": "Each photo must be a valid URL.",
       "any.required": "The 'photos' field is required.",
     }),
-  subCategoryId: Joi.number().integer().optional().messages({
-    "number.base": "SubCategory ID must be a valid number.",
-  }),
   userId: Joi.string().uuid().optional().messages({
     "string.uuid": "User ID must be a valid UUID.",
   }),
