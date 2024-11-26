@@ -3,7 +3,7 @@
 export default function Header() {
     return (
         <>
-            <header>
+            <header className="flex flex-row text-slate-800">
                 coucou je suis le header
             </header>
         </>
