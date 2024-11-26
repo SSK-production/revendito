@@ -1,5 +1,8 @@
 'use client';
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+
 export default function Header() {
     return (
         <>
@@ -15,13 +18,12 @@ export default function Header() {
                                 <a href="#">Log in</a>
                             </li>
                             <li>
-                                <a href="#" className="text-orange-700 font-bold">Post an ad</a>
+                                <a href="#" className="text-orange-700 font-bold"> <FontAwesomeIcon icon={faPlusCircle} /> Post an ad</a>
                             </li>
                         </ul>
                     </nav>
                 </section>
-
             </header>
         </>
-    )
+    );
 }
