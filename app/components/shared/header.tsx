@@ -21,9 +21,9 @@ export default function Header() {
                                 Sign up
                               </span>
                                 <ul className="absolute px-3 py-1.5 hidden group-hover:flex flex-col bg-white shadow-md border rounded-md">
-                                    <Link href={"/user_register"} className="hover:bg-orange-100 px-2 py-1 rounded-lg cursor-pointer">Individual</Link>
+                                    <Link href={"/user-register"} className="hover:bg-orange-100 px-2 py-1 rounded-lg cursor-pointer">Individual</Link>
                                     <hr className="border-orange-200"/>
-                                    <Link href={"/company_register"} className="hover:bg-orange-100 px-2 py-1 rounded-lg cursor-pointer">Company</Link>
+                                    <Link href={"/company-register"} className="hover:bg-orange-100 px-2 py-1 rounded-lg cursor-pointer">Company</Link>
                                 </ul>
                             </li>
                             <li className="hover:*:underline hover:*:decoration-orange-700">
