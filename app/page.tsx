@@ -1,9 +1,11 @@
 'use client';
 
+import Categories from "@/app/components/home/categories";
+
 export default function Home() {
   return (
-    <div>
-        <h1>Home</h1>
-    </div>
+    <>
+        <Categories />
+    </>
   );
 }
