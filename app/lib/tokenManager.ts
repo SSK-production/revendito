@@ -96,7 +96,7 @@ export async function getTokenFromCookies(req: Request): Promise<string | null> 
 }
 
 
-export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; entity: 'user' | 'company' }> {
+export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; entity: 'user' | 'company'; accessToken:string }> {
   let accessToken = req.cookies.get('access_token')?.value ?? undefined; // Transforme null en undefined
   const refreshToken = req.cookies.get('refresh_token')?.value ?? undefined;
 
@@ -135,7 +135,7 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
       throw new Error('Payload du token invalide');
     }
 
-    return { id, entity };
+    return { id, entity, accessToken };
   } catch (error) {
     console.error('Erreur avec l\'access-token:', error);
 
@@ -162,9 +162,15 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
 
       // Mise à jour du cookie avec le nouveau token
       const response = NextResponse.next();
-      response.cookies.set('access_token', newAccessToken, { httpOnly: true, secure: true });
-
-      return { id, entity };
+      response.cookies.set('access_token', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Assure-toi que secure est vrai en production
+        maxAge: 3600, // 1 heure
+        sameSite: 'strict',
+        path: '/',
+      });
+      
+      return { id, entity, accessToken };
     }
 
     throw new Error('Access token invalide ou rafraîchissement impossible');
