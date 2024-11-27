@@ -65,12 +65,13 @@ export const createCompanySchema = Joi.object({
     "any.required": "The 'email' field is required.",
   }),
   companyNumber: Joi.string()
-    .pattern(/^[A-Za-z0-9\-]+$/)  // Remplace cette regex par celle correspondant à ton format de numéro d'entreprise
+    .pattern(/^[A-Za-z0-9\-]+$/) // Remplace cette regex par celle correspondant à ton format de numéro d'entreprise
     .trim()
     .required()
     .messages({
-      "string.pattern.base": "The 'companyNumber' must be a valid company number.",
-      "any.required": "The 'companyNumber' field is required."
+      "string.pattern.base":
+        "The 'companyNumber' must be a valid company number.",
+      "any.required": "The 'companyNumber' field is required.",
     }),
   birthDate: Joi.date().optional().messages({
     "date.base": "Birth date must be a valid date.",
@@ -140,6 +141,9 @@ export const messageSchema = Joi.object({
   read: Joi.boolean().default(false).optional().messages({
     "boolean.base": "Read must be a boolean.",
   }),
+  offerId: Joi.number().optional().messages({
+    "number.base": "Offer ID must be a number.",
+  }), // Ajout d'une validation optionnelle pour `offerId` si besoin
 });
 
 export const vehicleSchema = Joi.object({
@@ -169,13 +173,13 @@ export const vehicleSchema = Joi.object({
     "any.required": "The 'country' field is required.",
   }),
   vehicleType: Joi.string()
-  .valid("Car", "Truck", "Motorcycle", "Van", "Bicycle", "Boat")
-  .required()
-  .messages({
-    "string.valid":
-      "Vehicle type must be one of 'Car', 'Truck', 'Motorcycle', 'Van', 'Bicycle', or 'Boat'.",
-    "any.required": "The 'vehicleType' field is required.",
-  }),
+    .valid("Car", "Truck", "Motorcycle", "Van", "Bicycle", "Boat")
+    .required()
+    .messages({
+      "string.valid":
+        "Vehicle type must be one of 'Car', 'Truck', 'Motorcycle', 'Van', 'Bicycle', or 'Boat'.",
+      "any.required": "The 'vehicleType' field is required.",
+    }),
   model: Joi.string().min(2).max(50).required().messages({
     "string.min": "Model must be at least 2 characters long.",
     "string.max": "Model must not exceed 50 characters.",
@@ -215,7 +219,7 @@ export const vehicleSchema = Joi.object({
     "any.required": "The 'transmission' field is required.",
   }),
   photos: Joi.array()
-    .items(Joi.string())  // Valider que chaque élément est une chaîne (pas nécessairement une URI)
+    .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)
     .required()
     .messages({
       "array.base": "Photos must be an array of URLs.",
@@ -282,22 +286,30 @@ export const propertySchema = Joi.object({
     "number.min": "There must be at least 0 bathrooms.",
     "any.required": "The 'Bathrooms' field is required.",
   }),
-  heatingType: Joi.string().valid('Gas', 'Electric', 'Oil', 'Other').required().messages({
-    'string.base': 'Heating type must be a string.',
-    'any.only': 'Heating type must be one of the following: Gas, Electric, Oil, Other.',
-    'any.required': 'Heating type is required.',
-  }),
+  heatingType: Joi.string()
+    .valid("Gas", "Electric", "Oil", "Other")
+    .required()
+    .messages({
+      "string.base": "Heating type must be a string.",
+      "any.only":
+        "Heating type must be one of the following: Gas, Electric, Oil, Other.",
+      "any.required": "Heating type is required.",
+    }),
 
-  energyClass: Joi.string().valid('A', 'B', 'C', 'D', 'E', 'F', 'G').required().messages({
-    'string.base': 'Energy class must be a string.',
-    'any.only': 'Energy class must be one of the following: A, B, C, D, E, F, G.',
-    'any.required': 'Energy class is required.',
-  }),
+  energyClass: Joi.string()
+    .valid("A", "B", "C", "D", "E", "F", "G")
+    .required()
+    .messages({
+      "string.base": "Energy class must be a string.",
+      "any.only":
+        "Energy class must be one of the following: A, B, C, D, E, F, G.",
+      "any.required": "Energy class is required.",
+    }),
   furnished: Joi.boolean().required().messages({
     "any.required": "The 'furnished' field is required.",
   }),
   photos: Joi.array()
-    .items(Joi.string())  // Valider que chaque élément est une chaîne (pas nécessairement une URI)
+    .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)
     .required()
     .messages({
       "array.base": "Photos must be an array of URLs.",
@@ -355,7 +367,7 @@ export const commercialOfferSchema = Joi.object({
     "number.min": "Duration must be at least 1 day.",
   }),
   photos: Joi.array()
-    .items(Joi.string())  // Valider que chaque élément est une chaîne (pas nécessairement une URI)
+    .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)
     .required()
     .messages({
       "array.base": "Photos must be an array of URLs.",
@@ -370,7 +382,6 @@ export const commercialOfferSchema = Joi.object({
   }),
 });
 
-
 const ReporterTypeEnum = Joi.string().valid("user", "company").required();
 
 export const reportSchema = Joi.object({
@@ -382,10 +393,15 @@ export const reportSchema = Joi.object({
   createdAt: Joi.date().optional().messages({
     "date.base": "CreatedAt must be a valid date.",
   }),
-  status: Joi.string().valid("pending", "resolved", "rejected").default("pending").required().messages({
-    "string.valid": "Status must be one of 'pending', 'resolved', or 'rejected'.",
-    "any.required": "The 'status' field is required.",
-  }),
+  status: Joi.string()
+    .valid("pending", "resolved", "rejected")
+    .default("pending")
+    .required()
+    .messages({
+      "string.valid":
+        "Status must be one of 'pending', 'resolved', or 'rejected'.",
+      "any.required": "The 'status' field is required.",
+    }),
   vehicleOfferId: Joi.number().integer().optional().messages({
     "number.base": "Vehicle offer ID must be a valid number.",
   }),

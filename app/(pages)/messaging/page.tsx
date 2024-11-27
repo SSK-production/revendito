@@ -1,45 +1,61 @@
 "use client";
+import { useState } from "react";
 
-import { useEffect, useState } from "react";
+export default function TestApi() {
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-function MessagingPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const handleGetRequest = async () => {
+    try {
+      setError(null); // Réinitialiser les erreurs
+      setResult(null); // Réinitialiser les résultats
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/check-auth", {
-          method: "GET",
-          credentials: "include", // Assurez-vous que les cookies sont envoyés avec la requête
-        });
+      const response = await fetch("/api/message", {
+        // Remplacez par votre endpoint
+        method: "GET",
+        credentials: "include",
+      });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          setIsAuthenticated(true); // L'utilisateur est authentifié
-        } else {
-          setIsAuthenticated(false); // L'utilisateur n'est pas authentifié
-        }
-      } catch (error) {
-        console.error("Erreur de vérification de l'authentification:", error);
-        setIsAuthenticated(false);
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP ${response.status}: ${response.statusText}`
+        );
       }
-    };
 
-    checkAuth(); // Appel pour vérifier l'authentification
-  }, []);
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      console.error("Erreur lors de la requête:", err);
+      setError(err.message);
+    }
+  };
 
   return (
-    <div>
-      {isAuthenticated === null ? (
-        <p>Chargement...</p> // Affichage pendant la vérification de l'authentification
-      ) : isAuthenticated ? (
-        <p>Bienvenue sur la page de messagerie !</p>
-      ) : (
-        <p>Veuillez vous connecter.</p>
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <h1>Tester l'API GET</h1>
+      <button
+        onClick={handleGetRequest}
+        style={{
+          padding: "10px 20px",
+          fontSize: "16px",
+          backgroundColor: "#0070f3",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Envoyer une requête GET
+      </button>
+
+      <h2>Résultat :</h2>
+      {result && (
+        <pre style={{ backgroundColor: "black", padding: "10px" }}>
+          {JSON.stringify(result, null, 2)}
+        </pre>
       )}
+
+      {error && <p style={{ color: "red" }}>Erreur : {error}</p>}
     </div>
   );
 }
-
-export default MessagingPage;
