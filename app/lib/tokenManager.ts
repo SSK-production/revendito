@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 interface UserPayload {
   id: string;
@@ -93,4 +93,86 @@ export async function getTokenFromCookies(req: Request): Promise<string | null> 
   }
 
   return accessToken;
+}
+
+
+export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; entity: 'user' | 'company'; accessToken:string }> {
+  let accessToken = req.cookies.get('access_token')?.value ?? undefined; // Transforme null en undefined
+  const refreshToken = req.cookies.get('refresh_token')?.value ?? undefined;
+
+  if (!accessToken) {
+    console.log('Access token manquant, tentative de rafraîchissement avec le refresh token.');
+
+    if (!refreshToken) {
+      throw new Error('Access token et refresh token manquants');
+    }
+
+    const newAccessToken = await refreshAccessToken(refreshToken);
+
+    if (!newAccessToken) {
+      throw new Error('Échec du rafraîchissement de l\'access token');
+    }
+
+    accessToken = newAccessToken;
+
+    if (!accessToken) {
+      throw new Error('Échec du rafraîchissement de l\'access token');
+    }
+
+    const response = NextResponse.next();
+    response.cookies.set('access_token', accessToken, { httpOnly: true, secure: true });
+  }
+
+  try {
+    const decodedToken = verifyAccessToken(accessToken);
+
+    if (!decodedToken) {
+      throw new Error('Access token invalide');
+    }
+
+    const { id, entity } = decodedToken as { id: string; entity: 'user' | 'company' };
+    if (!id || !entity) {
+      throw new Error('Payload du token invalide');
+    }
+
+    return { id, entity, accessToken };
+  } catch (error) {
+    console.error('Erreur avec l\'access-token:', error);
+
+    // Gestion d'un access-token expiré avec le refresh-token
+    if (error instanceof Error && error.message.includes('expiré') && refreshToken) {
+      console.log('Access token expiré, tentative de rafraîchissement avec le refresh token.');
+
+      const newAccessToken = await refreshAccessToken(refreshToken);
+
+      if (!newAccessToken) {
+        throw new Error('Échec du rafraîchissement de l\'access token après expiration');
+      }
+
+      const decodedToken = verifyAccessToken(newAccessToken);
+
+      if (!decodedToken) {
+        throw new Error('Nouveau token invalide');
+      }
+
+      const { id, entity } = decodedToken as { id: string; entity: 'user' | 'company' };
+      if (!id || !entity) {
+        throw new Error('Payload du nouveau token invalide');
+      }
+
+      // Mise à jour du cookie avec le nouveau token
+      const response = NextResponse.next();
+      response.cookies.set('access_token', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Assure-toi que secure est vrai en production
+        maxAge: 3600, // 1 heure
+        sameSite: 'strict',
+        path: '/',
+      });
+      
+      return { id, entity, accessToken };
+    }
+
+    throw new Error('Access token invalide ou rafraîchissement impossible');
+  }
 }
