@@ -167,7 +167,6 @@ model CommercialOffer {
 }
 
 
-// Modèle pour les messages
 model Message {
   id               Int      @id @default(autoincrement())
   senderId         String
@@ -176,15 +175,11 @@ model Message {
   sentAt           DateTime @default(now())
   read             Boolean  @default(false)
 
-  // Relation avec l'utilisateur ou entreprise qui envoie le message
   senderUser       User?       @relation("UserSentMessages", fields: [senderId], references: [id], map: "Message_senderUser_fkey")
   senderCompany    Company?    @relation("CompanySentMessages", fields: [senderId], references: [id], map: "Message_senderCompany_fkey")
-
-  // Relation avec l'utilisateur ou entreprise qui reçoit le message
   receiverUser     User?       @relation("UserReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverUser_fkey")
   receiverCompany  Company?    @relation("CompanyReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverCompany_fkey")
 
-  // Relation avec les différentes catégories d'offres
   vehicleOffer     VehicleOffer?    @relation("VehicleOfferMessages", fields: [offerId], references: [id], map: "Message_vehicleOffer_fkey")
   realEstateOffer  RealEstateOffer? @relation("RealEstateOfferMessages", fields: [offerId], references: [id], map: "Message_realEstateOffer_fkey")
   commercialOffer  CommercialOffer? @relation("CommercialOfferMessages", fields: [offerId], references: [id], map: "Message_commercialOffer_fkey")
