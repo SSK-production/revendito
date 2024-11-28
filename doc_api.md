@@ -40,7 +40,7 @@ Content-Type: application/json
 ```
 ### Route `GET /api/auth`
 
-```markdown
+
 # GET `/api/auth`
 
 ## Description
@@ -78,121 +78,8 @@ Le **access token** est utilisé pour vérifier l'authentification. S'il est exp
     "email": "user@example.com"
   }
 
-```
-# API des offres de véhicule
-
-## Endpoints
-
-### `GET /api/vehicle`
-
-#### Description
-Récupère toutes les offres de véhicules disponibles.
-
-#### Méthode
-`GET`
-
-#### Paramètres de la requête
-Aucun paramètre nécessaire.
-
-#### Réponse
-
-- **Code HTTP 200** : Retourne une liste d'offres de véhicules.
-  
-  - **Exemple** :
-  ```json
-  [
-    {
-      "id": 1,
-      "title": "Toyota Corolla",
-      "description": "Reliable and fuel-efficient vehicle.",
-      "price": 15000,
-      "city": "Paris",
-      "country": "France",
-      "model": "Corolla",
-      "year": 2018,
-      "mileage": 50000,
-      "fuelType": "Gasoline",
-      "color": "White",
-      "transmission": "Manual",
-      "photos": ["photo1.jpg", "photo2.jpg"],
-      "subCategoryId": 1,
-      "userId": 1,
-      "companyId": null
-    }
-  ]
-
-# POST `/api/vehicle`
-
-## Description
-
-Cette route permet de créer une nouvelle offre de véhicule. Elle nécessite un **token d'accès valide** pour l'authentification de l'utilisateur, ainsi que des données de formulaire contenant les détails du véhicule (comme le titre, la description, le prix, etc.).
-
-Le token d'accès doit être fourni dans les **cookies** sous la clé `access_token`
-
----
-
-## Méthode
-
-`POST`
-
----
-
-## Authentification
-
-**Token d'accès nécessaire** : Oui
-
-Le token d'accès est utilisé pour vérifier l'identité de l'utilisateur ou de l'entreprise associée à l'offre. Vous devez envoyer un token d'accès valide dans les cookies
 
 
----
-
-## Paramètres de la requête
-
-Les paramètres doivent être envoyés sous forme de **form-data**.
-
-| Paramètre   | Type       | Description                                                           | Obligatoire |
-|-------------|------------|-----------------------------------------------------------------------|-------------|
-| `title`     | `String`   | Le titre de l'offre de véhicule.                                      | Oui         |
-| `description` | `String`   | La description détaillée du véhicule.                                 | Oui         |
-| `price`     | `String`   | Le prix du véhicule (doit être un nombre).                            | Oui         |
-| `city`      | `String`   | La ville où se trouve le véhicule.                                    | Oui         |
-| `country`   | `String`   | Le pays où se trouve le véhicule.                                     | Oui         |
-| `model`     | `String`   | Le modèle du véhicule.                                                | Oui         |
-| `year`      | `String`   | L'année de fabrication du véhicule.                                   | Oui         |
-| `mileage`   | `String`   | Le kilométrage du véhicule.                                           | Oui         |
-| `fuelType`  | `String`   | Le type de carburant (ex : essence, diesel).                          | Oui         |
-| `color`     | `String`   | La couleur du véhicule.                                               | Oui         |
-| `transmission` | `String`   | Le type de transmission (ex : manuelle, automatique).                 | Oui         |
-| `photos`    | `File(s)`  | Les photos du véhicule (facultatif).                                  | Non         |
-
----
-
-## Réponses
-
-### 1. **Code HTTP 201** : **Création réussie de l'offre**
-
-- La création de l'offre a réussi. Retourne les informations de la nouvelle offre de véhicule.
-
-  **Exemple de réponse :**
-  ```json
-  {
-    "id": 1,
-    "title": "Honda Civic",
-    "description": "Compact and sporty car.",
-    "price": 18000,
-    "city": "Lyon",
-    "country": "France",
-    "model": "Civic",
-    "year": 2020,
-    "mileage": 30000,
-    "fuelType": "Diesel",
-    "color": "Black",
-    "transmission": "Automatic",
-    "photos": ["photo1.jpg", "photo2.jpg"],
-    "subCategoryId": 1,
-    "userId": 1,
-    "companyId": null
-  }
 
 # GET `/api/user`
 
@@ -206,7 +93,7 @@ Cette route permet de récupérer la liste de tous les utilisateurs de la base d
 
 `GET`
 
----
+
 
 ## Réponses
 
@@ -236,7 +123,7 @@ Cette route permet de récupérer la liste de tous les utilisateurs de la base d
 
 ### Route `POST /api/user`
 
-```markdown
+
 # POST `/api/user`
 
 ## Description
@@ -252,7 +139,7 @@ Cette route permet de créer un nouvel utilisateur. Les informations nécessaire
 ---
 
 ## Paramètres de la requête
-```
+
 Les paramètres doivent être envoyés sous forme de **JSON**.
 
 | Paramètre    | Type     | Description                           | Obligatoire |
@@ -330,7 +217,7 @@ Cette route permet de récupérer la liste de toutes les entreprises de la base 
 
 ### Route `POST /api/company`
 
-```markdown
+
 # POST `/api/company`
 
 ## Description
@@ -348,7 +235,7 @@ Cette route permet de créer une nouvelle entreprise. Les informations nécessai
 ## Paramètres de la requête
 
 Les paramètres doivent être envoyés sous forme de **JSON**.
-```
+
 | Paramètre        | Type     | Description                             | Obligatoire |
 |------------------|----------|-----------------------------------------|-------------|
 | `companyName`    | `String` | Le nom de l'entreprise.                 | Oui         |
@@ -378,3 +265,143 @@ Content-Type: application/json
   "country": "France",
   "street": "123 Tech Street"
 }
+```
+# API des offres de véhicule
+
+## Endpoints
+
+# `GET /api/vehicle`
+
+## Description
+Cette route permet de récupérer toutes les offres de véhicules disponibles avec prise en charge de la pagination.
+
+---
+
+## Méthode
+`GET`
+
+---
+
+## Paramètres de la requête
+
+### Optionnels
+- **`page`** (entier) : Le numéro de la page à récupérer.  
+  *Valeur par défaut* : `1`
+
+- **`limit`** (entier) : Le nombre d'éléments par page.  
+  *Valeur par défaut* : `10`
+
+### Contraintes
+- Les valeurs de `page` et `limit` doivent être des nombres entiers positifs.
+
+---
+
+## Réponses
+
+### Code HTTP `200`
+Retourne une liste d'offres de véhicules avec des métadonnées pour la pagination.
+
+#### Exemple de réponse
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Toyota Corolla",
+      "description": "Reliable and fuel-efficient vehicle.",
+      "price": 15000,
+      "city": "Paris",
+      "country": "France",
+      "model": "Corolla",
+      "year": 2018,
+      "mileage": 50000,
+      "fuelType": "Gasoline",
+      "color": "White",
+      "transmission": "Manual",
+      "photos": ["photo1.jpg", "photo2.jpg"],
+      "subCategoryId": 1,
+      "userId": 1,
+      "companyId": null
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 50,
+    "totalPages": 5
+  }
+}
+
+```
+# POST `/api/vehicle`
+
+## Description
+
+Cette route permet de créer une nouvelle offre de véhicule. Elle nécessite un **token d'accès valide** pour l'authentification de l'utilisateur, ainsi que des données de formulaire contenant les détails du véhicule (comme le titre, la description, le prix, etc.).
+
+Le token d'accès doit être fourni dans les **cookies** sous la clé `access_token`
+
+---
+
+## Méthode
+
+`POST`
+
+---
+
+## Authentification
+
+**Token d'accès nécessaire** : Oui
+
+Le token d'accès est utilisé pour vérifier l'identité de l'utilisateur ou de l'entreprise associée à l'offre. Vous devez envoyer un token d'accès valide dans les cookies
+
+
+---
+
+## Paramètres de la requête
+
+Les paramètres doivent être envoyés sous forme de **form-data**.
+
+| Paramètre   | Type       | Description                                                           | Obligatoire |
+|-------------|------------|-----------------------------------------------------------------------|-------------|
+| `title`     | `String`   | Le titre de l'offre de véhicule.                                      | Oui         |
+| `description` | `String`   | La description détaillée du véhicule.                                 | Oui         |
+| `price`     | `String`   | Le prix du véhicule (doit être un nombre).                            | Oui         |
+| `city`      | `String`   | La ville où se trouve le véhicule.                                    | Oui         |
+| `country`   | `String`   | Le pays où se trouve le véhicule.                                     | Oui         |
+| `model`     | `String`   | Le modèle du véhicule.                                                | Oui         |
+| `year`      | `String`   | L'année de fabrication du véhicule.                                   | Oui         |
+| `mileage`   | `String`   | Le kilométrage du véhicule.                                           | Oui         |
+| `fuelType`  | `String`   | Le type de carburant (ex : essence, diesel).                          | Oui         |
+| `color`     | `String`   | La couleur du véhicule.                                               | Oui         |
+| `transmission` | `String`   | Le type de transmission (ex : manuelle, automatique).                 | Oui         |
+| `photos`    | `File(s)`  | Les photos du véhicule (facultatif).                                  | Non         |
+
+---
+
+## Réponses
+
+### 1. **Code HTTP 201** : **Création réussie de l'offre**
+
+- La création de l'offre a réussi. Retourne les informations de la nouvelle offre de véhicule.
+
+  **Exemple de réponse :**
+  ```json
+  {
+    "id": 1,
+    "title": "Honda Civic",
+    "description": "Compact and sporty car.",
+    "price": 18000,
+    "city": "Lyon",
+    "country": "France",
+    "model": "Civic",
+    "year": 2020,
+    "mileage": 30000,
+    "fuelType": "Diesel",
+    "color": "Black",
+    "transmission": "Automatic",
+    "photos": ["photo1.jpg", "photo2.jpg"],
+    "subCategoryId": 1,
+    "userId": 1,
+    "companyId": null
+  }
