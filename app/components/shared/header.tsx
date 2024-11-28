@@ -8,13 +8,13 @@ export default function Header() {
     return (
         <>
             <header className="border-b border-orange-900/70 flex items-center justify-center sticky">
-                <section className="flex flex-row text-slate-800 px-4 py-2 justify-between w-2/3">
+                <section className="flex flex-row text-slate-800 px-4 py-2 justify-between w-screen md:w-2/3">
                     <h1 className="md:text-lg lg:text-xl xl:text-2xl">
                         <Link href={"/"}>
                             <span className="text-orange-700 dark:text-orange-600 font-medium">Re</span>Ventures
                         </Link>
                     </h1>
-                    <nav>
+                    <nav className="text-xs md:text-sm lg:text-base xl:text-lg">
                         <ul className="flex flex-row space-x-4">
                             <li className="relative group">
                               <span className="hover:underline hover:decoration-orange-700 cursor-pointer">
