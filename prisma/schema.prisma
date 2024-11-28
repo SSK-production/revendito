@@ -169,31 +169,40 @@ model CommercialOffer {
 
 // Modèle pour les messages
 model Message {
-  id               Int      @id @default(autoincrement())
-  senderId         String
-  receiverId       String
-  content          String
-  sentAt           DateTime @default(now())
-  read             Boolean  @default(false)
+  id                 Int              @id @default(autoincrement())
+  senderUserId       String?          // Clé étrangère pour l'utilisateur envoyant le message
+  senderCompanyId    String?          // Clé étrangère pour l'entreprise envoyant le message
+  receiverUserId     String?          // Clé étrangère pour l'utilisateur recevant le message
+  receiverCompanyId  String?          // Clé étrangère pour l'entreprise recevant le message
+  content            String
+  sentAt             DateTime         @default(now())
+  read               Boolean          @default(false)
+  
+  vehicleOfferId     Int?             // Clé étrangère pour une offre de véhicule
+  realEstateOfferId  Int?             // Clé étrangère pour une offre immobilière
+  commercialOfferId  Int?             // Clé étrangère pour une offre commerciale
 
-  // Relation avec l'utilisateur ou entreprise qui envoie le message
-  senderUser       User?       @relation("UserSentMessages", fields: [senderId], references: [id], map: "Message_senderUser_fkey")
-  senderCompany    Company?    @relation("CompanySentMessages", fields: [senderId], references: [id], map: "Message_senderCompany_fkey")
+  // Relations avec les utilisateurs ou entreprises
+  senderUser         User?            @relation("UserSentMessages", fields: [senderUserId], references: [id])
+  senderCompany      Company?         @relation("CompanySentMessages", fields: [senderCompanyId], references: [id])
+  receiverUser       User?            @relation("UserReceivedMessages", fields: [receiverUserId], references: [id])
+  receiverCompany    Company?         @relation("CompanyReceivedMessages", fields: [receiverCompanyId], references: [id])
 
-  // Relation avec l'utilisateur ou entreprise qui reçoit le message
-  receiverUser     User?       @relation("UserReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverUser_fkey")
-  receiverCompany  Company?    @relation("CompanyReceivedMessages", fields: [receiverId], references: [id], map: "Message_receiverCompany_fkey")
+  // Relations avec les catégories d'offres
+  vehicleOffer       VehicleOffer?    @relation("VehicleOfferMessages", fields: [vehicleOfferId], references: [id])
+  realEstateOffer    RealEstateOffer? @relation("RealEstateOfferMessages", fields: [realEstateOfferId], references: [id])
+  commercialOffer    CommercialOffer? @relation("CommercialOfferMessages", fields: [commercialOfferId], references: [id])
 
-  // Relation avec les différentes catégories d'offres
-  vehicleOffer     VehicleOffer?    @relation("VehicleOfferMessages", fields: [offerId], references: [id], map: "Message_vehicleOffer_fkey")
-  realEstateOffer  RealEstateOffer? @relation("RealEstateOfferMessages", fields: [offerId], references: [id], map: "Message_realEstateOffer_fkey")
-  commercialOffer  CommercialOffer? @relation("CommercialOfferMessages", fields: [offerId], references: [id], map: "Message_commercialOffer_fkey")
-  offerId          Int?
-
-  @@index([senderId], name: "idx_senderId")
-  @@index([receiverId], name: "idx_receiverId")
-  @@index([offerId], name: "idx_offerId")
+  @@index([senderUserId], name: "idx_senderUserId")
+  @@index([senderCompanyId], name: "idx_senderCompanyId")
+  @@index([receiverUserId], name: "idx_receiverUserId")
+  @@index([receiverCompanyId], name: "idx_receiverCompanyId")
+  @@index([vehicleOfferId], name: "idx_vehicle_offer")
+  @@index([realEstateOfferId], name: "idx_real_estate_offer")
+  @@index([commercialOfferId], name: "idx_commercial_offer")
 }
+
+
 
 // Modèle pour les signalements
 model Report {
