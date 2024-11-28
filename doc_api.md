@@ -40,7 +40,6 @@ Content-Type: application/json
 ```
 ### Route `GET /api/auth`
 
-```markdown
 # GET `/api/auth`
 
 ## Description
@@ -78,7 +77,6 @@ Le **access token** est utilisé pour vérifier l'authentification. S'il est exp
     "email": "user@example.com"
   }
 
-```
 # API des offres de véhicule
 
 ## Endpoints
@@ -330,7 +328,6 @@ Cette route permet de récupérer la liste de toutes les entreprises de la base 
 
 ### Route `POST /api/company`
 
-```markdown
 # POST `/api/company`
 
 ## Description
@@ -348,7 +345,7 @@ Cette route permet de créer une nouvelle entreprise. Les informations nécessai
 ## Paramètres de la requête
 
 Les paramètres doivent être envoyés sous forme de **JSON**.
-```
+
 | Paramètre        | Type     | Description                             | Obligatoire |
 |------------------|----------|-----------------------------------------|-------------|
 | `companyName`    | `String` | Le nom de l'entreprise.                 | Oui         |
