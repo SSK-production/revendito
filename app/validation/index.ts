@@ -126,13 +126,21 @@ export const createSubCategorieSchema = Joi.object({
 });
 
 export const messageSchema = Joi.object({
-  senderId: Joi.string().uuid().required().messages({
-    "string.uuid": "Sender ID must be a valid UUID.",
-    "any.required": "Sender ID is required.",
+  senderUserId: Joi.string().uuid().optional().messages({
+    "string.uuid": "senderUserId must be a valid UUID.",
+    "any.required": "senderUserId is required.",
   }),
-  receiverId: Joi.string().uuid().required().messages({
-    "string.uuid": "Receiver ID must be a valid UUID.",
-    "any.required": "Receiver ID is required.",
+  senderCompanyId: Joi.string().uuid().optional().messages({
+    "string.uuid": "senderCompanyId must be a valid UUID.",
+    "any.required": "senderCompanyId is required.",
+  }),
+  receiverUserId: Joi.string().uuid().required().messages({
+    "string.uuid": "receiverUserId must be a valid UUID.",
+    "any.required": "receiverUserId is required.",
+  }),
+  receiverCompanyId: Joi.string().uuid().required().messages({
+    "string.uuid": "receiverCompanyId must be a valid UUID.",
+    "any.required": "receiverCompanyId is required.",
   }),
   content: Joi.string().min(1).required().messages({
     "string.min": "Content must not be empty.",

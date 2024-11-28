@@ -1,83 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, CommercialOffer} from '@prisma/client';
 import { commercialOfferSchema } from '@/app/validation';
-import { getTokenFromCookies, verifyAccessToken } from '@/app/lib/tokenManager';
+import { getUserFromRequest } from '@/app/lib/tokenManager';
 import { processFormData } from '@/app/lib/processFormData';
+import { verifyId } from '@/app/lib/function';
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  try {
-    const commercialOffers = await prisma.commercialOffer.findMany();
-
-    return NextResponse.json(commercialOffers, { status: 200 });
-  } catch (error: unknown) {
-    console.error("Error fetching commercial offers:", error);
-
-    if (error instanceof Error) {
+export async function GET(req: NextRequest) {
+    try {
+      // Paramètres de pagination, avec des valeurs par défaut
+      const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10); // Page par défaut : 1
+      const limit = parseInt(req.nextUrl.searchParams.get('limit') || '10', 10); // Limite par défaut : 10
+  
+      // Validation des paramètres pour éviter les valeurs trop grandes ou invalides
+      if (page <= 0 || limit <= 0) {
+        return NextResponse.json({ error: "Page et limit doivent être des valeurs positives" }, { status: 400 });
+      }
+  
+      // Calcul du skip pour l'offset
+      const skip = (page - 1) * limit;
+  
+      // Requête Prisma avec pagination
+      const commercialOffers = await prisma.commercialOffer.findMany({
+        skip: skip,
+        take: limit,
+      });
+  
+      const totalOffers = await prisma.commercialOffer.count();
+  
+      return NextResponse.json({
+        data: commercialOffers,
+        meta: {
+          page,
+          limit,
+          total: totalOffers,
+          totalPages: Math.ceil(totalOffers / limit), // Nombre total de pages
+        }
+      }, { status: 200 });
+    } catch (error: unknown) {
+      console.error("Error fetching commercial offers:", error);
+  
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { error: `Error fetching commercial offers: ${error.message}` },
+          { status: 500 }
+        );
+      }
       return NextResponse.json(
-        { error: `Error fetching commercial offers: ${error.message}` },
+        { error: "An unexpected error occurred." },
         { status: 500 }
       );
     }
-
-    // Retour générique pour les autres types d'erreurs
-    return NextResponse.json(
-      { error: "An unexpected error occurred." },
-      { status: 500 }
-    );
   }
-}
 
 export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
-    // Récupération et gestion du token
-    const token = await getTokenFromCookies(req);
-    if (!token) {
-      console.log('Token d\'accès manquant');
-      return NextResponse.json({ error: 'Token d\'accès manquant' }, { status: 401 });
-    }
-    console.log('Token reçu:', token);
-
-    let decodedToken = null;
-    try {
-      decodedToken = verifyAccessToken(token);
-    } catch (error: unknown) {
-      console.error('Erreur de vérification du token:', error);
-      if (error instanceof Error) {
-        return NextResponse.json({ error: 'Token invalide: ' + error.message }, { status: 403 });
-      }
-      return NextResponse.json({ error: 'Erreur inconnue lors de la vérification du token' }, { status: 500 });
-    }
-
-    // Vérification que decodedToken n'est pas nul ou indéfini
-    if (!decodedToken) {
-      console.log('Le token décodé est null ou indéfini.');
-      return NextResponse.json({ error: 'Token invalide ou expiré' }, { status: 403 });
-    }
-
-    const { id, entity } = decodedToken as { id: string; entity: 'user' | 'company' };
-    if (!id || !entity) {
-      console.log('Payload du token invalide:', decodedToken);
-      return NextResponse.json({ error: 'Payload du token invalide' }, { status: 400 });
-    }
-
+    // On récup le token
+    const { id, entity, accessToken } = await getUserFromRequest(req);
     // Vérification si l'entité existe
-    if (entity === 'user') {
-      const userExists = await prisma.user.findUnique({ where: { id } });
-      if (!userExists) {
-        console.log('Utilisateur non trouvé:', id);
-        return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 });
-      }
-    } else if (entity === 'company') {
-      const companyExists = await prisma.company.findUnique({ where: { id } });
-      if (!companyExists) {
-        console.log('Entreprise non trouvée:', id);
-        return NextResponse.json({ error: 'Entreprise non trouvée' }, { status: 404 });
-      }
-    }
-
+    verifyId(id, entity);
+    
     const formData = await req.formData();
     const uploadDir = 'public/offer';
 
@@ -113,7 +97,17 @@ export async function POST(req: NextRequest) {
     });
     console.log('Nouvelle offre créée:', newCommercialOffer);
 
-    return NextResponse.json(newCommercialOffer, { status: 201 });
+    const response = NextResponse.json({ newCommercialOffer }, { status: 201 });
+
+    response.cookies.set('access_token', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 3600,
+        sameSite: 'strict',
+        path: '/',
+      });
+  
+      return response; 
   } catch (error: unknown) {
     console.error('Erreur lors de la création de l\'offre:', error);
     if (error instanceof Error) {
