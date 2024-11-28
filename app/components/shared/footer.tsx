@@ -3,6 +3,7 @@ import Link from "next/link";
 import useRoutes from "@/app/hooks/useRoutes";
 
 export default function Footer() {
+
     const routes = useRoutes();
 
     return (
