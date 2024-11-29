@@ -27,7 +27,7 @@ export default function Footer() {
             <footer className="self-center border-t border-orange-900 w-screen py-3">
                 <section className="container mx-auto w-screen md:w-2/3">
                     <article>
-                        <h3 className="text-center mt-4">&copy; SSK Production Agency 2024
+                        <h3 className="text-center">&copy; SSK Production Agency 2024
                             - {new Date().getFullYear()}</h3>
                         <h3 className="text-center mb-2">All Rights Reserved</h3>
                         <hr className="border-orange-900 mb-2"/>

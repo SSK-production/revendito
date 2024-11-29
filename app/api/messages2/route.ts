@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
 
         const newMessage: Message = await prisma.message.create({
             data: {
+                // @ts-ignore
                 senderUserId: id,
                 receiverUserId,
                 senderCompanyId,
