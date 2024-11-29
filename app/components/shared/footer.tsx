@@ -29,7 +29,8 @@ export default function Footer() {
                     <article>
                         <h3 className="text-center mt-4">&copy; SSK Production Agency 2024
                             - {new Date().getFullYear()}</h3>
-                        <h3 className="text-center mb-4">All Rights Reserved</h3>
+                        <h3 className="text-center mb-2">All Rights Reserved</h3>
+                        <hr className="border-orange-900 mb-2"/>
                         <ul className="grid grid-cols-3 gap-4">
                             {routes.map((route) => (
                                 <Link
