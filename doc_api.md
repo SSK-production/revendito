@@ -20,8 +20,8 @@ L'**access token** est valide pendant 3 heures, et le **refresh token** est vali
 
 Les paramètres doivent être envoyés sous forme de **JSON**.
 
-| Paramètre  | Type     | Description                           | Obligatoire |
-|------------|----------|---------------------------------------|-------------|
+| Paramètre  | Type     | Description                                          | Obligatoire |
+|------------|----------|------------------------------------------------------|-------------|
 | `email`    | `String` | L'adresse email de l'utilisateur ou de l'entreprise. | Oui         |
 | `password` | `String` | Le mot de passe de l'utilisateur ou de l'entreprise. | Oui         |
 
