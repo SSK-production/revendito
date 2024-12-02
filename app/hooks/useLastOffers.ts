@@ -7,7 +7,7 @@ export default function useLastOffers(offerType: string) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchLastAutomotiveOffers = async () => {
+        const fetchLastOffers = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
@@ -20,7 +20,7 @@ export default function useLastOffers(offerType: string) {
             }
         };
 
-        fetchLastAutomotiveOffers();
+        fetchLastOffers();
     }, [offerType]);
 
     return { offers, isLoading, error };
