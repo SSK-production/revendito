@@ -1,4 +1,4 @@
-@import url('./fonts.css');
+@import url("./fonts.css");
 
 @tailwind base;
 @tailwind components;
@@ -63,7 +63,6 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
-<<<<<<< HEAD
 
 @layer base {
   * {
@@ -73,5 +72,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-=======
->>>>>>> dev

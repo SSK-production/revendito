@@ -4,14 +4,13 @@ import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 
 type FormData = {
   senderId: string;
-  receiverId: string;
+  receiverId: string; // receiverId est maintenant nécessaire
   content: string;
   offerId: string | null;
 };
 
 type ApiResponse = {
-  message?: string;
-  email?: string;
+  message?: object;
   error?: string;
 };
 
@@ -20,12 +19,12 @@ export default function TestApi() {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     senderId: "",
-    receiverId: "",
+    receiverId: "", // receiverId est maintenant bien initialisé
     content: "",
     offerId: null,
   });
 
-  // Vérification de la session utilisateur
+  // Vérification de session utilisateur
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -37,11 +36,7 @@ export default function TestApi() {
         if (!response.ok) {
           throw new Error("Utilisateur non authentifié");
         }
-
-        const data: ApiResponse = await response.json();
-        console.log("Utilisateur authentifié:", data.email);
-      } catch (err) {
-        console.error("Erreur de vérification de session:", err);
+      } catch (err: unknown) {
         setError("Utilisateur non authentifié");
       }
     };
@@ -49,79 +44,70 @@ export default function TestApi() {
     checkSession();
   }, []);
 
-  // Gestion de la requête GET pour récupérer les messages
+  // Gestion de la requête GET
   const handleGetRequest = async () => {
     try {
-      setError(null); // Réinitialiser les erreurs
-      setResult(null); // Réinitialiser les résultats
+      setError(null);
+      setResult(null);
 
-      const response = await fetch("/api/message", {
+      const response = await fetch("/api/messageJordan", {
         method: "GET",
-        credentials: "include", // Cela envoie les cookies avec la requête
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error(
-          `Erreur HTTP ${response.status}: ${response.statusText}`
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur lors de la requête GET.");
       }
 
       const data: ApiResponse = await response.json();
       setResult(data);
     } catch (err) {
-      console.error("Erreur lors de la requête GET:", err);
-      setError(err instanceof Error ? err.message : "Erreur inconnue");
+      setError(err instanceof Error ? err.message : "Erreur inconnue.");
     }
   };
 
-  // Gestion de la requête POST pour envoyer un message
+  // Gestion de la requête POST
   const handlePostRequest = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Validation des champs requis
+    if (!formData.senderId || !formData.receiverId || !formData.content) {
+      setError("Tous les champs sont requis.");
+      return;
+    }
+
     try {
-      setError(null); // Réinitialiser les erreurs
-      setResult(null); // Réinitialiser les résultats
+      setError(null);
+      setResult(null);
 
-      // Validation côté front pour s'assurer que les IDs sont remplis
-      if (!formData.senderId || !formData.receiverId || !formData.content) {
-        setError("Tous les champs sont requis.");
-        return;
-      }
-
-      // Validation de offerId si présent
-      if (formData.offerId && isNaN(Number(formData.offerId))) {
-        setError("L'Offer ID doit être un nombre.");
-        return;
-      }
-
-      const response = await fetch("/api/message", {
+      // Remplacement de `receiverId` par `receiverUserId` pour la requête POST
+      const response = await fetch("/api/messageJordan", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Envoyer les cookies avec la requête
+        credentials: "include",
         body: JSON.stringify({
-          ...formData,
+          senderUserId: formData.senderId, // Envoi de senderId comme senderUserId
+          receiverUserId: formData.receiverId, // Envoi de receiverId comme receiverUserId
+          content: formData.content,
           offerId: formData.offerId ? Number(formData.offerId) : null,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(
-          `Erreur HTTP ${response.status}: ${response.statusText}`
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur lors de la requête.");
       }
 
       const data: ApiResponse = await response.json();
       setResult(data);
     } catch (err) {
-      console.error("Erreur lors de la requête POST:", err);
-      setError(
-        err instanceof Error ? err.message : "Erreur inconnue lors de l'envoi."
-      );
+      setError(err instanceof Error ? err.message : "Erreur inconnue.");
     }
   };
 
-  // Gestion des changements dans le formulaire
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -133,105 +119,143 @@ export default function TestApi() {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1>Tester l API</h1>
+    <div
+      style={{
+        padding: "20px",
+        fontFamily: "'Roboto', sans-serif",
+        maxWidth: "800px",
+        margin: "0 auto",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "10px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      <h1
+        style={{
+          color: "#333",
+          fontSize: "2rem",
+          fontWeight: "bold",
+          marginBottom: "20px",
+          textAlign: "center",
+        }}
+      >
+        Tester l'API
+      </h1>
 
-      {/* Bouton pour GET */}
+      {/* Bouton GET */}
       <button
         onClick={handleGetRequest}
         style={{
-          padding: "10px 20px",
+          padding: "12px 24px",
           fontSize: "16px",
           backgroundColor: "#0070f3",
           color: "white",
           border: "none",
           borderRadius: "5px",
           cursor: "pointer",
-          marginBottom: "20px",
+          display: "block",
+          margin: "0 auto 30px auto",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          transition: "background-color 0.3s",
         }}
+        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#005bb5")}
+        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0070f3")}
       >
         Envoyer une requête GET
       </button>
 
-      <h2>Envoyer une requête POST</h2>
-
-      {/* Formulaire pour POST */}
+      {/* Formulaire POST */}
+      <h2
+        style={{
+          fontSize: "1.5rem",
+          color: "#444",
+          fontWeight: "600",
+          marginBottom: "10px",
+          textAlign: "center",
+        }}
+      >
+        Envoyer une requête POST
+      </h2>
       <form
         onSubmit={handlePostRequest}
-        style={{ display: "flex", flexDirection: "column", maxWidth: "400px" }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+          backgroundColor: "#fff",
+          padding: "20px",
+          borderRadius: "10px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        }}
       >
-        <label style={{ marginBottom: "10px" }}>
-          Sender ID :
+        <label style={{ fontWeight: "500", fontSize: "14px", color: "#555" }}>
+          Sender ID:
           <input
             type="text"
             name="senderId"
             value={formData.senderId}
             onChange={handleInputChange}
             style={{
-              padding: "8px",
-              fontSize: "14px",
-              marginTop: "5px",
-              marginBottom: "10px",
               width: "100%",
-              border: "1px solid #ccc",
+              padding: "10px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
               borderRadius: "5px",
+              fontSize: "14px",
             }}
           />
         </label>
 
-        <label style={{ marginBottom: "10px" }}>
-          Receiver ID :
+        <label style={{ fontWeight: "500", fontSize: "14px", color: "#555" }}>
+          Receiver ID:
           <input
             type="text"
             name="receiverId"
             value={formData.receiverId}
             onChange={handleInputChange}
             style={{
-              padding: "8px",
-              fontSize: "14px",
-              marginTop: "5px",
-              marginBottom: "10px",
               width: "100%",
-              border: "1px solid #ccc",
+              padding: "10px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
               borderRadius: "5px",
+              fontSize: "14px",
             }}
           />
         </label>
 
-        <label style={{ marginBottom: "10px" }}>
-          Content :
+        <label style={{ fontWeight: "500", fontSize: "14px", color: "#555" }}>
+          Content:
           <textarea
             name="content"
             value={formData.content}
             onChange={handleInputChange}
             style={{
-              padding: "8px",
-              fontSize: "14px",
-              marginTop: "5px",
-              marginBottom: "10px",
               width: "100%",
-              height: "80px",
-              border: "1px solid #ccc",
+              height: "100px",
+              padding: "10px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
               borderRadius: "5px",
+              fontSize: "14px",
             }}
           />
         </label>
 
-        <label style={{ marginBottom: "10px" }}>
-          Offer ID (optionnel) :
+        <label style={{ fontWeight: "500", fontSize: "14px", color: "#555" }}>
+          Offer ID (optionnel):
           <input
             type="text"
             name="offerId"
             value={formData.offerId ?? ""}
             onChange={handleInputChange}
             style={{
-              padding: "8px",
-              fontSize: "14px",
-              marginTop: "5px",
-              marginBottom: "10px",
               width: "100%",
-              border: "1px solid #ccc",
+              padding: "10px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
               borderRadius: "5px",
+              fontSize: "14px",
             }}
           />
         </label>
@@ -239,32 +263,67 @@ export default function TestApi() {
         <button
           type="submit"
           style={{
-            padding: "10px 20px",
+            padding: "12px 24px",
             fontSize: "16px",
             backgroundColor: "#0070f3",
             color: "white",
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
+            marginTop: "10px",
+            alignSelf: "center",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            transition: "background-color 0.3s",
           }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.backgroundColor = "#005bb5")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0070f3")
+          }
         >
-          Envoyer la requête POST
+          Envoyer
         </button>
       </form>
 
-      {/* Affichage des erreurs et résultats */}
-      {error && <p style={{ color: "red", marginTop: "20px" }}>{error}</p>}
+      {/* Gestion des erreurs et résultats */}
+      {error && (
+        <p
+          style={{
+            marginTop: "20px",
+            color: "red",
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          {error}
+        </p>
+      )}
       {result && (
         <div
           style={{
             marginTop: "20px",
-            padding: "10px",
-            backgroundColor: "#e0f7e0", // Fond vert pour le succès
+            padding: "15px",
+            backgroundColor: "#e6f4ea",
+            border: "1px solid #d4edda",
             borderRadius: "5px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <p style={{ color: "green" }}>Message envoyé avec succès!</p>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
+          <p style={{ color: "#155724", fontWeight: "600" }}>
+            Requête réussie !
+          </p>
+          <pre
+            style={{
+              backgroundColor: "#f8f9fa",
+              padding: "10px",
+              borderRadius: "5px",
+              overflow: "auto",
+              fontSize: "14px",
+            }}
+          >
+            {JSON.stringify(result, null, 2)}
+          </pre>
         </div>
       )}
     </div>

@@ -1,107 +1,113 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, Message } from "@prisma/client";
-import { messageSchema } from "@/app/validation"; // Assurez-vous que messageSchema est défini dans le fichier de validation
-import { getUserFromRequest } from "@/app/lib/tokenManager"; // Assurez-vous que cette fonction est correctement importée
+import { PrismaClient } from "@prisma/client";
+import { messageSchema } from "@/app/validation"; // Assurez-vous que le schéma de validation existe
+import { getUserFromRequest } from "@/app/lib/tokenManager"; // Pour extraire les données de l'utilisateur depuis le token
 
 const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    // Récupération de l'id, entity, et accessToken via le cookie
-    const { id, entity, accessToken } = await getUserFromRequest(req);
-    const senderId = id;
+    // Récupération de l'id et accessToken via le cookie
+    const { id, accessToken } = await getUserFromRequest(req);
 
-    // Récupération des données JSON de la requête
-    const requestData = await req.json();
-    const { receiverId, content, offerId } = requestData;
-
-    // Validation des données avec Joi
-    const { error } = messageSchema.validate(requestData, {
-      abortEarly: false,
-    });
-    if (error) {
-      const validationErrors = error.details.map((err) => err.message);
-      console.error("Erreurs de validation:", validationErrors);
-      return NextResponse.json({ error: validationErrors }, { status: 400 });
-    }
-
-    // Validation supplémentaire : vérifier si senderId et receiverId existent dans la base de données
-    const senderIsUser = await prisma.user.findUnique({
-      where: { id: senderId },
-    });
-    const senderIsCompany = await prisma.company.findUnique({
-      where: { id: senderId },
-    });
-
-    if (!senderIsUser && !senderIsCompany) {
-      return NextResponse.json(
-        { error: "L'expéditeur n'existe ni dans User ni dans Company" },
-        { status: 400 }
-      );
-    }
-
-    const receiverIsUser = await prisma.user.findUnique({
-      where: { id: receiverId },
-    });
-    const receiverIsCompany = await prisma.company.findUnique({
-      where: { id: receiverId },
-    });
-
-    if (!receiverIsUser && !receiverIsCompany) {
-      return NextResponse.json(
-        { error: "Le destinataire n'existe ni dans User ni dans Company" },
-        { status: 400 }
-      );
-    }
-
-    // Préparer les objets connect pour l'expéditeur et le destinataire
-    const senderConnectData = senderIsUser
-      ? { senderUser: { connect: { id: senderId } } }
-      : senderIsCompany
-      ? { senderCompany: { connect: { id: senderId } } }
-      : {};
-
-    const receiverConnectData = receiverIsUser
-      ? { receiverUser: { connect: { id: receiverId } } }
-      : receiverIsCompany
-      ? { receiverCompany: { connect: { id: receiverId } } }
-      : {};
-
-    // Création du message
-    const newMessage: Message = await prisma.message.create({
-      data: {
-        content,
-        offerId: offerId || null, // Assurez-vous que offerId est correctement passé (null si non défini)
-        senderId,
-        receiverId,
-        ...senderConnectData,
-        ...receiverConnectData,
+    // Query to get messages sent or received by the user
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderUserId: id },
+          { receiverUserId: id },
+          { senderCompanyId: id },
+          { receiverCompanyId: id },
+        ],
+      },
+      include: {
+        senderUser: true,
+        senderCompany: true,
+        receiverUser: true,
+        receiverCompany: true,
+        vehicleOffer: true,
+        realEstateOffer: true,
+        commercialOffer: true,
       },
     });
 
-    // Création de la réponse avec le message créé et mise à jour du cookie
-    const response = NextResponse.json({ newMessage }, { status: 201 });
+    // Création de la réponse avec l'id, accessToken, et messages
+    const response = NextResponse.json(
+      { id, accessToken, messages },
+      { status: 200 }
+    );
 
-    // Mise à jour du cookie avec le nouveau access_token
+    // Mise à jour du cookie avec l'accessToken
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 3600, // 1 heure
+      maxAge: 3600,
       sameSite: "strict",
       path: "/",
     });
 
+    // Retourne la réponse avec les cookies mis à jour et les messages
     return response;
   } catch (error: unknown) {
-    console.error("Erreur lors de la création du message:", error);
+    console.error("Erreur lors de la récupération des données:", error);
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: "Erreur lors de la création du message: " + error.message },
+        {
+          error: "Erreur lors de la récupération des données: " + error.message,
+        },
         { status: 500 }
       );
     }
     return NextResponse.json(
-      { error: "Erreur inconnue lors de la création du message" },
+      { error: "Erreur inconnue lors de la récupération des données" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // Parse request body
+    const requestBody = await req.json();
+
+    // Validate the request body against the schema
+    const { error } = messageSchema.validate(requestBody);
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.details.map((err) => err.message).join(", ") },
+        { status: 400 }
+      );
+    }
+
+    // Continue with the processing if validation passes
+    const {
+      receiverUserId,
+      receiverCompanyId,
+      content,
+      senderUserId,
+      senderCompanyId,
+      offerId,
+    } = requestBody;
+
+    // Create message logic, assuming everything is valid
+    const message = await prisma.message.create({
+      data: {
+        senderUserId,
+        senderCompanyId,
+        receiverUserId,
+        receiverCompanyId,
+        content,
+        offerId,
+        sentAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({ message }, { status: 201 });
+  } catch (error) {
+    console.error("Error processing the message:", error);
+    return NextResponse.json(
+      { error: "An error occurred while processing the message." },
       { status: 500 }
     );
   }
