@@ -3,6 +3,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import OfferCard from '@/app/components/offers/OfferCard';
+import OfferCardListSkeleton from '@/app/components/skeletons/offerCardListSkeleton';
  
 
 
@@ -39,7 +40,7 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   console.log(category);
   const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = 1;
+  const limit = 10;
 
 
   const changePage = (newPage: number) => {
@@ -77,6 +78,7 @@ const Page: React.FC = () => {
   }
 
   return (
+    <>
     <div className="flex flex-col min-h-screen p-5 font-sans bg-gray-50 box-border">
       <header className="w-full text-center mb-5">
         <h1 className="text-2xl font-bold">Catégorie : {category}</h1>
@@ -90,7 +92,12 @@ const Page: React.FC = () => {
             </p>
 
             {isLoading ? (
-              <p className="text-gray-500">Chargement des données...</p>
+              <div className='space-y-8'>
+                <OfferCardListSkeleton/>
+                <OfferCardListSkeleton/>
+                <OfferCardListSkeleton/>
+                <OfferCardListSkeleton/>
+              </div>
             ) : data ? (
               <div className="space-y-8">
                 {data.data.map((offer: Offers) => (
@@ -128,6 +135,7 @@ const Page: React.FC = () => {
         </main>
       </div>
     </div>
+    </>
   );
 };
 

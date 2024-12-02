@@ -83,7 +83,7 @@ model VehicleOffer {
   updatedAt   DateTime @updatedAt
 
   // Champs spécifiques aux véhicules
-  vehicleType  String   // Type de vehicule (voiture, Moto, etc.)
+  vehicleType   String   // Type de vehicule (voiture, Moto, etc.)
   model         String
   year          Int
   mileage       Int
