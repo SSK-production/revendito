@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from "axios";
 
-export default function useLastAutomotiveOffers(offerType: string) {
+export default function useLastOffers(offerType: string) {
     const [offers, setOffers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
