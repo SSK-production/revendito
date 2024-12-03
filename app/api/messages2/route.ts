@@ -30,18 +30,19 @@ export async function POST(req: NextRequest) {
     const realEstateOfferId = null;
     const commercialOfferId = null;
 
-    const newMessage: Message = await prisma.message.create({
-      data: {
-        senderUserId: id,
-        receiverUserId,
-        senderCompanyId,
-        receiverCompanyId,
-        content,
-        vehicleOfferId,
-        realEstateOfferId,
-        commercialOfferId,
-      },
-    });
+        const newMessage: Message = await prisma.message.create({
+            data: {
+                // @ts-ignore
+                senderUserId: id,
+                receiverUserId,
+                senderCompanyId,
+                receiverCompanyId,
+                content,
+                vehicleOfferId,
+                realEstateOfferId,
+                commercialOfferId
+            }
+        });
 
     const response = NextResponse.json({ newMessage }, { status: 201 });
     response.cookies.set("access_token", accessToken, {
