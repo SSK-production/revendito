@@ -23,7 +23,55 @@ export default function CompanyRegister() {
 
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const router = useRouter();
-  const { NotificationsComponent, addNotification } = useNotifications(); // Hook pour les notifications
+  const { NotificationsComponent, addNotification } = useNotifications();
+
+  // Fonction pour envoyer les données
+  const sendData = async (data: CompanyData) => {
+    try {
+      const response = await fetch("/api/company", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Company successfully created:", result);
+
+        addNotification({
+          message: "Company registered successfully! Redirecting to login...",
+          variant: "success",
+          duration: 3000,
+        });
+
+        // Redirection après succès
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        const errorMessage =
+          errorData?.error || "An error occurred during registration.";
+
+        addNotification({
+          message: `Error: ${errorMessage}`,
+          variant: "error",
+          duration: 7000,
+        });
+        console.error("Registration error:", errorData);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+
+      addNotification({
+        message: "An unexpected error occurred.",
+        variant: "error",
+        duration: 7000,
+      });
+    }
+  };
 
   const submitHandler = (data: CompanyData) => {
     // Sanitize data pour éviter les failles XSS
@@ -39,25 +87,15 @@ export default function CompanyRegister() {
       street: DOMPurify.sanitize(data.street),
     };
 
-    console.log("Company Data Submitted:", sanitizedData);
+    console.log("Submitting sanitized data:", sanitizedData);
 
-    // Affiche une notification de succès
-    addNotification({
-      message: "Company registered successfully! Redirecting to login...",
-      variant: "success",
-      duration: 3000, // Durée cohérente avec le délai
-    });
-
-    // Attendre 3 secondes avant de rediriger
-    setTimeout(() => {
-      router.push("/login"); // Redirection après le délai
-    }, 3000); // Délai en millisecondes
+    // Envoyer les données à l'API
+    sendData(sanitizedData);
   };
 
   const handleError = (errors: Record<string, string | null>) => {
     setErrors(errors);
 
-    // Affiche une notification d'erreur si une validation échoue
     if (Object.keys(errors).length > 0) {
       addNotification({
         message: "Please fix the errors before submitting.",
@@ -68,125 +106,200 @@ export default function CompanyRegister() {
   };
 
   return (
-    <div>
-      <h1>Company Register</h1>
-      <form
-        onSubmit={(e) =>
-          handleSubmit(e, formData, submitHandler, "companyData", handleError)
-        }
-      >
-        <div>
-          <label htmlFor="companyName">Company Name:</label>
-          <input
-            type="text"
-            id="companyName"
-            name="companyName"
-            value={formData.companyName}
-            onChange={(e) => handleChange(e, setFormData)}
-            maxLength={20}
-            required
-          />
-          {errors.companyName && <span>{errors.companyName}</span>}
-        </div>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-gray-800 text-center mb-4">
+          Register Your Company
+        </h1>
+        <form
+          className="space-y-4"
+          onSubmit={(e) =>
+            handleSubmit(e, formData, submitHandler, "companyData", handleError)
+          }
+        >
+          <div>
+            <label
+              htmlFor="companyName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Company Name
+            </label>
+            <input
+              type="text"
+              id="companyName"
+              name="companyName"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.companyName}
+              onChange={(e) => handleChange(e, setFormData)}
+              maxLength={20}
+              required
+            />
+            {errors.companyName && (
+              <p className="mt-1 text-sm text-red-600">{errors.companyName}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.password && <span>{errors.password}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.password}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.email && <span>{errors.email}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.email}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="companyNumber">Company Number:</label>
-          <input
-            type="text"
-            id="companyNumber"
-            name="companyNumber"
-            value={formData.companyNumber}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.companyNumber && <span>{errors.companyNumber}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="companyNumber"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Company Number
+            </label>
+            <input
+              type="text"
+              id="companyNumber"
+              name="companyNumber"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.companyNumber}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.companyNumber && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.companyNumber}
+              </p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="birthDate">Birth Date:</label>
-          <input
-            type="date"
-            id="birthDate"
-            name="birthDate"
-            value={formData.birthDate}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.birthDate && <span>{errors.birthDate}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="birthDate"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Birth Date
+            </label>
+            <input
+              type="date"
+              id="birthDate"
+              name="birthDate"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.birthDate}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.birthDate && (
+              <p className="mt-1 text-sm text-red-600">{errors.birthDate}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="city">City:</label>
-          <input
-            type="text"
-            id="city"
-            name="city"
-            value={formData.city}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.city && <span>{errors.city}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="city"
+              className="block text-sm font-medium text-gray-700"
+            >
+              City
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.city}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.city && (
+              <p className="mt-1 text-sm text-red-600">{errors.city}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="country">Country:</label>
-          <input
-            type="text"
-            id="country"
-            name="country"
-            value={formData.country}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.country && <span>{errors.country}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="country"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Country
+            </label>
+            <input
+              type="text"
+              id="country"
+              name="country"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.country}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.country && (
+              <p className="mt-1 text-sm text-red-600">{errors.country}</p>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="street">Street:</label>
-          <input
-            type="text"
-            id="street"
-            name="street"
-            value={formData.street}
-            onChange={(e) => handleChange(e, setFormData)}
-            required
-          />
-          {errors.street && <span>{errors.street}</span>}
-        </div>
+          <div>
+            <label
+              htmlFor="street"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Street
+            </label>
+            <input
+              type="text"
+              id="street"
+              name="street"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={formData.street}
+              onChange={(e) => handleChange(e, setFormData)}
+              required
+            />
+            {errors.street && (
+              <p className="mt-1 text-sm text-red-600">{errors.street}</p>
+            )}
+          </div>
 
-        <div>
-          <button type="submit">Submit</button>
-        </div>
-      </form>
+          <div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
 
-      {/* Composant pour afficher les notifications */}
-      <NotificationsComponent />
+        <NotificationsComponent />
+      </div>
     </div>
   );
 }
