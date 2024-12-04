@@ -15,62 +15,61 @@ interface Offers {
 interface OfferCardProps {
   offer: Offers;
 }
+
 const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   return (
     <div
       key={offer.id}
-      className="bg-white shadow-xl rounded-lg overflow-hidden w-full flex flex-col sm:flex-row p-4 lg:p-6 transform transition-all hover:scale-105 hover:shadow-2xl cursor-pointer"
+      className="bg-white shadow-xl rounded-lg overflow-hidden w-full flex p-4 lg:p-6 transform transition-all hover:scale-105 hover:shadow-2xl cursor-pointer"
     >
       {/* Image section */}
       <div
-        className="w-full sm:w-64 lg:w-72 h-48 lg:h-56 bg-cover bg-center rounded-lg mb-4 sm:mb-0"
+        className="w-1/3 h-48 lg:h-56 bg-gray-200 bg-cover bg-center rounded-lg flex-shrink-0"
         style={{
           backgroundImage:
             offer.photos.length > 0 ? `url(${offer.photos[0]})` : "none",
         }}
-      ></div>
-
-      {/* Content section */}
-      <div className="flex-1 flex flex-col items-start justify-between sm:ml-4 lg:ml-6">
-        {/* Title */}
-        <div className="w-full mb-4">
-          <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 text-center sm:text-left">
-            {offer.title}
-          </h2>
-        </div>
-
-        {/* Details */}
-        <div className="flex flex-col lg:flex-row w-full lg:max-w-3xl justify-between items-start lg:items-center">
-          {/* Description */}
-          <div className="flex-1 mb-4 lg:mb-0 w-full">
-            <p className="text-base text-gray-600">
-              <b className="text-lg text-gray-700">Description : </b>
-              {offer.description}
-            </p>
+      >
+        {offer.photos.length === 0 && (
+          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+            No Image Available
           </div>
+        )}
+      </div>
 
-          {/* Additional info */}
-          <div className="flex-1 lg:ml-6 flex flex-col justify-between items-start lg:items-end space-y-2">
-            <p className="text-lg text-gray-700">
-              <strong>Prix:</strong>{" "}
-              <span className="text-green-600">{offer.price} $</span>
-            </p>
-            <p className="text-lg text-gray-700">
-              <strong>Ville:</strong> {offer.city}
-            </p>
-            <p className="text-lg text-gray-700">
-              <strong>Pays:</strong> {offer.country}
-            </p>
-            <p className="text-sm text-gray-500">
-              <strong>Publié le:</strong>{" "}
-              {new Date(offer.createdAt).toLocaleDateString()}
-            </p>
-            <p className="text-sm text-gray-500">
-              <strong>Mis à jour le:</strong>{" "}
-              {new Date(offer.updatedAt).toLocaleDateString()}
-            </p>
-          </div>
+      {/* Description section */}
+      <div className=" break-words w-2/5 flex flex-col justify-between p-4">
+        <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">
+          {offer.title}
+        </h2>
+        <div className="w-full break-words bg-gray-50 rounded-lg p-4">
+          <p className="text-base text-gray-600">
+            <b className="text-lg text-gray-700">Description:</b>{" "}
+            {offer.description}
+          </p>
         </div>
+      </div>
+
+      {/* Info section */}
+      <div className="w-1/4 flex flex-col justify-between items-start lg:items-end p-4">
+        <p className="text-lg text-gray-700">
+          <strong>Prix:</strong>{" "}
+          <span className="text-green-600">{offer.price} $</span>
+        </p>
+        <p className="text-lg text-gray-700">
+          <strong>Ville:</strong> {offer.city}
+        </p>
+        <p className="text-lg text-gray-700">
+          <strong>Pays:</strong> {offer.country}
+        </p>
+        <p className="text-sm text-gray-500">
+          <strong>Publié le:</strong>{" "}
+          {new Date(offer.createdAt).toLocaleDateString()}
+        </p>
+        <p className="text-sm text-gray-500">
+          <strong>Mis à jour le:</strong>{" "}
+          {new Date(offer.updatedAt).toLocaleDateString()}
+        </p>
       </div>
     </div>
   );

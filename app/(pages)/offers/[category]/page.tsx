@@ -101,7 +101,9 @@ const Page: React.FC = () => {
             ) : data ? (
               <div className="space-y-8">
                 {data.data.map((offer: Offers) => (
-                  <OfferCard key={offer.id} offer={offer}/>
+                  <a key={offer.id} href={`http://localhost:3000/offer?category=${category}&offerId=${offer.id}`}>
+                  <OfferCard  offer={offer}/>
+                  </a>
                 ))}
               </div>
             ) : (

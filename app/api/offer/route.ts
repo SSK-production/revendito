@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    const page = req.nextUrl.searchParams.get("page") || "vehicle";
+    const page = req.nextUrl.searchParams.get("category") || "vehicle";
     const offerId = parseInt(req.nextUrl.searchParams.get("offerId") || "0", 10);
 
     if (isNaN(offerId) || offerId <= 0) {
