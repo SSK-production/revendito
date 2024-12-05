@@ -98,7 +98,8 @@ model VehicleOffer {
   emissionClass String?  // Classe d’émission (ex: Euro 6)
   condition     String?   // État du véhicule (Neuf, Occasion, À rénover)
   contactNumber String?   // Numéro de télèphone à contacter
-  emailNumber   String?   // Email à contacter
+  contactEmail  String?   // Email à contacter
+  location      Boolean  @default(false)  // definie si c'est une location ou pas
 
   photos        String[]
 
@@ -135,19 +136,20 @@ model RealEstateOffer {
   bathrooms     Int      // Nombre de salles de bain
   heatingType   String   // Type de chauffage (Gaz, Électrique, etc.)
   energyClass   String   // Classe énergétique (A, B, C, etc.)
-  furnished     Boolean  // Meublé ou non
-  parking       Boolean?  // Parking ou non
-  garage        Boolean?  // Garage ou non
-  elevator      Boolean?  // Ascenseur ou non
-  balcony       Boolean?  // Balcon ou non
-  terrace       Boolean?  // Terrasse ou non
-  garden        Boolean?  // Jardin ou non
-  basementAvailable  Boolean? // Sous sol ou non
+  furnished     Boolean @default(false)  // Meublé ou non
+  parking       Boolean @default(false)  // Parking ou non
+  garage        Boolean @default(false)  // Garage ou non
+  elevator      Boolean @default(false)  // Ascenseur ou non
+  balcony       Boolean @default(false)  // Balcon ou non
+  terrace       Boolean @default(false)  // Terrasse ou non
+  garden        Boolean @default(false)  // Jardin ou non
+  basementAvailable  Boolean @default(false) // Sous sol ou non
   floorNumber   Int?      // Étage où se situe le bien
   totalFloors   Int?      // Nombre d'étages
   contactNumber String?   // Numéro de télèphone à contacter
-  emailNumber   String?   // Email à contacter
+  contactEmail  String?   // Email à contacter
   availabilityDate DateTime? // Date à laquelle le bien sera disponible
+  location       Boolean  @default(false) // definie si c'est une location ou pas
   
   photos        String[]
 
@@ -182,7 +184,7 @@ model CommercialOffer {
   contractType   String?   // Type de contrat (CDI, CDD, Freelance, Stage, etc.)
   workSchedule   String?   // Horaire (Temps plein, Temps partiel, Horaires flexibles, etc.)
   contactNumber  String?   // Numéro de télèphone à contacter
-  emailNumber    String?   // Email à contacter
+  contactEmail    String?   // Email à contacter
   photos         String[]
 
   userId       String?

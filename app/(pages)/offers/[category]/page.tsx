@@ -85,21 +85,21 @@ const Page: React.FC = () => {
       </header>
 
       <div className="flex-1 w-full p-5">
-        <main className="flex flex-col min-h-f4/5">
+        <main className="flex flex-col  min-h-f4/5">
           <div className="flex-1 mb-4">
             <p className="text-lg mb-4">
               Bienvenue dans la catégorie <strong>{category}</strong>.<br />
             </p>
 
             {isLoading ? (
-              <div className='space-y-8'>
+              <div className='space-y-8 gap-8'>
                 <OfferCardListSkeleton/>
                 <OfferCardListSkeleton/>
                 <OfferCardListSkeleton/>
                 <OfferCardListSkeleton/>
               </div>
             ) : data ? (
-              <div className="space-y-8">
+              <div className="space-y-8 grid grid-cols-1 gap-2">
                 {data.data.map((offer: Offers) => (
                   <a key={offer.id} href={`http://localhost:3000/offer?category=${category}&offerId=${offer.id}`}>
                   <OfferCard  offer={offer}/>

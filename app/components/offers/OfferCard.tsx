@@ -20,56 +20,49 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   return (
     <div
       key={offer.id}
-      className="bg-white shadow-xl rounded-lg overflow-hidden w-full flex p-4 lg:p-6 transform transition-all hover:scale-105 hover:shadow-2xl cursor-pointer"
+      className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col lg:flex-row transition-transform hover:scale-105 hover:shadow-2xl cursor-pointer w-full"
     >
-      {/* Image section */}
+      {/* Image Section */}
       <div
-        className="w-1/3 h-48 lg:h-56 bg-gray-200 bg-cover bg-center rounded-lg flex-shrink-0"
+        className="w-full lg:w-1/3 h-56 bg-gray-200 bg-cover bg-center"
         style={{
-          backgroundImage:
-            offer.photos.length > 0 ? `url(${offer.photos[0]})` : "none",
+          backgroundImage: offer.photos.length > 0 ? `url(${offer.photos[0]})` : "none",
         }}
       >
         {offer.photos.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+          <div className="flex items-center justify-center h-full text-gray-500 text-base">
             No Image Available
           </div>
         )}
       </div>
 
-      {/* Description section */}
-      <div className=" break-words w-2/5 flex flex-col justify-between p-4">
-        <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-4">
-          {offer.title}
-        </h2>
-        <div className="w-full break-words bg-gray-50 rounded-lg p-4">
-          <p className="text-base text-gray-600">
-            <b className="text-lg text-gray-700">Description:</b>{" "}
-            {offer.description}
+      {/* Info Section */}
+      <div className="flex flex-col flex-grow p-4 lg:p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">{offer.title}</h2>
+          <span className="text-lg font-bold text-green-600">
+            {offer.price} $
+          </span>
+        </div>
+
+        <div className="flex flex-col space-y-2 text-gray-600 text-lg">
+          <p>
+            <span className="font-medium">Ville:</span> {offer.city}
+          </p>
+          <p>
+            <span className="font-medium">Pays:</span> {offer.country}
           </p>
         </div>
-      </div>
-
-      {/* Info section */}
-      <div className="w-1/4 flex flex-col justify-between items-start lg:items-end p-4">
-        <p className="text-lg text-gray-700">
-          <strong>Prix:</strong>{" "}
-          <span className="text-green-600">{offer.price} $</span>
-        </p>
-        <p className="text-lg text-gray-700">
-          <strong>Ville:</strong> {offer.city}
-        </p>
-        <p className="text-lg text-gray-700">
-          <strong>Pays:</strong> {offer.country}
-        </p>
-        <p className="text-sm text-gray-500">
-          <strong>Publié le:</strong>{" "}
-          {new Date(offer.createdAt).toLocaleDateString()}
-        </p>
-        <p className="text-sm text-gray-500">
-          <strong>Mis à jour le:</strong>{" "}
-          {new Date(offer.updatedAt).toLocaleDateString()}
-        </p>
+        <div className="flex justify-between items-end mt-auto text-gray-500 text-xs">
+          <p>
+            <span className="font-medium">Publié le:</span>{" "}
+            {new Date(offer.createdAt).toLocaleDateString()}
+          </p>
+          <p>
+            <span className="font-medium">Mis à jour le:</span>{" "}
+            {new Date(offer.updatedAt).toLocaleDateString()}
+          </p>
+        </div>
       </div>
     </div>
   );
