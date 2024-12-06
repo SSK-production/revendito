@@ -39,10 +39,10 @@ export async function POST(req: Request) {
     }
 
     // Vérification de l'existence de l'email
-    const foundCompany = await prisma.company.findUnique({
+    const foundUser = await prisma.user.findUnique({
       where: { email },
     });
-    if (foundCompany) {
+    if (foundUser) {
       return new Response(JSON.stringify({ error: 'This email is already used' }), { status: 400 });
     }
 

@@ -4,9 +4,11 @@ import { handleSubmit } from "@/utils/forms/allFunctionsForm"; // Import de hand
 import { userData } from "@/utils/interfaces/formsInterface"; // L'interface des données du formulaire
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import DOMPurify from "dompurify"; //sanitze content
+import DOMPurify from "dompurify"; //sanitize content
 import { useNotifications } from "@/components/notifications"; // Import du système de notifications
-
+import countries from 'i18n-iso-countries';
+import en from 'i18n-iso-countries/langs/en.json';
+countries.registerLocale(en);
 export default function FormCompanyRegister() {
   const [formData, setFormData] = useState<userData>({
     username: "",
@@ -17,7 +19,6 @@ export default function FormCompanyRegister() {
     birthDate: "",
     city: "",
     country: "",
-    profilePicture: null, // Initialiser avec null, car aucun fichier n'est sélectionné par défaut
   });
 
   const [errors, setErrors] = useState<Record<string, string | null>>({});
@@ -25,48 +26,51 @@ export default function FormCompanyRegister() {
   const { NotificationsComponent, addNotification } = useNotifications(); // Hook pour les notifications
 
   const submitHandler = async (data: userData) => {
+    // Nettoyage simple au lieu de DOMPurify
     const sanitizedData = {
       ...data,
-      username: DOMPurify.sanitize(data.username),
-      password: DOMPurify.sanitize(data.password),
-      firstName: DOMPurify.sanitize(data.firstName),
-      lastName: DOMPurify.sanitize(data.lastName),
-      email: DOMPurify.sanitize(data.email),
-      city: DOMPurify.sanitize(data.city),
-      country: DOMPurify.sanitize(data.country),
+      username: data.username.trim(),
+      password: data.password.trim(),
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email.trim(),
+      city: data.city.trim(),
+      country: data.country.trim(),
     };
-
+  
     try {
-      const formDataToSend = new FormData();
-
-      for (const key in sanitizedData) {
-        formDataToSend.append(key, (sanitizedData as any)[key]);
-      }
-
-      if (sanitizedData.profilePicture) {
-        formDataToSend.append("profilePicture", sanitizedData.profilePicture);
-      }
-
       const response = await fetch("/api/user", {
         method: "POST",
-        body: formDataToSend,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sanitizedData),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to register user.");
-      }
-
+  
       const result = await response.json();
+  
+      if (!response.ok) {
+        if (result.error) {
+          // Affiche les erreurs du backend
+          handleError(result.error.reduce((acc:any, msg:any) => {
+            acc[msg.split(" ")[0].toLowerCase()] = msg;
+            return acc;
+          }, {}));
+        } else {
+          throw new Error("Failed to register user.");
+        }
+        return;
+      }
+  
       addNotification({
         message: "User registered successfully! Redirecting to login...",
         variant: "success",
         duration: 3000,
       });
-
+  
       setTimeout(() => {
         router.push("/login");
       }, 3000);
     } catch (error) {
+      console.error(error);
       addNotification({
         message: "An error occurred while registering. Please try again.",
         variant: "error",
@@ -85,6 +89,7 @@ export default function FormCompanyRegister() {
       });
     }
   };
+  const countryOptions = countries.getNames('en', { select: 'official' }); // ou 'fr' pour le français
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
@@ -170,47 +175,142 @@ export default function FormCompanyRegister() {
             )}
           </div>
 
-          {/* Other fields */}
-          {/* Repeat similar pattern for Last Name, Email, etc. */}
-          
-          {/* Profile Picture */}
+          {/* Last Name */}
           <div>
             <label
-              htmlFor="profilePicture"
+              htmlFor="lastName"
               className="block text-sm font-medium text-gray-700"
             >
-              Profile Picture
+              Last Name
             </label>
             <input
-              type="file"
-              id="profilePicture"
-              name="profilePicture"
-              accept="image/png, image/jpeg"
-              onChange={(e) => {
-                const file = e.target.files ? e.target.files[0] : null;
-                setFormData({ ...formData, profilePicture: file });
-              }}
-              className="mt-1 block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
-            {errors.profilePicture && (
-              <span className="text-red-500 text-sm">
-                {errors.profilePicture}
-              </span>
+            {errors.lastName && (
+              <span className="text-red-500 text-sm">{errors.lastName}</span>
             )}
           </div>
+
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.email && (
+              <span className="text-red-500 text-sm">{errors.email}</span>
+            )}
+          </div>
+
+          {/* Birth Date */}
+          <div>
+            <label
+              htmlFor="birthDate"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Birth Date
+            </label>
+            <input
+              type="date"
+              id="birthDate"
+              name="birthDate"
+              value={formData.birthDate}
+              onChange={(e) =>
+                setFormData({ ...formData, birthDate: e.target.value })
+              }
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.birthDate && (
+              <span className="text-red-500 text-sm">{errors.birthDate}</span>
+            )}
+          </div>
+
+          {/* City */}
+          <div>
+            <label
+              htmlFor="city"
+              className="block text-sm font-medium text-gray-700"
+            >
+              City
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={(e) =>
+                setFormData({ ...formData, city: e.target.value })
+              }
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            {errors.city && (
+              <span className="text-red-500 text-sm">{errors.city}</span>
+            )}
+          </div>
+
+          {/* Country */}
+          <div>
+      <label
+        htmlFor="country"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Country
+      </label>
+      <select
+        id="country"
+        name="country"
+        value={formData.country}
+        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+        required
+        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      >
+        <option value="">Select a country</option>
+        {Object.entries(countryOptions).map(([code, name]) => (
+          <option key={code} value={code}>
+            {name}
+          </option>
+        ))}
+      </select>
+      {errors.country && (
+        <span className="text-red-500 text-sm">{errors.country}</span>
+      )}
+    </div>
 
           {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="w-full bg-indigo-500 text-white p-2 rounded-md hover:bg-indigo-600"
             >
-              Submit
+              Register
             </button>
           </div>
         </form>
-        <NotificationsComponent />
       </div>
+      <NotificationsComponent />
     </div>
   );
 }
