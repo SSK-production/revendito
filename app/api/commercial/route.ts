@@ -4,6 +4,7 @@ import { commercialOfferSchema } from '@/app/validation';
 import { getUserFromRequest } from '@/app/lib/tokenManager';
 import { processFormData } from '@/app/lib/processFormData';
 import { verifyId } from '@/app/lib/function';
+import { string } from 'joi';
 
 const prisma = new PrismaClient();
 
@@ -71,6 +72,8 @@ export async function POST(req: NextRequest) {
     console.log('Fields:', fields);
     console.log('Uploaded Photos:', photos);
 
+    fields.categories = JSON.parse(fields.categories); // Transforme la chaîne JSON en tableau
+    fields.openingHours = JSON.parse(fields.openingHours);
     // Validation des champs, y compris les photos (qui sont maintenant des chaînes)
     const { error } = commercialOfferSchema.validate({ ...fields, photos }, { abortEarly: false });
 
@@ -90,6 +93,8 @@ export async function POST(req: NextRequest) {
         price: parseFloat(fields.price),
         city: fields.city,
         country: fields.country,
+        openingHours: fields.openingHours,
+        categories: fields.categories,
         commercialType: fields.commercialType,
         duration: parseInt(fields.duration),
         contractType: fields.contractType,

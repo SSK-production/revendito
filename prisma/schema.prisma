@@ -178,6 +178,10 @@ model CommercialOffer {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+    // Champs pour les magasins
+  openingHours   Json? // JSON ou String décrivant les horaires d'ouverture
+  categories     String[] // Liste des catégories de produits/Job/promotion
+
   // Champs spécifiques au commercial
   commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
   duration       Int?    // Durée de validité de l'offre (en jours)
@@ -185,6 +189,7 @@ model CommercialOffer {
   workSchedule   String?   // Horaire (Temps plein, Temps partiel, Horaires flexibles, etc.)
   contactNumber  String?   // Numéro de télèphone à contacter
   contactEmail    String?   // Email à contacter
+
   photos         String[]
 
   userId       String?

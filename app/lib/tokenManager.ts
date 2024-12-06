@@ -31,7 +31,8 @@ export function refreshAccessToken(refreshToken: string): string | null {
   try {
     // Verify and decode the refresh token
     const user = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as UserPayload;
-
+    console.log(user);
+    
     // Generate a new access token
     const newAccessToken = generateAccessToken({
       id: user.id,
@@ -131,6 +132,9 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
     if (!decodedToken) {
       throw new Error('Access token invalide');
     }
+
+    console.log(decodedToken);
+    
 
     const { id, username, entity } = decodedToken as { id: string; username: string; entity: 'user' | 'company' };
     if (!id || !entity) {

@@ -434,11 +434,11 @@ export const commercialOfferSchema = Joi.object({
     "date.base": "UpdatedAt must be a valid date.",
   }),
   commercialType: Joi.string()
-    .valid("Product", "Service", "Other")
+    .valid("Product", "Service", "Promotion", "Other")
     .required()
     .messages({
       "string.valid":
-        "Commercial type must be one of 'Product', 'Service', or 'Other'.",
+        "Commercial type must be one of 'Product', 'Service', 'Promotion', or 'Other'.",
       "any.required": "The 'commercialType' field is required.",
     }),
   duration: Joi.number().integer().min(1).optional().messages({
@@ -479,6 +479,97 @@ export const commercialOfferSchema = Joi.object({
   companyId: Joi.string().uuid().optional().messages({
     "string.uuid": "Company ID must be a valid UUID.",
   }),
+  categories: Joi.array()
+    .items(
+      Joi.string().valid(
+        "Electronics",
+        "Fashion",
+        "Home",
+        "Toys",
+        "Books",
+        "Automotive",
+        "Sports",
+        "Health & Beauty",
+        "Food & Beverage",
+        "Art & Crafts",
+        "Real Estate",
+        "Education",
+        "Entertainment",
+        "Pets",
+        "Other"
+      )
+    )
+    .min(1)
+    .required()
+    .messages({
+      "array.base": "Categories must be an array of strings.",
+      "array.min": "At least one category must be selected.",
+      "any.required": "The 'categories' field is required.",
+    }),
+
+  openingHours: Joi.object({
+    Monday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).required(),
+    Tuesday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).required(),
+    Wednesday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).required(),
+    Thursday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).required(),
+    Friday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).required(),
+    Saturday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).optional(),
+    Sunday: Joi.object({
+      start: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+      end: Joi.string()
+        .pattern(/^([0-1]\d|2[0-3]):([0-5]\d)$/)
+        .required(),
+    }).optional(),
+  })
+    .required()
+    .messages({
+      "object.base": "Opening hours must be a valid object.",
+      "any.required": "The 'openingHours' field is required.",
+    }),
 });
 
 const ReporterTypeEnum = Joi.string().valid("user", "company").required();

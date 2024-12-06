@@ -111,7 +111,7 @@ type AuthenticatedEntity = {
       const refreshToken = jwt.sign(
         {
           id: user.id,
-          name: user.name,
+          username: user.name,
           email: user.email,
           role: user.role,
           entity: isCompany ? 'company' : 'user',
