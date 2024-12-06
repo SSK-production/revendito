@@ -74,6 +74,8 @@ model Company {
 
 model VehicleOffer {
   id          Int      @id @default(autoincrement())
+  vendor      String?
+  vendorType  String?
   title       String
   description String
   price       Float
@@ -90,6 +92,14 @@ model VehicleOffer {
   fuelType      String
   color         String
   transmission  String
+  numberOfDoors Int?     // Nombre de portes
+  engineSize    Float?   // Cylindrée en litres (ex: 1.6, 2.0)
+  power         Int?     // Puissance du moteur (en chevaux)
+  emissionClass String?  // Classe d’émission (ex: Euro 6)
+  condition     String?   // État du véhicule (Neuf, Occasion, À rénover)
+  contactNumber String?   // Numéro de télèphone à contacter
+  contactEmail  String?   // Email à contacter
+  location      Boolean  @default(false)  // definie si c'est une location ou pas
 
   photos        String[]
 
@@ -107,6 +117,8 @@ model VehicleOffer {
 
 model RealEstateOffer {
   id            Int      @id @default(autoincrement())
+  vendor        String?
+  vendorType    String?
   title         String
   description   String
   price         Float
@@ -117,13 +129,27 @@ model RealEstateOffer {
 
   // Champs spécifiques à l'immobilier
   propertyType  String   // Type de propriété (Appartement, Maison, etc.)
+  propertyCondition String? // État du bien (neuf, rénové, Bon, à rénover)
   surface       Float    // Surface en m²
   rooms         Int      // Nombre de pièces
   bedrooms      Int      // Nombre de chambres
   bathrooms     Int      // Nombre de salles de bain
   heatingType   String   // Type de chauffage (Gaz, Électrique, etc.)
   energyClass   String   // Classe énergétique (A, B, C, etc.)
-  furnished     Boolean  // Meublé ou non
+  furnished     Boolean @default(false)  // Meublé ou non
+  parking       Boolean @default(false)  // Parking ou non
+  garage        Boolean @default(false)  // Garage ou non
+  elevator      Boolean @default(false)  // Ascenseur ou non
+  balcony       Boolean @default(false)  // Balcon ou non
+  terrace       Boolean @default(false)  // Terrasse ou non
+  garden        Boolean @default(false)  // Jardin ou non
+  basementAvailable  Boolean @default(false) // Sous sol ou non
+  floorNumber   Int?      // Étage où se situe le bien
+  totalFloors   Int?      // Nombre d'étages
+  contactNumber String?   // Numéro de télèphone à contacter
+  contactEmail  String?   // Email à contacter
+  availabilityDate DateTime? // Date à laquelle le bien sera disponible
+  location       Boolean  @default(false) // definie si c'est une location ou pas
   
   photos        String[]
 
@@ -142,6 +168,8 @@ model RealEstateOffer {
 
 model CommercialOffer {
   id          Int      @id @default(autoincrement())
+  vendor      String?
+  vendorType  String?
   title       String
   description String
   price       Float
@@ -153,6 +181,10 @@ model CommercialOffer {
   // Champs spécifiques au commercial
   commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
   duration       Int?    // Durée de validité de l'offre (en jours)
+  contractType   String?   // Type de contrat (CDI, CDD, Freelance, Stage, etc.)
+  workSchedule   String?   // Horaire (Temps plein, Temps partiel, Horaires flexibles, etc.)
+  contactNumber  String?   // Numéro de télèphone à contacter
+  contactEmail    String?   // Email à contacter
   photos         String[]
 
   userId       String?

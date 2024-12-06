@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
     // On récup le token
-    const { id, entity, accessToken } = await getUserFromRequest(req);
+    const { id, username, entity, accessToken } = await getUserFromRequest(req);
     // Vérification si l'entité existe
     verifyId(id, entity);
     
@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
     console.log('Début de la création de l\'offre');
     const newCommercialOffer: CommercialOffer = await prisma.commercialOffer.create({
       data: {
+        vendor: username,
+        vendorType: entity,
         title: fields.title,
         description: fields.description,
         price: parseFloat(fields.price),
@@ -90,6 +92,10 @@ export async function POST(req: NextRequest) {
         country: fields.country,
         commercialType: fields.commercialType,
         duration: parseInt(fields.duration),
+        contractType: fields.contractType,
+        workSchedule: fields.workSchedule,
+        contactNumber: fields.contactNumber,
+        contactEmail: fields.contactEmail,
         photos,  
         userId: entity === 'user' ? id : null,
         companyId: entity === 'company' ? id : null,
