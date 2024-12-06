@@ -107,7 +107,7 @@ export default function CompanyRegister() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+      <div className="w-full max-w-md bg-white shadow-2xl rounded-lg p-6">
         <h1 className="text-2xl font-bold text-gray-800 text-center mb-4">
           Register Your Company
         </h1>
@@ -128,7 +128,7 @@ export default function CompanyRegister() {
               type="text"
               id="companyName"
               name="companyName"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.companyName}
               onChange={(e) => handleChange(e, setFormData)}
               maxLength={20}
@@ -150,7 +150,7 @@ export default function CompanyRegister() {
               type="password"
               id="password"
               name="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.password}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -171,7 +171,7 @@ export default function CompanyRegister() {
               type="email"
               id="email"
               name="email"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.email}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -192,7 +192,7 @@ export default function CompanyRegister() {
               type="text"
               id="companyNumber"
               name="companyNumber"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.companyNumber}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -215,7 +215,7 @@ export default function CompanyRegister() {
               type="date"
               id="birthDate"
               name="birthDate"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.birthDate}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -236,7 +236,7 @@ export default function CompanyRegister() {
               type="text"
               id="city"
               name="city"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.city}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -257,7 +257,7 @@ export default function CompanyRegister() {
               type="text"
               id="country"
               name="country"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.country}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -278,7 +278,7 @@ export default function CompanyRegister() {
               type="text"
               id="street"
               name="street"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
               value={formData.street}
               onChange={(e) => handleChange(e, setFormData)}
               required
@@ -291,7 +291,7 @@ export default function CompanyRegister() {
           <div>
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               Submit
             </button>
