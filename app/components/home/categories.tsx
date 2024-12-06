@@ -24,7 +24,7 @@ export default function Categories({onLoad}: CategoriesProps) {
             <section className="grid grid-cols-3 gap-2 *:cursor-pointer">
                 <article
                     className="bg-indigo-100 rounded-lg text-indigo-800 font-medium flex flex-row items-center gap-2 pl-2 py-2 hover:text-indigo-100 hover:bg-indigo-700">
-                    <FontAwesomeIcon icon={faCar}/>
+                    <FontAwesomeIcon icon={faCar} />
                     Automotive
                 </article>
                 <article
