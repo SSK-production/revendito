@@ -22,7 +22,7 @@ const AuthCheckPage = () => {
         if (response.status === 200) {
           // Successfully authenticated
           setAuthStatus("Authenticated");
-          setUserEmail(data.email);
+          setUserEmail(data.username);
         } else if (response.status === 401) {
           // Not authenticated or tokens expired
           setAuthStatus(data.error || "Authentication failed");

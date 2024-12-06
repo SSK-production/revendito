@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
     // On récup le token
-    const { id, entity, accessToken } = await getUserFromRequest(req);
+    const { id, username, entity, accessToken } = await getUserFromRequest(req);
     // Vérification si l'entité existe
     verifyId(id, entity);
 
@@ -80,12 +80,15 @@ export async function POST(req: NextRequest) {
     console.log('Début de la création de l\'offre');
     const newRealEstateOffer: RealEstateOffer = await prisma.realEstateOffer.create({
       data: {
+        vendor: username,
+        vendorType: entity,
         title: fields.title,
         description: fields.description,
         price: parseFloat(fields.price),
         city: fields.city,
         country: fields.country,
         propertyType: fields.propertyType,
+        propertyCondition: fields.propertyCondition,
         surface: parseInt(fields.surface),
         rooms: parseInt(fields.rooms),
         bedrooms: parseInt(fields.bedrooms),
@@ -93,6 +96,19 @@ export async function POST(req: NextRequest) {
         heatingType: fields.heatingType,
         energyClass: fields.energyClass,
         furnished: Boolean(fields.furnished),
+        parking: Boolean(fields.parking),
+        garage: Boolean(fields.garage),
+        elevator: Boolean(fields.elevator),
+        balcony: Boolean(fields.balcony),
+        terrace: Boolean(fields.terrace),
+        garden: Boolean(fields.garden),
+        basementAvailable: Boolean(fields.basementAvailable),
+        floorNumber: parseInt(fields.floorNumber),
+        totalFloors: parseInt(fields.totalFloors),
+        contactNumber: fields.contactNumber,
+        contactEmail: fields.contactEmail,
+        availabilityDate: new Date(fields.availabilityDate),
+        location: Boolean(fields.location),
         photos,  
         userId: entity === 'user' ? id : null,
         companyId: entity === 'company' ? id : null,

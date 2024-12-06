@@ -107,24 +107,6 @@ export const createAuthSchema = Joi.object({
   }),
 });
 
-export const createSubCategorieSchema = Joi.object({
-  name: Joi.string().min(3).max(30).trim().required().messages({
-    "string.min": "Name must be at least 3 characters long.",
-    "string.max": "Name must not exceed 30 characters.",
-    "any.required": "The 'name' field is required.",
-  }),
-  description: Joi.string().min(6).max(30).trim().required().messages({
-    "string.min": "Description must be at least 6 characters long.",
-    "string.max": "Description must not exceed 30 characters.",
-    "any.required": "The 'description' field is required.",
-  }),
-  type: Joi.string().min(3).max(30).trim().required().messages({
-    "string.min": "Type must be at least 3 characters long.",
-    "string.max": "Type must not exceed 30 characters.",
-    "any.required": "The 'type' field is required.",
-  }),
-});
-
 export const messageSchema = Joi.object({
   senderUserId: Joi.string().uuid().optional().messages({
     "string.uuid": "senderUserId must be a valid UUID.",
@@ -155,6 +137,13 @@ export const messageSchema = Joi.object({
 });
 
 export const vehicleSchema = Joi.object({
+  vendor: Joi.string().optional().messages({
+    "string.base": "Vendor must be a valid string.",
+  }),
+  vendorType: Joi.string().valid("company", "user").optional().messages({
+    "any.only":
+      "Vendor type must be one of 'Individual', 'Agency', or 'Developer'.",
+  }),
   title: Joi.string().min(3).max(100).required().messages({
     "string.min": "Title must be at least 3 characters long.",
     "string.max": "Title must not exceed 100 characters.",
@@ -175,11 +164,14 @@ export const vehicleSchema = Joi.object({
     "string.max": "City must not exceed 100 characters.",
     "any.required": "The 'city' field is required.",
   }),
-  country: Joi.string().min(2).max(100).required().messages({
-    "string.min": "Country must be at least 2 characters long.",
-    "string.max": "Country must not exceed 100 characters.",
-    "any.required": "The 'country' field is required.",
-  }),
+  country: Joi.string()
+    .trim()
+    .valid(...validCountries)
+    .required()
+    .messages({
+      "any.required": "The 'country' field is required.",
+      "any.only": "The 'country' field must be a valid ISO country code.",
+    }),
   vehicleType: Joi.string()
     .valid("Car", "Truck", "Motorcycle", "Van", "Bicycle", "Boat")
     .required()
@@ -226,6 +218,35 @@ export const vehicleSchema = Joi.object({
     "string.valid": "Transmission must be either 'Manual' or 'Automatic'.",
     "any.required": "The 'transmission' field is required.",
   }),
+  numberOfDoors: Joi.number().integer().min(0).optional().messages({
+    "number.base": "Number of doors must be a valid number.",
+    "number.min": "Number of doors must be a positive integer.",
+  }),
+  engineSize: Joi.number().positive().optional().messages({
+    "number.base": "Engine size must be a valid number.",
+    "number.positive": "Engine size must be a positive number.",
+  }),
+  power: Joi.number().positive().optional().messages({
+    "number.base": "Power must be a valid number.",
+    "number.positive": "Power must be a positive number.",
+  }),
+  emissionClass: Joi.string().min(1).max(20).optional().messages({
+    "string.max": "Emission class must not exceed 20 characters.",
+  }),
+  condition: Joi.string()
+    .valid("New", "Used", "For Renovation")
+    .optional()
+    .messages({
+      "any.only":
+        "Condition must be one of 'New', 'Used', or 'For Renovation'.",
+    }),
+  contactNumber: Joi.string().optional().messages({
+    "string.base": "Contact number must be a valid string.",
+  }),
+  contactEmail: Joi.string().email().optional().messages({
+    "string.email": "Email must be a valid email address.",
+  }),
+  location: Joi.boolean().optional(),
   photos: Joi.array()
     .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)
     .required()
@@ -243,13 +264,20 @@ export const vehicleSchema = Joi.object({
 });
 
 export const propertySchema = Joi.object({
+  vendor: Joi.string().optional().messages({
+    "string.base": "Vendor must be a valid string.",
+  }),
+  vendorType: Joi.string().valid("company", "user").optional().messages({
+    "any.only":
+      "Vendor type must be one of 'Individual', 'Agency', or 'Developer'.",
+  }),
   title: Joi.string().min(3).max(100).required().messages({
     "string.min": "Title must be at least 3 characters long.",
     "string.max": "Title must not exceed 100 characters.",
     "any.required": "The 'title' field is required.",
   }),
-  description: Joi.string().max(500).optional().messages({
-    "string.max": "Description must not exceed 500 characters.",
+  description: Joi.string().max(2500).optional().messages({
+    "string.max": "Description must not exceed 2500 characters.",
   }),
   price: Joi.number().positive().required().messages({
     "number.base": "Price must be a valid number.",
@@ -261,11 +289,21 @@ export const propertySchema = Joi.object({
     "string.max": "City must not exceed 100 characters.",
     "any.required": "The 'city' field is required.",
   }),
-  country: Joi.string().min(2).max(100).required().messages({
-    "string.min": "Country must be at least 2 characters long.",
-    "string.max": "Country must not exceed 100 characters.",
-    "any.required": "The 'country' field is required.",
-  }),
+  country: Joi.string()
+    .trim()
+    .valid(...validCountries)
+    .required()
+    .messages({
+      "any.required": "The 'country' field is required.",
+      "any.only": "The 'country' field must be a valid ISO country code.",
+    }),
+  propertyCondition: Joi.string()
+    .valid("New", "Renovated", "Good", "Needs Renovation")
+    .optional()
+    .messages({
+      "any.only":
+        "Property condition must be one of 'New', 'Renovated', 'Good', or 'Needs Renovation'.",
+    }),
   propertyType: Joi.string()
     .valid("Apartment", "House", "Studio", "Villa", "Commercial")
     .required()
@@ -316,6 +354,31 @@ export const propertySchema = Joi.object({
   furnished: Joi.boolean().required().messages({
     "any.required": "The 'furnished' field is required.",
   }),
+  parking: Joi.boolean().optional(),
+  garage: Joi.boolean().optional(),
+  elevator: Joi.boolean().optional(),
+  balcony: Joi.boolean().optional(),
+  terrace: Joi.boolean().optional(),
+  garden: Joi.boolean().optional(),
+  basementAvailable: Joi.boolean().optional(),
+  floorNumber: Joi.number().integer().min(0).optional().messages({
+    "number.base": "Floor number must be a valid integer.",
+    "number.min": "Floor number must be 0 or higher.",
+  }),
+  totalFloors: Joi.number().integer().min(1).optional().messages({
+    "number.base": "Total floors must be a valid integer.",
+    "number.min": "There must be at least 1 floor.",
+  }),
+  contactNumber: Joi.string().optional().messages({
+    "string.base": "Contact number must be a valid string.",
+  }),
+  contactEmail: Joi.string().email().optional().messages({
+    "string.email": "Email must be a valid email address.",
+  }),
+  availabilityDate: Joi.date().optional().messages({
+    "date.base": "Availability date must be a valid date.",
+  }),
+  location: Joi.boolean().optional(),
   photos: Joi.array()
     .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)
     .required()
@@ -333,6 +396,13 @@ export const propertySchema = Joi.object({
 });
 
 export const commercialOfferSchema = Joi.object({
+  vendor: Joi.string().optional().messages({
+    "string.base": "Vendor must be a valid string.",
+  }),
+  vendorType: Joi.string().valid("company", "user").optional().messages({
+    "any.only":
+      "Vendor type must be one of 'Individual', 'Agency', or 'Developer'.",
+  }),
   title: Joi.string().min(3).max(100).required().messages({
     "string.min": "Title must be at least 3 characters long.",
     "string.max": "Title must not exceed 100 characters.",
@@ -351,11 +421,15 @@ export const commercialOfferSchema = Joi.object({
     "string.max": "City must not exceed 100 characters.",
     "any.required": "The 'city' field is required.",
   }),
-  country: Joi.string().min(2).max(100).required().messages({
-    "string.min": "Country must be at least 2 characters long.",
-    "string.max": "Country must not exceed 100 characters.",
-    "any.required": "The 'country' field is required.",
-  }),
+  country: Joi.string()
+    .trim()
+    .valid(...validCountries)
+    .required()
+    .messages({
+      "any.required": "The 'country' field is required.",
+      "any.only": "The 'country' field must be a valid ISO country code.",
+    }),
+
   createdAt: Joi.date().optional().messages({
     "date.base": "CreatedAt must be a valid date.",
   }),
@@ -373,6 +447,26 @@ export const commercialOfferSchema = Joi.object({
   duration: Joi.number().integer().min(1).optional().messages({
     "number.base": "Duration must be a valid number.",
     "number.min": "Duration must be at least 1 day.",
+  }),
+  contractType: Joi.string()
+    .valid("CDI", "CDD", "Freelance", "Internship", "Other")
+    .optional()
+    .messages({
+      "any.only":
+        "Contract type must be one of 'CDI', 'CDD', 'Freelance', 'Internship', or 'Other'.",
+    }),
+  workSchedule: Joi.string()
+    .valid("Full-time", "Part-time", "Flexible", "Other")
+    .optional()
+    .messages({
+      "any.only":
+        "Work schedule must be one of 'Full-time', 'Part-time', 'Flexible', or 'Other'.",
+    }),
+  contactNumber: Joi.string().optional().messages({
+    "string.base": "Contact number must be a valid string.",
+  }),
+  contactEmail: Joi.string().email().optional().messages({
+    "string.email": "Email must be a valid email address.",
   }),
   photos: Joi.array()
     .items(Joi.string()) // Valider que chaque élément est une chaîne (pas nécessairement une URI)

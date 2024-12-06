@@ -29,7 +29,7 @@ export async function processFormData(formData: FormData, uploadDir: string): Pr
       await writeFile(filepath, buffer);
 
       // Ajout du chemin du fichier dans le tableau photos
-      photos.push(`offer/${filename}`);
+      photos.push(`/offer/${filename}`);
     } else {
       fields[key] = value.toString();
     }

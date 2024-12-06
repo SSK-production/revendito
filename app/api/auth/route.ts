@@ -16,6 +16,7 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_JWT_SECRET || 'fallback_refresh
 
 type AuthenticatedEntity = {
     id: string;
+    name: string
     email: string;
     password: string;
     role: string;
@@ -50,6 +51,7 @@ type AuthenticatedEntity = {
       if (foundUser) {
         user = {
           id: foundUser.id,
+          name: foundUser.username,
           email: foundUser.email,
           password: foundUser.password,
           role: foundUser.role,
@@ -65,6 +67,7 @@ type AuthenticatedEntity = {
         if (foundCompany) {
           user = {
             id: foundCompany.id,
+            name: foundCompany.companyName,
             email: foundCompany.email,
             password: foundCompany.password,
             role: foundCompany.role,
@@ -95,6 +98,7 @@ type AuthenticatedEntity = {
       const accessToken = jwt.sign(
         {
           id: user.id,
+          username: user.name,
           email: user.email,
           role: user.role,
           entity: isCompany ? 'company' : 'user', // Add an entity indicator
@@ -107,6 +111,7 @@ type AuthenticatedEntity = {
       const refreshToken = jwt.sign(
         {
           id: user.id,
+          name: user.name,
           email: user.email,
           role: user.role,
           entity: isCompany ? 'company' : 'user',
@@ -164,7 +169,7 @@ export async function GET(req: Request) {
         if (user) {
           // If the access token is valid, return a response with the user's email
           return new NextResponse(
-            JSON.stringify({ message: "User authenticated", email: user.email }),
+            JSON.stringify({ message: "User authenticated", username: user.username }),
             {
               status: 200,
               headers: { "Content-Type": "application/json" },
