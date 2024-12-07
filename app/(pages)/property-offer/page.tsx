@@ -40,7 +40,9 @@ export default function RealEstateOfferPage() {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+  
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,

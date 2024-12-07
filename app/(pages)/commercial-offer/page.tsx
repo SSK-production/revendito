@@ -104,7 +104,10 @@ const CommercialOfferForm = () => {
       const form = new FormData();
       Object.keys(formData).forEach((key) => {
         if (key !== "photos" && key !== "openingHours" && key !== "categories") {
-          form.append(key, formData[key as keyof typeof formData]);
+          const value = formData[key as keyof typeof formData];
+          if (typeof value === "string" || value instanceof Blob || value instanceof File) {
+            form.append(key, value);
+          }
         }
       });
 

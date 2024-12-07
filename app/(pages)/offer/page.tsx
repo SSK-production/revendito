@@ -90,7 +90,7 @@ const Page: React.FC = () => {
         navigation
         pagination={{ clickable: true }}
         modules={[Navigation, Pagination]}
-        className="w-full h-[80vh] max-w-4xl" // 80% de la hauteur de l'écran
+        className="w-full h-[75vh] " // 80% de la hauteur de l'écran
       >
         {data.photos.map((photo, index) => (
           <SwiperSlide

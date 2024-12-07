@@ -40,7 +40,7 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   console.log(category);
   const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = 10;
+  const limit = 5;
 
 
   const changePage = (newPage: number) => {
@@ -79,7 +79,7 @@ const Page: React.FC = () => {
 
   return (
     <>
-    <div className="flex flex-col min-h-screen p-5 font-sans bg-gray-50 box-border">
+    <div className="flex flex-col min-h-screen p-5 font-medium bg-gray-50 box-border">
       <header className="w-full text-center mb-5">
         <h1 className="text-2xl font-bold">Catégorie : {category}</h1>
       </header>
@@ -88,7 +88,7 @@ const Page: React.FC = () => {
         <main className="flex flex-col  min-h-f4/5">
           <div className="flex-1 mb-4">
             <p className="text-lg mb-4">
-              Bienvenue dans la catégorie <strong>{category}</strong>.<br />
+              Bienvenue dans la catégorie <strong className='text-orange-700'>{category}</strong>.<br />
             </p>
 
             {isLoading ? (
@@ -113,27 +113,38 @@ const Page: React.FC = () => {
             )}
           </div>
 
-          <div className="flex justify-between items-center mt-5">
+          <div className="flex justify-center items-center mt-5 space-x-4">
+          {/* Bouton "Précédent" */}
+          {page > 1 ? (
             <button
-              onClick={() => changePage(Math.max(page - 1, 1))} // Empêche d'aller en dessous de 1
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-              disabled={page === 1}
+              onClick={() => changePage(page - 1)}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Précédent
             </button>
-            <p className="text-sm text-gray-600">
-              Page {page} sur {data?.meta.totalPages}
-            </p>
+          ) : (
+            <div className="w-20" /> // Espace réservé pour garder le centrage
+          )}
+
+          {/* Indicateur de page */}
+          <p className="md:text-lg lg:text-l xl:text-l text-gray-600">
+            Page <span className='text-orange-700'>{page}</span>  sur <span className='text-orange-700'>{data?.meta?.totalPages || 1}</span>
+          </p>
+
+          {/* Bouton "Suivant" */}
+          {page < (data?.meta?.totalPages || 1) ? (
             <button
-              onClick={() =>
-                changePage(Math.min(page + 1, data?.meta.totalPages || page))
-              } // Empêche d'aller au-delà du total
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-              disabled={page === (data?.meta.totalPages || page)}
+              onClick={() => changePage(page + 1)}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Suivant
             </button>
-          </div>
+          ) : (
+            <div className="w-20" /> // Espace réservé pour garder le centrage
+          )}
+        </div>
+
+
         </main>
       </div>
     </div>
