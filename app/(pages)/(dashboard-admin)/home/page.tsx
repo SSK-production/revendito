@@ -18,7 +18,7 @@ export default function AdminHomePage() {
     return (<>
     {/* Faire la logique de lorsqu'il y a un nouveau report, changer la cloche en cloche avec notif */}
         <div className="flex flex-col gap-3 ">
-            <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md">
+            <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg  border border-orange-900/70 shadow-md">
                 <div className="flex justify-end ">
                     <Image
                         src="/icons/mobil-dashboard/bell.svg"
@@ -36,7 +36,7 @@ export default function AdminHomePage() {
                     />
                     <p className="flex items-center">Report</p></div>
             </div>
-            <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md">
+            <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md">
                 <div className="flex gap-2  items-center mt-4">
                     <Image
                         src="/icons/mobil-dashboard/ban-user.svg"
@@ -47,7 +47,7 @@ export default function AdminHomePage() {
                     <p className="flex items-center">User Ban</p></div>
             </div>
             <div className="flex justify-between">
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md">
+                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md">
                     <div className="flex flex-col gap-2  items-center mt-4">
                         <Image
                             src="/icons/mobil-dashboard/bin.svg"
@@ -59,7 +59,7 @@ export default function AdminHomePage() {
 
                 </div>
                 {/* Add admin */}
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md"
+                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md"
                 onClick={openModal}>
                     <div className="flex flex-col gap-2  items-center ">
                         <Image
@@ -74,7 +74,7 @@ export default function AdminHomePage() {
 
                 </div>
             </div>
-            <div className="flex justify-between p-4  bg-[#D9D9D9] rounded-lg shadow-md">
+            <div className="flex justify-between p-4  bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md">
                 <div className="flex gap-2  items-center">
                     <div className="flex flex-col gap-2 items-center">
                         <Image
