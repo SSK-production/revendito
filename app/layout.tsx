@@ -18,7 +18,7 @@ export default function RootLayout({
         <html lang="en">
         <body className="antialiased min-h-screen flex flex-col bg-slate-50">
         <Header/>
-        <main className="flex-1 w-screen md:w-2/3 self-center mt-2 px-4 py-2">
+        <main className="flex-1 w-screen md:w-4/5 self-center mt-2 px-4 py-2">
             {children}
         </main>
         <Footer />

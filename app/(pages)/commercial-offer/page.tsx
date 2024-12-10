@@ -1,26 +1,62 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
+
+type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+type OpeningHours = {
+  [key in Day]: { start: string; end: string };
+};
 
 const CommercialOfferForm = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    city: '',
-    country: '',
-    commercialType: 'Product',  // Définir un type commercial par défaut
-    duration: '',
-    contractType: '',
-    workSchedule: '',
-    contactNumber: '',
-    contactEmail: '',
-    photos: [] as File[],  // Liste des fichiers à télécharger
+    title: "",
+    description: "",
+    price: "",
+    city: "",
+    country: "",
+    commercialType: "Product", // Définir un type commercial par défaut
+    duration: "",
+    contractType: "",
+    workSchedule: "Full-time", // Options : Full-time, Part-time, Flexible, Other
+    contactNumber: "",
+    contactEmail: "",
+    openingHours: {
+      Monday: { start: "", end: "" },
+      Tuesday: { start: "", end: "" },
+      Wednesday: { start: "", end: "" },
+      Thursday: { start: "", end: "" },
+      Friday: { start: "", end: "" },
+      Saturday: { start: "", end: "" },
+      Sunday: { start: "", end: "" },
+    },
+    categories: [] as string[],
+    photos: [] as File[], // Liste des fichiers à télécharger
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+
+  const categoriesList = [
+    "Electronics",
+    "Fashion",
+    "Home",
+    "Toys",
+    "Books",
+    "Automotive",
+    "Sports",
+    "Health & Beauty",
+    "Food & Beverage",
+    "Art & Crafts",
+    "Real Estate",
+    "Education",
+    "Entertainment",
+    "Pets",
+    "Other",
+  ];
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -31,9 +67,31 @@ const CommercialOfferForm = () => {
     if (e.target.files) {
       setFormData({
         ...formData,
-        photos: Array.from(e.target.files),  // Mettre à jour les photos avec les fichiers sélectionnés
+        photos: Array.from(e.target.files), // Mettre à jour les photos avec les fichiers sélectionnés
       });
     }
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter((cat) => cat !== category)
+        : [...prev.categories, category],
+    }));
+  };
+
+  const handleOpeningHoursChange = (day: Day, period: "start" | "end", value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      openingHours: {
+        ...prev.openingHours,
+        [day]: {
+          ...prev.openingHours[day],
+          [period]: value,
+        },
+      },
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,46 +102,59 @@ const CommercialOfferForm = () => {
 
     try {
       const form = new FormData();
-      // Ajouter tous les champs du formulaire
       Object.keys(formData).forEach((key) => {
-        if (key !== 'photos') {
-          form.append(key, formData[key as keyof typeof formData]);
+        if (key !== "photos" && key !== "openingHours" && key !== "categories") {
+          const value = formData[key as keyof typeof formData];
+          if (typeof value === "string" || value instanceof Blob || value instanceof File) {
+            form.append(key, value);
+          }
         }
       });
 
-      // Ajouter les photos
+      form.append("categories", JSON.stringify(formData.categories));
+      form.append("openingHours", JSON.stringify(formData.openingHours));
       formData.photos.forEach((file) => {
-        form.append('photos', file);
+        form.append("photos", file);
       });
 
-      const response = await fetch('/api/commercial', {
-        method: 'POST',
+      const response = await fetch("/api/commercial", {
+        method: "POST",
         body: form,
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage('Offre créée avec succès!');
+        setSuccessMessage("Offre créée avec succès!");
         setFormData({
-          title: '',
-          description: '',
-          price: '',
-          city: '',
-          country: '',
-          commercialType: 'Sale',
-          duration: '',
-          contractType: '',
-          workSchedule: '',
-          contactNumber: '',
-          contactEmail: '',
+          title: "",
+          description: "",
+          price: "",
+          city: "",
+          country: "",
+          commercialType: "Product",
+          duration: "",
+          contractType: "",
+          workSchedule: "Full-time",
+          contactNumber: "",
+          contactEmail: "",
+          openingHours: {
+            Monday: { start: "", end: "" },
+            Tuesday: { start: "", end: "" },
+            Wednesday: { start: "", end: "" },
+            Thursday: { start: "", end: "" },
+            Friday: { start: "", end: "" },
+            Saturday: { start: "", end: "" },
+            Sunday: { start: "", end: "" },
+          },
+          categories: [],
           photos: [],
         });
       } else {
-        setError(data.error || 'Une erreur est survenue');
+        setError(data.error || "Une erreur est survenue");
       }
     } catch (error) {
-      setError('Erreur lors de l\'envoi de la requête');
+      setError("Erreur lors de l'envoi de la requête");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,11 +162,14 @@ const CommercialOfferForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-md">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">Créer une offre commerciale</h1>
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
+        Créer une offre commerciale
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <div className="text-red-600">{error}</div>}
         {successMessage && <div className="text-green-600">{successMessage}</div>}
-        
+
+        {/* Titre */}
         <label className="block text-gray-700">
           Titre:
           <input
@@ -108,6 +182,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Description */}
         <label className="block text-gray-700">
           Description:
           <textarea
@@ -119,6 +194,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Prix */}
         <label className="block text-gray-700">
           Prix:
           <input
@@ -131,6 +207,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Ville */}
         <label className="block text-gray-700">
           Ville:
           <input
@@ -143,6 +220,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Pays */}
         <label className="block text-gray-700">
           Pays:
           <input
@@ -155,6 +233,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Type de l'offre */}
         <label className="block text-gray-700">
           Type de l'offre:
           <select
@@ -165,11 +244,13 @@ const CommercialOfferForm = () => {
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="Product">Product</option>
-            <option value="Service">Service</option>
+            <option value="Service">Job</option>
+            <option value="Service">Promotion</option>
             <option value="Other">Other</option>
           </select>
         </label>
 
+        {/* Durée */}
         <label className="block text-gray-700">
           Durée:
           <input
@@ -182,6 +263,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Type de contrat */}
         <label className="block text-gray-700">
           Type de contrat:
           <input
@@ -193,19 +275,74 @@ const CommercialOfferForm = () => {
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </label>
+
+        {/* Horaire de travail */}
         <label className="block text-gray-700">
-          Horraire semaine:
-          <input
-            type="text"
+          Horaire de travail:
+          <select
             name="workSchedule"
             value={formData.workSchedule}
             onChange={handleChange}
             required
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+          >
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Flexible">Flexible</option>
+            <option value="Other">Other</option>
+          </select>
         </label>
+
+        {/* Horaires d'ouverture */}
+        <div className="block text-gray-700">
+          <h2 className="text-lg font-medium mb-4">Horaires d'ouverture:</h2>
+          {Object.entries(formData.openingHours).map(([day, schedule]) => (
+            <div key={day} className="mb-2">
+              <label className="block text-gray-600 font-semibold">{day}:</label>
+              <div className="flex space-x-2">
+                <input
+                  type="time"
+                  value={schedule.start}
+                  onChange={(e) =>
+                    handleOpeningHoursChange(day as Day, "start", e.target.value)
+                  }
+                  className="mt-1 block w-1/2 px-2 py-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="time"
+                  value={schedule.end}
+                  onChange={(e) =>
+                    handleOpeningHoursChange(day as Day, "end", e.target.value)
+                  }
+                  className="mt-1 block w-1/2 px-2 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+         {/* Catégories */}
+         <div className="block text-gray-700">
+          <h2 className="text-lg font-medium mb-4">Catégories:</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {categoriesList.map((category) => (
+              <label key={category} className="flex items-center">
+                <input
+                  type="checkbox"
+                  value={category}
+                  checked={formData.categories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                  className="mr-2"
+                />
+                {category}
+              </label>
+            ))}
+          </div>
+        </div>
+        
+
+        {/* Numéro de contact */}
         <label className="block text-gray-700">
-          Contact number:
+          Numéro de contact:
           <input
             type="text"
             name="contactNumber"
@@ -215,10 +352,12 @@ const CommercialOfferForm = () => {
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </label>
+
+        {/* Email de contact */}
         <label className="block text-gray-700">
-          Contact email:
+          Email de contact:
           <input
-            type="text"
+            type="email"
             name="contactEmail"
             value={formData.contactEmail}
             onChange={handleChange}
@@ -227,6 +366,7 @@ const CommercialOfferForm = () => {
           />
         </label>
 
+        {/* Photos */}
         <label className="block text-gray-700">
           Photos:
           <input
@@ -244,7 +384,7 @@ const CommercialOfferForm = () => {
           disabled={isSubmitting}
           className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          {isSubmitting ? 'Envoi en cours...' : 'Créer l\'offre'}
+          {isSubmitting ? "Envoi en cours..." : "Créer l'offre"}
         </button>
       </form>
     </div>
