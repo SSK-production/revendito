@@ -6,6 +6,7 @@ import axios from 'axios';
 import Image from "next/image";
 
 interface ProfileData {
+  id?: string;
   username?: string;
   firstName?: string;
   lastName?: string;
@@ -34,6 +35,9 @@ export default function ProfilePage() {
   const role = searchParams.get("role");
 
   const [data, setData] = useState<ProfileData | null>(null);
+  const [isLogin, setIsLogin] = useState<boolean | null>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +67,41 @@ export default function ProfilePage() {
     fetchData();
   }, [user, role]);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (response.status === 200) {
+          setIsLogin(true);
+          setUserId(data.id);
+        } else {
+          setIsLogin(false);
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setIsLogin(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleUpdatePhoto = () => {
+    console.log("Mettre à jour la photo de profil");
+    // Ajoutez la logique ici pour ouvrir un formulaire de mise à jour de la photo de profil
+  };
+
+  const handleUpdateProfile = () => {
+    console.log("Mettre à jour les données du profil");
+    // Ajoutez la logique ici pour ouvrir un formulaire de mise à jour des données du profil
+  };
+
   if (loading) return <div className="text-center mt-10">Chargement...</div>;
   if (error) return <div className="text-center mt-10 text-red-500">Erreur : {error}</div>;
 
@@ -88,12 +127,30 @@ export default function ProfilePage() {
             <div>
               <h1 className="text-2xl font-semibold text-orange-700">
                 {data.firstName && data.lastName
-                  ? `${data.username}`
-                  : data.username || data.companyName || "Utilisateur"}
+                  ? `${data.firstName} ${data.lastName}`
+                  : data.companyName || data.username || "Utilisateur"}
               </h1>
               <p className="text-gray-500">{data.role}</p>
             </div>
           </div>
+
+          {/* Boutons d'action pour le propriétaire */}
+          {isLogin && userId === data.id && (
+            <div className="flex space-x-4 mb-6">
+              <button
+                onClick={handleUpdatePhoto}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              >
+                Modifier la photo
+              </button>
+              <button
+                onClick={handleUpdateProfile}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+              >
+                Modifier le profil
+              </button>
+            </div>
+          )}
 
           {/* Informations générales */}
           <div className="bg-white p-4 rounded-md shadow-sm mb-6">
@@ -120,22 +177,14 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Offres associées */}
-          <div className="bg-white p-4 rounded-md shadow-sm mb-6">
-            <h2 className="text-lg font-medium text-gray-700 mb-3">Offres Associées</h2>
-            <div className="space-y-2 text-gray-600">
-              <p><strong>Offres de Véhicules :</strong> {data.vehicleOffers || 0}</p>
-              <p><strong>Offres Immobilières :</strong> {data.realEstateOffers || 0}</p>
-              <p><strong>Offres Commerciales :</strong> {data.commercialOffers || 0}</p>
-            </div>
-          </div>
-
           {/* Historique */}
           <div className="bg-white p-4 rounded-md shadow-sm">
             <h2 className="text-lg font-medium text-gray-700 mb-3">Historique</h2>
             <div className="space-y-2 text-gray-600">
               <p><strong>Compte créé le :</strong> {new Date(data.createdAt).toLocaleDateString()}</p>
-              <p><strong>Dernière mise à jour :</strong> {new Date(data.updatedAt).toLocaleDateString()}</p>
+              {isLogin && userId === data.id && (
+                <p><strong>Dernière mise à jour :</strong> {new Date(data.updatedAt).toLocaleDateString()}</p>
+              )}
             </div>
           </div>
         </>

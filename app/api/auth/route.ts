@@ -169,7 +169,7 @@ export async function GET(req: Request) {
         if (user) {
           // If the access token is valid, return a response with the user's email
           return new NextResponse(
-            JSON.stringify({ message: "User authenticated", username: user.username }),
+            JSON.stringify({ message: "User authenticated", username: user.username, id: user.id }),
             {
               status: 200,
               headers: { "Content-Type": "application/json" },
