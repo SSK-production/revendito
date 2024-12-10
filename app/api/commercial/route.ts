@@ -4,7 +4,7 @@ import { commercialOfferSchema } from '@/app/validation';
 import { getUserFromRequest } from '@/app/lib/tokenManager';
 import { processFormData } from '@/app/lib/processFormData';
 import { verifyId } from '@/app/lib/function';
-import { string } from 'joi';
+
 
 const prisma = new PrismaClient();
 
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
         city: fields.city,
         country: fields.country,
         openingHours: fields.openingHours,
-        categories: fields.categories,
+        categories: [fields.categories],
         commercialType: fields.commercialType,
         duration: parseInt(fields.duration),
         contractType: fields.contractType,
