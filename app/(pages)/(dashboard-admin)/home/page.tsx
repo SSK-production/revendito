@@ -3,6 +3,18 @@ import React, {useState} from "react"
 import Modal from "./adminModal"
 import Image from "next/image"
 export default function AdminHomePage() {
+        const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Typage de l'état
+      
+        // Ouvre la modal
+        const openModal = () => {
+          setIsModalOpen(true);
+        };
+      
+        // Ferme la modal
+        const closeModal = () => {
+          setIsModalOpen(false);
+        };
+  
     return (<>
     {/* Faire la logique de lorsqu'il y a un nouveau report, changer la cloche en cloche avec notif */}
         <div className="flex flex-col gap-3 ">
@@ -47,7 +59,8 @@ export default function AdminHomePage() {
 
                 </div>
                 {/* Add admin */}
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md">
+                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg shadow-md"
+                onClick={openModal}>
                     <div className="flex flex-col gap-2  items-center ">
                         <Image
                             src="/icons/mobil-dashboard/add.svg"
@@ -56,6 +69,8 @@ export default function AdminHomePage() {
                             alt="add.svg"
                         />
                         <p className="flex items-center">Add Admin</p></div>
+                        {/* Utilisation de la Modal */}
+      <Modal isOpen={isModalOpen} closeModal={closeModal} />
 
                 </div>
             </div>
