@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import axios from "axios";
 
-export default function useLastAutomotiveOffers(offerType: string) {
+export default function useLastOffers(offerType: string) {
     const [offers, setOffers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchLastAutomotiveOffers = async () => {
+        const fetchLastOffers = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
@@ -20,7 +20,7 @@ export default function useLastAutomotiveOffers(offerType: string) {
             }
         };
 
-        fetchLastAutomotiveOffers();
+        fetchLastOffers();
     }, [offerType]);
 
     return { offers, isLoading, error };
