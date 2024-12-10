@@ -90,7 +90,7 @@ const Page: React.FC = () => {
         navigation
         pagination={{ clickable: true }}
         modules={[Navigation, Pagination]}
-        className="w-full h-[80vh] max-w-4xl" // 80% de la hauteur de l'écran
+        className="w-full h-[75vh] " // 80% de la hauteur de l'écran
       >
         {data.photos.map((photo, index) => (
           <SwiperSlide
@@ -124,6 +124,7 @@ const Page: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <p className="text-gray-500">Vendor</p>
+                <a href={`/profile/?user=${data.vendor}&role=${data.vendorType}`}>{data.vendor}</a>
                 <p className="text-lg text-gray-800 font-semibold flex items-center justify-center gap-2">
                   {data.vendor}
                   <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full shadow-sm hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
