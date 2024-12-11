@@ -55,7 +55,7 @@ export default function AdminHomePage() {
                             height={35}
                             alt="ban-user.svg"
                         />
-                        <p className="flex items-center">Delete Offer </p></div>
+                        <p className="flex items-center">Suspended <br />Offer </p></div>
 
                 </div>
                 {/* Add admin */}

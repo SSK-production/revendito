@@ -45,7 +45,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                                 name="searchUser"
                                 id="searchUser"
                                 placeholder="search by FirstName"
-                                className="border-2 rounded border-blue-500 w-36  pr-2 placeholder:text-xs" // Ajout d'un padding à gauche pour l'icône
+                                className="border-2 rounded border-black w-36  pr-2 placeholder:text-xs" // Ajout d'un padding à gauche pour l'icône
                             />
                             {/* L'icône de recherche */}
                             <Image
@@ -61,15 +61,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                         <form >
                             <div className='flex flex-col'>
                                 <label htmlFor="firstname" className='flex'>Firstname</label>
-                                <input type="text" name="firstname" id="firstname" className='border-2 rounded border-blue-500' />
+                                <input type="text" name="firstname" id="firstname" className='border-2 rounded border-black' />
                             </div>
                             <div className='flex flex-col'>
                                 <label htmlFor="lastname" className='flex'>Lastname</label>
-                                <input type="text" name="lastname" id="lastname" className='border-2 rounded border-blue-500' />
+                                <input type="text" name="lastname" id="lastname" className='border-2 rounded border-black' />
                             </div>
                             <div className='mb-1'>
                                 <label htmlFor="rank" className='flex'>Rank</label>
-                                <select id="options" className="mt-1 block  pl-3 pr-10 py-2  border-2 text-xs border-blue-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <select id="options" className="mt-1 block  pl-3 pr-10 py-2  border-2 text-xs border-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                                     <option className='text-xs'>USER</option>
                                     <option className='text-xs'>ADMIN</option>
                                 </select>
@@ -82,6 +82,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                 >
                     Submit
                 </button>
+                {/* faire le fetch qui va envoyer les données update */}
             </div>
         </div>
     );
