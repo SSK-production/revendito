@@ -59,7 +59,16 @@ export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
     // On récup le token
-    const { id, username, entity, accessToken } = await getUserFromRequest(req);
+    const { id, username, entity,isBanned, banReason, banEndDate, accessToken } = await getUserFromRequest(req);
+    if (isBanned && banEndDate && banEndDate > new Date()) {
+      // Si l'utilisateur est banni et la date de fin de bannissement n'est pas dépassée
+      return NextResponse.json({
+        error: "Banned",
+        message: `You are banned from using this service. Reason: ${
+          banReason || "No reason specified"
+        }. Ban will end on: ${banEndDate.toISOString()}.`,
+      })
+    }
     // Vérification si l'entité existe
     verifyId(id, entity);
     

@@ -21,6 +21,9 @@ type AuthenticatedEntity = {
     password: string;
     role: string;
     active: boolean;
+    isBanned: boolean;
+    banEndDate: Date | null;
+    banReason: string | null; 
     birthDate: Date | null;
   };
   
@@ -57,6 +60,9 @@ type AuthenticatedEntity = {
           role: foundUser.role,
           active: foundUser.active,
           birthDate: foundUser.birthDate,
+          isBanned: foundUser.isBanned,
+          banEndDate: foundUser.banEndDate,
+          banReason: foundUser.banReason
         };
       } else {
         // If not found, search in the "company" table
@@ -73,6 +79,9 @@ type AuthenticatedEntity = {
             role: foundCompany.role,
             active: foundCompany.active,
             birthDate: foundCompany.birthDate,
+            isBanned: foundCompany.isBanned,
+            banEndDate: foundCompany.banEndDate,
+            banReason: foundCompany.banReason
           };
           isCompany = true; // Indicates that it is a company
         }
@@ -102,6 +111,9 @@ type AuthenticatedEntity = {
           email: user.email,
           role: user.role,
           entity: isCompany ? 'company' : 'user', // Add an entity indicator
+          isBanned: user.isBanned,
+          banReason: user.banReason,
+          banEndDate: user.banEndDate
         },
         ACCESS_TOKEN_SECRET,
         { expiresIn: '3h' }
@@ -115,6 +127,9 @@ type AuthenticatedEntity = {
           email: user.email,
           role: user.role,
           entity: isCompany ? 'company' : 'user',
+          isBanned: user.isBanned,
+          banReason: user.banReason,
+          banEndDate: user.banEndDate
         },
         REFRESH_TOKEN_SECRET,
         { expiresIn: '7d' }
@@ -169,7 +184,7 @@ export async function GET(req: Request) {
         if (user) {
           // If the access token is valid, return a response with the user's email
           return new NextResponse(
-            JSON.stringify({ message: "User authenticated", username: user.username, id: user.id }),
+            JSON.stringify({ message: "User authenticated", username: user.username, id: user.id, banEndDate: user.banEndDate }),
             {
               status: 200,
               headers: { "Content-Type": "application/json" },
