@@ -10,7 +10,7 @@ interface ModalProps {
 //Faire le fetch des données utilisateur en fonction du Name => lorsqu'on clique sur enter ou sur la loupe, envoi la requête. 
 //Une fois la requête effectuée, update les champs Firstname et Lastname par les données recuillis 
 
-const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
+const AddAdminModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     if (!isOpen) return null; // Si la modal n'est pas ouverte, elle ne s'affiche pas.
 
     return (
@@ -80,7 +80,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                 <button
                     className="px-8 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
-                    Submit
+                    Submitaaaaaaaaaaaaaaa
                 </button>
                 {/* faire le fetch qui va envoyer les données update */}
             </div>
@@ -88,4 +88,4 @@ const Modal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     );
 };
 
-export default Modal;
+export default AddAdminModal;
