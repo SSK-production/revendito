@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { verifyId } from '@/app/lib/function'; // Si verifyId est nécessaire pour une autre logique.
 
 const prisma = new PrismaClient();
 

@@ -24,8 +24,20 @@ model User {
   profilePicture  String?  // URL de la photo de profil
   city            String  // Ville Doit pas être optionnel
   country         String  // Pays Doit pas être optionnel
+
+  // Système de bannissement
+  isBanned         Boolean  @default(false)
+  banCount         Int      @default(0)
+  banReason        String?
+  banEndDate       DateTime?
+  
+
   createdAt       DateTime @default(now())  // Date de création
   updatedAt       DateTime @updatedAt  // Date de dernière mise à jour
+  bannedBy        String?
+  bannedUsers      User[]   @relation("BannedBy")
+  bannedByAdmin    User?    @relation("BannedBy", fields: [bannedBy], references: [id])
+  bannedCompanies  Company[] @relation("UserBannedCompanies")
 
   // Relations avec les offres
   vehicleOffers   VehicleOffer[]
@@ -55,6 +67,17 @@ model Company {
   city           String  // Ville
   country        String  // Pays
   street         String  // Pays
+
+  // Système de bannissement
+  isBanned         Boolean  @default(false)
+  banCount         Int      @default(0)
+  banReason        String?
+  banEndDate       DateTime?
+  bannedBy         String? 
+
+  bannedByUser     User?    @relation("UserBannedCompanies", fields: [bannedBy], references: [id])
+
+
   createdAt      DateTime @default(now())  // Date de création
   updatedAt      DateTime @updatedAt  // Date de dernière mise à jour
 
@@ -81,6 +104,8 @@ model VehicleOffer {
   price       Float
   city        String
   country     String
+  userIsBanned Boolean @default(false)
+  active      Boolean @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -124,6 +149,8 @@ model RealEstateOffer {
   price         Float
   city          String
   country       String
+  userIsBanned Boolean @default(false)
+  active        Boolean @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -175,15 +202,17 @@ model CommercialOffer {
   price       Float
   city        String
   country     String
+  userIsBanned Boolean @default(false)
+  active      Boolean @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
     // Champs pour les magasins
   openingHours   Json? // JSON ou String décrivant les horaires d'ouverture
-  categories     String[] // Liste des catégories de produits/Job/promotion
+  categories     String[] // Liste des catégories de produits
 
   // Champs spécifiques au commercial
-  commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
+  commercialType String  // Type d'offre commerciale (produits/Job/publicité)
   duration       Int?    // Durée de validité de l'offre (en jours)
   contractType   String?   // Type de contrat (CDI, CDD, Freelance, Stage, etc.)
   workSchedule   String?   // Horaire (Temps plein, Temps partiel, Horaires flexibles, etc.)
