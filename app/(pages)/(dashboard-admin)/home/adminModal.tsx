@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import React from 'react';
+import { useEffect } from "react";
 
 // Définir les types des props
 interface ModalProps {
@@ -11,6 +12,16 @@ interface ModalProps {
 //Une fois la requête effectuée, update les champs Firstname et Lastname par les données recuillis 
 
 const AddAdminModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
+    useEffect(() => {
+            if (isOpen) {
+              document.body.style.overflow = "hidden"; // Empêche le scrolling
+            } else {
+              document.body.style.overflow = ""; // Réinitialise le scrolling
+            }
+            return () => {
+              document.body.style.overflow = ""; // Cleanup
+            };
+          }, [isOpen]);
     if (!isOpen) return null; // Si la modal n'est pas ouverte, elle ne s'affiche pas.
 
     return (
