@@ -107,7 +107,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     }
 
     // Retourner les résultats trouvés
-    return NextResponse.json({users: results});
+    return NextResponse.json(results);
   } catch (error: unknown) {
     console.error('Erreur lors de la recherche :', error);
     return NextResponse.json({ error: 'Erreur serveur, veuillez réessayer plus tard.' }, { status: 500 });
