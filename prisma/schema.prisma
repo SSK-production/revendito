@@ -209,10 +209,10 @@ model CommercialOffer {
 
     // Champs pour les magasins
   openingHours   Json? // JSON ou String décrivant les horaires d'ouverture
-  categories     String[] // Liste des catégories de produits/Job/promotion
+  categories     String[] // Liste des catégories de produits
 
   // Champs spécifiques au commercial
-  commercialType String  // Type d'offre commerciale (Produit, Service, etc.)
+  commercialType String  // Type d'offre commerciale (produits/Job/publicité)
   duration       Int?    // Durée de validité de l'offre (en jours)
   contractType   String?   // Type de contrat (CDI, CDD, Freelance, Stage, etc.)
   workSchedule   String?   // Horaire (Temps plein, Temps partiel, Horaires flexibles, etc.)

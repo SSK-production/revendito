@@ -29,7 +29,6 @@ interface BaseOffer {
   contactNumber?: string;
   contactEmail?: string;
   type: "vehicle" | "realEstate" | "commercial";
-
 }
 
 const Page: React.FC = () => {
@@ -90,19 +89,19 @@ const Page: React.FC = () => {
         navigation
         pagination={{ clickable: true }}
         modules={[Navigation, Pagination]}
-        className="w-full h-[75vh] " // 80% de la hauteur de l'écran
+        className="w-full h-[75vh]"
       >
         {data.photos.map((photo, index) => (
           <SwiperSlide
             key={index}
-            className="w-full h-full flex justify-center items-center" // Assure que chaque slide prend 100% de l'espace disponible
+            className="w-full h-full flex justify-center items-center"
           >
             <div className="relative w-full h-full">
               <Image
                 src={photo}
                 alt={`Offer image ${index + 1}`}
-                layout="fill" // Prend 100% de l'espace du conteneur
-                className="rounded-lg object-contain" // Ajuste l'image pour remplir sans déformer
+                layout="fill"
+                className="rounded-lg object-contain"
                 priority
               />
             </div>
@@ -110,10 +109,18 @@ const Page: React.FC = () => {
         ))}
       </Swiper>
 
+      {/* Titre et prix */}
+      <div className="w-full max-w-4xl flex items-center justify-between mt-6">
+        <h1 className="text-3xl font-bold text-gray-800 text-center flex-1">
+          {data.title}
+        </h1>
+        <p className="text-2xl font-semibold text-green-600 ml-auto">
+          {data.price}€
+        </p>
+      </div>
+
       {/* Détails de l'offre */}
       <div className="w-full text-center max-w-4xl p-6">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Offer Details</h1>
-
         {/* Informations générales */}
         <div className="space-y-6">
           {/* Vendor Details */}
@@ -124,13 +131,14 @@ const Page: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <p className="text-gray-500">Vendor</p>
-                <a href={`/profile/?user=${data.vendor}&role=${data.vendorType}`}>{data.vendor}</a>
-                <p className="text-lg text-gray-800 font-semibold flex items-center justify-center gap-2">
+                <a className="text-lg text-gray-800 font-semibold flex items-center justify-center gap-2"
+                  href={`/profile/?user=${data.vendor}&role=${data.vendorType}`}
+                >
                   {data.vendor}
                   <span className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full shadow-sm hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">
                     {data.vendorType}
                   </span>
-                </p>
+                </a>
               </div>
               <div>
                 <p className="text-gray-500">Category</p>
@@ -177,14 +185,22 @@ const Page: React.FC = () => {
         </div>
 
         {/* Affichage spécifique selon le type */}
-        {category === "vehicle" && <VehicleDetails data={data} />}
+        {category === "vehicle" && (
+          <div className="bg-gray-50 border rounded-lg p-6 space-y-8">
+            <VehicleDetails data={data} />
+          </div>
+        )}
 
         {category === "property" && (
-          <PropertyDetails data={data} />
+          <div className="bg-gray-50 border rounded-lg p-6 space-y-8">
+            <PropertyDetails data={data} />
+          </div>
         )}
 
         {category === "commercial" && (
-         <CommercialDetails data={data} />
+          <div className="bg-gray-50 border rounded-lg p-6 space-y-8">
+            <CommercialDetails data={data} />
+          </div>
         )}
       </div>
     </div>

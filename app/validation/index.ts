@@ -438,7 +438,7 @@ export const commercialOfferSchema = Joi.object({
     .required()
     .messages({
       "string.valid":
-        "Commercial type must be one of 'Product', 'Service', 'Promotion', or 'Other'.",
+        "Commercial type must be one of 'Product', 'Job', 'Publicité', or 'Other'.",
       "any.required": "The 'commercialType' field is required.",
     }),
   duration: Joi.number().integer().min(1).optional().messages({
