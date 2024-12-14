@@ -17,6 +17,7 @@ type SearchResult =
       isBanned: boolean;
       banReason: string | null;
       banEndDate: Date | null;
+      banCount : number ;
     }
   | {
       type: 'company';
@@ -34,24 +35,27 @@ type SearchResult =
 
 export async function GET(req: NextRequest): Promise<Response> {
   try {
-    // Récupérer les paramètres de la requête
     const { searchParams } = new URL(req.url);
     const username = searchParams.get('username');
+    const isBannedParam = searchParams.get('isBanned');
 
-    // Validation des paramètres
-    if (!username) {
+    // Conversion de `isBanned` en booléen si présent
+    const isBanned =
+      isBannedParam === 'true' ? true : isBannedParam === 'false' ? false : undefined;
+
+    // Valider les paramètres (au moins `username` ou `isBanned` doit être présent)
+    if (!username && isBanned === undefined) {
       return NextResponse.json(
-        { error: "Paramètre invalide : 'username' est requis." },
+        { error: "Paramètre invalide : 'username' ou 'isBanned' doit être fourni." },
         { status: 400 }
       );
     }
 
-    // Recherche des utilisateurs dont le username commence par la valeur fournie
+    // Recherche des utilisateurs
     const users = await prisma.user.findMany({
       where: {
-        username: {
-          startsWith: username,
-        },
+        ...(username && { username: { startsWith: username } }),
+        ...(isBanned !== undefined && { isBanned }),
       },
       select: {
         id: true,
@@ -65,15 +69,15 @@ export async function GET(req: NextRequest): Promise<Response> {
         isBanned: true,
         banReason: true,
         banEndDate: true,
+        banCount : true,
       },
     });
 
-    // Recherche des entreprises dont le companyName commence par la valeur fournie
+    // Recherche des entreprises
     const companies = await prisma.company.findMany({
       where: {
-        companyName: {
-          startsWith: username,
-        },
+        ...(username && { companyName: { startsWith: username } }),
+        ...(isBanned !== undefined && { isBanned }),
       },
       select: {
         id: true,
@@ -89,7 +93,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       },
     });
 
-    // Combiner les résultats
+    // Combinaison des résultats
     const results: SearchResult[] = [
       ...users.map((user) => ({
         type: 'user' as const,
@@ -101,18 +105,15 @@ export async function GET(req: NextRequest): Promise<Response> {
       })),
     ];
 
-    // Si aucun résultat trouvé
     if (results.length === 0) {
       return NextResponse.json({ error: 'Aucun résultat trouvé.' }, { status: 404 });
     }
 
-    // Retourner les résultats trouvés
     return NextResponse.json(results);
   } catch (error: unknown) {
     console.error('Erreur lors de la recherche :', error);
     return NextResponse.json({ error: 'Erreur serveur, veuillez réessayer plus tard.' }, { status: 500 });
   } finally {
-    // Fermer le client Prisma
     await prisma.$disconnect();
   }
 }
