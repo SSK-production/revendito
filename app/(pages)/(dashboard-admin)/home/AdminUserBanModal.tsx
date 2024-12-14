@@ -10,16 +10,18 @@ interface ModalProps {
 const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     // Déclarez les hooks avant tout autre code.
     const [expandedUser, setExpandedUser] = useState<number | null>(null); // Déclarer l'état pour les utilisateurs dépliés
-
+    const [user, setUser] = useState([]);
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden"; // Empêche le scrolling
-        } else {
-            document.body.style.overflow = ""; // Réinitialise le scrolling
-        }
-        return () => {
-            document.body.style.overflow = ""; // Cleanup
+
+        const fetchUsers = async () => {
+            const res = await fetch('/api/user'); // Fetch depuis l'API route
+            const data = await res.json();
+            setUser(data);
+            console.log(data)
         };
+
+        fetchUsers();
+        
     }, [isOpen]);
 
     if (!isOpen) return null; // Si la modal n'est pas ouverte, elle ne s'affiche pas.
@@ -58,6 +60,8 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
         },
     ];
 
+    //fetch de user 
+    
     const toggleUserExpand = (userId: number) => {
         setExpandedUser(expandedUser === userId ? null : userId); // Déplie ou replie l'utilisateur
     };
@@ -68,8 +72,8 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
             onClick={closeModal}
         >
             <div
-                className="bg-white p-6 w-full h-full text-center"
-                // onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique à l'intérieur de la modal
+                className="bg-white p-6 w-full h-full text-center overflow-y-auto"
+                onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique à l'intérieur de la modal
             >
                 <div className="pb-3">
                     <div className="flex justify-between pb-3">
@@ -191,6 +195,10 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                            <div>
+                                                {/* faire en sorte que si on clique sur le bouton, ça change le statue true en false pour le ban + faire une petite modal qui va confirmer la demande. Deplus, vérifier si le rôle de la personne est bien un admin  */}
+                                                <button className="bg-blue-400 pl-4 pr-4 mt-4 pt-2 pb-2 rounded-full font-bold text-white text-sm">UnBan</button>
                                             </div>
                                         </div>
                                     </div>
