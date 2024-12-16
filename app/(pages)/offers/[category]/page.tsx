@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import OfferCard from '@/app/components/offers/OfferCard';
 import OfferCardListSkeleton from '@/app/components/skeletons/offerCardListSkeleton';
- 
+import CategorieLink from '@/app/components/shared/categorieLink';
 
 
 
@@ -79,17 +79,11 @@ const Page: React.FC = () => {
 
   return (
     <>
-    <div className="flex flex-col min-h-screen p-5 font-medium bg-gray-50 box-border">
-      <header className="w-full text-center mb-5">
-        <h1 className="text-2xl font-bold">Catégorie : {category}</h1>
-      </header>
-
+    <div className="flex flex-col min-h-screen mt-36 p-4 font-medium bg-gray-50 box-border items-center">
+    <CategorieLink/>
       <div className="flex-1 w-full p-5">
         <main className="flex flex-col  min-h-f4/5">
           <div className="flex-1 mb-4">
-            <p className="text-lg mb-4">
-              Bienvenue dans la catégorie <strong className='text-orange-700'>{category}</strong>.<br />
-            </p>
 
             {isLoading ? (
               <div className='space-y-8 gap-8'>

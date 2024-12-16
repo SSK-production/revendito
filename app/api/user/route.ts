@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { createUserSchema } from '@/app/validation';
@@ -31,20 +32,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const requestBody = await req.json();
-    const { username, password, firstName, lastName, email, birthDate, city, country }: User = requestBody;
-
-    // Vérification des champs obligatoires
-    if (!username || !password || !firstName || !lastName || !email || !birthDate) {
-      return new Response('Missing required fields', { status: 400 });
-    }
-
-    // Vérification de l'existence de l'email
-    const foundCompany = await prisma.company.findUnique({
-      where: { email },
-    });
-    if (foundCompany) {
-      return new Response(JSON.stringify({ error: 'This email is already used' }), { status: 400 });
-    }
+    const { username, password, firstName, lastName, email, birthDate, city, country } = requestBody;
 
     // Validation des données via Joi
     const { error } = createUserSchema.validate(
@@ -54,34 +42,40 @@ export async function POST(req: Request) {
 
     if (error) {
       const validationErrors = error.details.map((err) => err.message);
-      return new Response(JSON.stringify({ error: validationErrors }), { status: 400 });
+      return NextResponse.json({ error: validationErrors }, { status: 400 });
+    }
+
+    // Vérification de l'existence de l'email
+    const foundUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (foundUser) {
+      return NextResponse.json({ error: "This email is already used" }, { status: 400 });
     }
 
     // Hachage du mot de passe avant de le stocker dans la base de données
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Créer un nouvel utilisateur dans la base de données
-    const newUser = await prisma.user.create({
+    // Création d'un nouvel utilisateur
+    const newUser:User = await prisma.user.create({
       data: {
         username,
         password: hashedPassword,
         firstName,
         lastName,
         email,
-        birthDate: new Date(birthDate),  // Convertir birthDate en objet Date
+        birthDate: new Date(birthDate), // Convertir en objet Date
         city,
         country,
-        profilePicture: '', // Ajouter la logique de gestion de la photo de profil si nécessaire
+        profilePicture: "", // Placeholder pour une future logique de photo de profil
       },
     });
 
     // Réponse avec l'utilisateur créé
-    return new Response(JSON.stringify(newUser), { status: 201 });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error);
-      return new Response('Error creating user: ' + error.message, { status: 500 });
-    }
-    return new Response(JSON.stringify({ error: 'Unknown error' }), { status: 500 });
+    return NextResponse.json(newUser, { status: 201 });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

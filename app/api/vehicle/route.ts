@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
     const vehicleOffers = await prisma.vehicleOffer.findMany({
       skip: skip,
       take: limit,
+      orderBy: {
+        createdAt: 'desc'
+    }
     });
 
     const totalOffers = await prisma.vehicleOffer.count();
