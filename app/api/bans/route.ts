@@ -6,8 +6,10 @@ const prisma = new PrismaClient();
 
 type BanRequest = {
   id: string;
+  username: string;
   type: 'user' | 'company';
-  reason: string;
+  reason: string[];
+  banTitle: string;
   duration: number; // Durée en jours
 };
 
@@ -36,11 +38,11 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     // Lecture et validation des données
     const body: BanRequest = await req.json();
-    const { id, type, reason, duration } = body;
+    const { id, username, type, banTitle, reason, duration } = body;
 
-    if (!id || !type || !reason || typeof duration !== 'number' || duration <= 0) {
+    if (!id || !username || !type || !banTitle || !reason || typeof duration !== 'number' || duration <= 0) {
       return NextResponse.json(
-        { error: 'Données invalides : id, type, raison et durée sont requis.' },
+        { error: 'Données invalides : id, username, ban title, type, raison et durée sont requis.' },
         { status: 400 }
       );
     }
@@ -56,6 +58,8 @@ export async function POST(req: NextRequest): Promise<Response> {
           isBanned: true,
           banCount: { increment: 1 },
           banReason: reason,
+          bannedByUsername: username,
+          bannTitle: banTitle,
           banEndDate: endDate,
           bannedBy: user.id,
         },
