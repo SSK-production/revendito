@@ -7,7 +7,7 @@ export async function GET() {
 
     try {
         const offers = await prisma.vehicleOffer.findMany({
-            take: 5,
+            take: 3,
             orderBy: {
                 createdAt: 'desc'
             }

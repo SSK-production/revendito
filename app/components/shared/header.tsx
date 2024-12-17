@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Header() {
     return (
         <>
-            <header className="border-b border-orange-900/70 flex items-center justify-center sticky">
+            <header className="fixed top-0 left-0 z-50  border-orange-900/70 flex items-center justify-center sticky bg-gray-50">
                 <section className="flex flex-row text-slate-800 px-4 py-2 justify-between w-screen md:w-2/3">
                     <h1 className="md:text-lg lg:text-xl xl:text-2xl">
                         <Link href={"/"}>

@@ -20,6 +20,9 @@ export async function GET(req: NextRequest) {
     const realEstateOffers = await prisma.realEstateOffer.findMany({
       skip: skip,
       take: limit,
+      orderBy: {
+        createdAt: 'desc'
+    }
     });
 
     const totalOffers = await prisma.realEstateOffer.count();

@@ -28,22 +28,37 @@ const test: BannedOffer[] = [
 const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     const [expandedOffer, setExpandedOffer] = useState<number | null>(null);
 
+        // fetch des utilisateurs banni uniquement lorsque la modal est ouverte
+        useEffect(() => {
+            if (isOpen) {
+                const fetchBannedEntities = async () => {
+                    try {
+                        const response = await fetch(`/api/searchUser?isBanned=true`);
+                        if (!response.ok) {
+                            throw new Error('Erreur lors de la requête');
+                        }
+                        const data: BannedUser[] = await response.json(); // Assurez-vous que les données ont le bon type
+                        console.log(data);
+                        if (data.length > 0) {
+                            setIsBanned(data); // Mettez à jour l'état des utilisateurs bannis
+                        } else {
+                            console.log("Aucune entité bannie trouvée.");
+                        }
+                    } catch (error: any) {
+                        console.error('Erreur:', error.message);
+                    }
+                };
+                fetchBannedEntities();
+            }
+        }, [isOpen]);  // Déclenche l'effet uniquement quand `isOpen` change
+    
+        if (!isOpen) return null; // Si la modal n'est pas ouverte, ne rien afficher.
+
     const toggleOfferExpand = (index: number) => {
         setExpandedOffer(expandedOffer === index ? null : index);
     };
 
-    useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = "hidden"; // Empêche le scrolling
-        } else {
-            document.body.style.overflow = ""; // Réinitialise le scrolling
-        }
-        return () => {
-            document.body.style.overflow = ""; // Cleanup
-        };
-    }, [isOpen]);
 
-    if (!isOpen) return null;
 
     return (
         <div
