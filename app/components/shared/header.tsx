@@ -1,7 +1,5 @@
 'use client';
 
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 export default function Header() {
