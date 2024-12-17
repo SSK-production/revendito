@@ -35,6 +35,7 @@ interface Offer {
   city: string;
   country: string;
   active: boolean;
+  photos: string[];
 }
 
 interface UserOffersData {

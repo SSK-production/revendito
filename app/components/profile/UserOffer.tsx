@@ -1,4 +1,5 @@
-import { FiEdit, FiTrash2, FiEye, FiEyeOff } from "react-icons/fi"; // Import des icônes
+import { FiEdit, FiTrash2, FiEye, FiEyeOff } from "react-icons/fi";
+import Image from "next/image"; // Import Next.js Image
 
 interface Offer {
   id: number;
@@ -7,6 +8,7 @@ interface Offer {
   city: string;
   country: string;
   active: boolean;
+  photos: string[]; // Tableau des photos
 }
 
 interface UserOffersProps {
@@ -52,7 +54,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
     </div>
   );
 
-  const renderOffers = (title: string, offerList: Offer[]) => {
+  const renderOffers = (offerList: Offer[]) => {
     const filteredOffers = offerList.filter((offer) =>
       currentUserId === userId ? true : offer.active
     );
@@ -65,10 +67,22 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
                 key={offer.id}
                 className="p-4 border border-gray-200 rounded-md hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
               >
-                <div className="flex flex-col space-y-1 md:space-y-0 md:space-x-2 md:flex-row items-start">
-                {currentUserId === userId && <StatusBadge active={offer.active} />}
+                <div className="flex items-start space-x-4">
+                  {offer.photos && offer.photos.length > 0 && (
+                    <div className="relative w-24 h-24 rounded-md overflow-hidden">
+                      <Image
+                        src={offer.photos[0]}
+                        alt={offer.title}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </div>
+                  )}
                   <div>
-                    <p className="text-lg font-semibold">{offer.title}</p>
+                    <div className="flex items-center space-x-2">
+                      {currentUserId === userId && <StatusBadge active={offer.active} />}
+                      <p className="text-lg font-semibold">{offer.title}</p>
+                    </div>
                     <p className="text-gray-600">
                       Price: <span className="font-medium">{offer.price}€</span>
                     </p>
@@ -91,19 +105,19 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
   };
 
   return (
-    <div className="space-y-8 p-4 sm:p-6 bg-white shadow-lg rounded-md">
+    <div className="space-y-8 p-4 sm:p-6 bg-white">
       <h1 className="text-xl font-bold text-center md:text-left">
         {currentUserId === userId ? "Toutes vos offres" : "Offres disponibles"}
       </h1>
 
       {/* Vehicle Offers */}
-      {renderOffers("Vehicle Offers", vehicleOffers)}
+      {renderOffers(vehicleOffers)}
 
       {/* Real Estate Offers */}
-      {renderOffers("Real Estate Offers", realEstateOffers)}
+      {renderOffers(realEstateOffers)}
 
       {/* Commercial Offers */}
-      {renderOffers("Commercial Offers", commercialOffers)}
+      {renderOffers(commercialOffers)}
     </div>
   );
 };
