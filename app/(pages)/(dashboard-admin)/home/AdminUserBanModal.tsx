@@ -131,6 +131,9 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                                 {/* Content qui se déploie lorsqu'un utilisateur est sélectionné */}
                                 {expandedUser === user.id && (
                                     <div className="pt-4 pb-2 pl-4 pr-4 border bg-[#D9D9D9] shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
+                                        <div className="flex">
+                                            <p>Banned By : {user.id} </p> 
+                                        </div>
                                         <div className="flex justify-between">
                                             <div className="bg-white rounded-md ml-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1">
                                                 <Image
