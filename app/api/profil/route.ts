@@ -3,6 +3,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Fonction pour omettre des champs d'un objet
+function omitFields<T extends object>(obj: T, fields: (keyof T)[]): Partial<T> {
+  const result = { ...obj };
+  fields.forEach((field) => delete result[field]);
+  return result;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const username = req.nextUrl.searchParams.get('user');
@@ -16,19 +23,26 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Validez l'username et le rôle avec votre logique métier (optionnel, si besoin)
-   // Supprimez cette ligne si non applicable à `username`.
+    let userData;
 
-    let data;
-
-    // Récupérez les données selon le rôle
+    // Récupération des données en fonction du rôle
     if (role === 'user') {
-      data = await prisma.user.findUnique({
-        where: { username: username },
+      userData = await prisma.user.findUnique({
+        where: { username },
+        include: {
+          vehicleOffers: true,
+          realEstateOffers: true,
+          commercialOffers: true,
+        },
       });
     } else if (role === 'company') {
-      data = await prisma.company.findFirst({
-        where: { companyName: username }, // Remplacez `name` par le champ utilisé pour identifier une entreprise.
+      userData = await prisma.company.findFirst({
+        where: { companyName: username },
+        include: {
+          vehicleOffers: true,
+          realEstateOffers: true,
+          commercialOffers: true,
+        },
       });
     } else {
       return NextResponse.json(
@@ -38,15 +52,25 @@ export async function GET(req: NextRequest) {
     }
 
     // Si aucune donnée n'est trouvée
-    if (!data) {
+    if (!userData) {
       return NextResponse.json(
         { error: `Aucune donnée trouvée pour ${username} avec le rôle ${role}.` },
         { status: 404 }
       );
     }
 
+    // Omettre le champ "password" dynamiquement
+    const cleanedData = omitFields(userData, ['password']);
+
     return NextResponse.json(
-      { data },
+      {
+        user: cleanedData,
+        offers: {
+          vehicleOffers: userData.vehicleOffers || [],
+          realEstateOffers: userData.realEstateOffers || [],
+          commercialOffers: userData.commercialOffers || [],
+        },
+      },
       { status: 200 }
     );
   } catch (error: unknown) {
@@ -63,5 +87,7 @@ export async function GET(req: NextRequest) {
       { error: 'An unexpected error occurred.' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

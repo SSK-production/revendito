@@ -1,7 +1,5 @@
 'use client';
 
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 export default function Header() {
@@ -29,9 +27,17 @@ export default function Header() {
                             <li className="hover:*:underline hover:*:decoration-orange-700">
                                 <Link href={"/login"}>Log in</Link>
                             </li>
-                            <li className="hover:scale-110 transition-all duration-500">
-                                <a href="#" className="text-orange-700 font-bold"> <FontAwesomeIcon
-                                    icon={faPlusCircle}/> Post an ad</a>
+                            <li className="relative group">
+                              <span className="text-orange-700 font-bold hover:underline hover:decoration-orange-700 cursor-pointer">
+                                Post an ad
+                              </span>
+                                <ul className="absolute  hidden group-hover:flex flex-col bg-white shadow-md border rounded-md">
+                                    <Link href={"/vehicle-offer"} className="hover:bg-blue-100 px-2 py-1 text-center cursor-pointer">Vehicle</Link>
+                                    <hr className="border-orange-200"/>
+                                    <Link href={"/property-offer"} className="hover:bg-green-100 px-2 py-1 text-center cursor-pointer">Porperty</Link>
+                                    <hr className="border-orange-200"/>
+                                    <Link href={"/commercial-offer"} className="hover:bg-orange-100 px-2 py-1 text-center cursor-pointer">Commercial</Link>
+                                </ul>
                             </li>
                         </ul>
                     </nav>
