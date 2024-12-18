@@ -1,29 +1,7 @@
+import { Property } from "@/app/types";
 import React from "react";
 
-interface Property {
-  propertyType?: string;
-  propertyCondition?: string;
-  surface?: number;
-  rooms?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  heatingType?: string;
-  energyClass?: string;
-  furnished?: boolean;
-  parking?: boolean;
-  garage?: boolean;
-  elevator?: boolean;
-  balcony?: boolean;
-  terrace?: boolean;
-  garden?: boolean;
-  basementAvailable?: boolean;
-  floorNumber?: number;
-  totalFloor?: number;
-  avaibilabilityDate?: Date;
-  contactNumber?: string;
-  contactEmail?: string;
-  location?: boolean;
-}
+
 
 interface PropertyDetailsProps {
   data: Property;
