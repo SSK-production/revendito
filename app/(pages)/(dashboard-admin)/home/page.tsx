@@ -5,7 +5,6 @@ import AdminUserBanModal from "./AdminUserBanModal";
 import AdminDeleteOfferModal from "./AdminDeleteOffer";
 import Image from "next/image";
 
-
 export default function AdminHomePage() {
     const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState<boolean>(false);
     const [isDeleteOfferModalOpen, setisDeleteOfferModalOpen] = useState<boolean>(false);
@@ -19,16 +18,15 @@ export default function AdminHomePage() {
     const openDeleteOfferModal = () => setisDeleteOfferModalOpen(true);
     const closeDeleteOfferModal = () => setisDeleteOfferModalOpen(false);
 
-    // const open
+    // Gestionnaires pour la modal Ban User
     const openBanUserModal = () => setisUserBanModalOpen(true);
     const closeBanUserModal = () => setisUserBanModalOpen(false);
 
     return (
         <>
-            {/* Faire la logique de lorsqu'il y a un nouveau report, changer la cloche en cloche avec notif */}
-            <div className="flex flex-col gap-3">
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md">
-                    <div className="flex justify-end">
+            <div className="flex flex-col gap-3 lg:p-0 lg:border-0 lg:shadow-none">
+                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none">
+                    <div className="flex justify-end lg:p-0">
                         <Image
                             src="/icons/mobil-dashboard/bell.svg"
                             width={25}
@@ -36,7 +34,7 @@ export default function AdminHomePage() {
                             alt="bell"
                         />
                     </div>
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center lg:flex-none">
                         <Image
                             src="/icons/mobil-dashboard/status-info.svg"
                             width={30}
@@ -47,9 +45,9 @@ export default function AdminHomePage() {
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md"
-                onClick={openBanUserModal}>
-                    <div className="flex gap-2 items-center mt-4">
+                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
+                    onClick={openBanUserModal}>
+                    <div className="flex gap-2 items-center mt-4 lg:flex-none">
                         <Image
                             src="/icons/mobil-dashboard/ban-user.svg"
                             width={35}
@@ -58,19 +56,19 @@ export default function AdminHomePage() {
                         />
                         <p className="flex items-center">Ban User</p>
                     </div>
-                     {/* Modal Ban User */}
-                <AdminUserBanModal isOpen={isUserBanModalOpen} closeModal={closeBanUserModal} />
+                    {/* Modal Ban User */}
+                    <AdminUserBanModal isOpen={isUserBanModalOpen} closeModal={closeBanUserModal} />
                 </div>
 
                 {/* Modal Ban User */}
                 <AdminDeleteOfferModal isOpen={isDeleteOfferModalOpen} closeModal={closeDeleteOfferModal} />
 
-                <div className="flex justify-between">
+                <div className="flex justify-between lg:block">
                     <div
-                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md"
-                        onClick={openDeleteOfferModal} // Logic moved here
+                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
+                        onClick={openDeleteOfferModal}
                     >
-                        <div className="flex flex-col gap-2 items-center mt-4">
+                        <div className="flex flex-col gap-2 items-center mt-4 lg:flex-none">
                             <Image
                                 src="/icons/mobil-dashboard/bin.svg"
                                 width={35}
@@ -83,10 +81,10 @@ export default function AdminHomePage() {
 
                     {/* Add admin */}
                     <div
-                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md"
+                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
                         onClick={openAddAdminModal}
                     >
-                        <div className="flex flex-col gap-2 items-center">
+                        <div className="flex flex-col gap-2 items-center lg:flex-none">
                             <Image
                                 src="/icons/mobil-dashboard/add.svg"
                                 width={55}
@@ -100,9 +98,9 @@ export default function AdminHomePage() {
                     </div>
                 </div>
 
-                <div className="flex justify-between p-4 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md">
-                    <div className="flex gap-2 items-center">
-                        <div className="flex flex-col gap-2 items-center">
+                <div className="flex justify-between p-4 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none">
+                    <div className="flex gap-2 items-center lg:flex-none">
+                        <div className="flex flex-col gap-2 items-center lg:flex-none">
                             <Image
                                 src="/icons/mobil-dashboard/user-rounded.svg"
                                 width={35}
@@ -112,8 +110,8 @@ export default function AdminHomePage() {
                             <p className="flex items-center">1000000</p>
                         </div>
                     </div>
-                    <div className="w-px h-24 bg-black my-4"></div>
-                    <div className="flex flex-col justify-center gap-2 items-center">
+                    <div className="w-px h-24 bg-black my-4 lg:hidden"></div>
+                    <div className="flex flex-col justify-center gap-2 items-center lg:flex-none">
                         <Image
                             src="/icons/mobil-dashboard/page.svg"
                             width={35}

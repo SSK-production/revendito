@@ -15,9 +15,11 @@ type SearchResult =
       city: string;
       country: string;
       isBanned: boolean;
-      banReason: string | null;
+      banReason: string[] | null;
       banEndDate: Date | null;
-      banCount : number ;
+      banCount: number;
+      bannTitle: string | null;
+      bannedByUsername: string | null;
     }
   | {
       type: 'company';
@@ -29,8 +31,10 @@ type SearchResult =
       street: string;
       companyNumber: string;
       isBanned: boolean;
-      banReason: string | null;
+      banReason: string[] | null;
       banEndDate: Date | null;
+      bannedByUser: { id: string; username: string } | null; // Accepte un objet au lieu d'une chaîne
+      bannTitle: string | null;
     };
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -39,11 +43,9 @@ export async function GET(req: NextRequest): Promise<Response> {
     const username = searchParams.get('username');
     const isBannedParam = searchParams.get('isBanned');
 
-    // Conversion de `isBanned` en booléen si présent
     const isBanned =
       isBannedParam === 'true' ? true : isBannedParam === 'false' ? false : undefined;
 
-    // Valider les paramètres (au moins `username` ou `isBanned` doit être présent)
     if (!username && isBanned === undefined) {
       return NextResponse.json(
         { error: "Paramètre invalide : 'username' ou 'isBanned' doit être fourni." },
@@ -69,7 +71,9 @@ export async function GET(req: NextRequest): Promise<Response> {
         isBanned: true,
         banReason: true,
         banEndDate: true,
-        banCount : true,
+        banCount: true,
+        bannTitle: true,
+        bannedByUsername: true, // Assurez-vous que ce champ existe dans votre modèle User
       },
     });
 
@@ -90,10 +94,11 @@ export async function GET(req: NextRequest): Promise<Response> {
         isBanned: true,
         banReason: true,
         banEndDate: true,
+        bannTitle: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
+        bannedByUser: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
       },
     });
 
-    // Combinaison des résultats
     const results: SearchResult[] = [
       ...users.map((user) => ({
         type: 'user' as const,
@@ -102,6 +107,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       ...companies.map((company) => ({
         type: 'company' as const,
         ...company,
+        banTitle: company.bannTitle || null, // Ajoutez une valeur par défaut si nécessaire
       })),
     ];
 

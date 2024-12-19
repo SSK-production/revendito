@@ -12,24 +12,25 @@ interface BannedUser {
     id: number;
     firstName: string;
     lastName: string;
-    banReason: string;  // `banReason` est une chaîne de caractères ici, pas un tableau.
+    banReason: string[]; // `banReason` est maintenant un tableau de chaînes de caractères.
     banEndDate: string;
     banCount: string;
+    bannTitle: string;
+    bannedByUsername: string;
 }
-
 
 const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     const [expandedUser, setExpandedUser] = useState<number | null>(null); // Déclarer l'état pour les utilisateurs dépliés
     const [isBanned, setIsBanned] = useState<BannedUser[]>([]);
 
-    // fetch des utilisateurs banni uniquement lorsque la modal est ouverte
+    // fetch des utilisateurs bannis uniquement lorsque la modal est ouverte
     useEffect(() => {
         if (isOpen) {
             const fetchBannedEntities = async () => {
                 try {
                     const response = await fetch(`/api/searchUser?isBanned=true`);
                     if (!response.ok) {
-                        throw new Error('Erreur lors de la requête');
+                        throw new Error("Erreur lors de la requête");
                     }
                     const data: BannedUser[] = await response.json(); // Assurez-vous que les données ont le bon type
                     console.log(data);
@@ -39,12 +40,12 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                         console.log("Aucune entité bannie trouvée.");
                     }
                 } catch (error: any) {
-                    console.error('Erreur:', error.message);
+                    console.error("Erreur:", error.message);
                 }
             };
             fetchBannedEntities();
         }
-    }, [isOpen]);  // Déclenche l'effet uniquement quand `isOpen` change
+    }, [isOpen]); // Déclenche l'effet uniquement quand `isOpen` change
 
     if (!isOpen) return null; // Si la modal n'est pas ouverte, ne rien afficher.
 
@@ -95,7 +96,7 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                         </form>
                     </div>
                     <div className="space-y-4">
-                        {/* Boucle pour afficher chaque utilisateur banni  isBanned*/}
+                        {/* Boucle pour afficher chaque utilisateur banni */}
                         {isBanned.map((user) => (
                             <div key={user.id}>
                                 {/* Accordion Item */}
@@ -132,10 +133,10 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                                 {expandedUser === user.id && (
                                     <div className="pt-4 pb-2 pl-4 pr-4 border bg-[#D9D9D9] shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                                         <div className="flex">
-                                            <p>Banned By : {user.id} </p> 
+                                            <p>Banned By : {user.bannedByUsername}</p>
                                         </div>
                                         <div className="flex justify-between">
-                                            <div className="bg-white rounded-md ml-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1">
+                                            <div className="bg-white rounded-md ml-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1 shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                                                 <Image
                                                     src="/icons/mobil-dashboard/userBan/stop-sign.svg"
                                                     width={30}
@@ -145,33 +146,47 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                                                 <p>Ban Count</p>
                                                 <p>{user.banCount}</p>
                                             </div>
-                                            <div className="bg-white rounded-md mr-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1">
+                                            <div className="bg-white rounded-md mr-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1 shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
                                                 <Image
                                                     src="/icons/mobil-dashboard/userBan/clock.svg"
                                                     width={30}
                                                     height={30}
-                                                    alt="stop-sign.svg"
+                                                    alt="clock"
                                                 />
                                                 <p>End Ban</p>
                                                 <p>{formatDate(user.banEndDate)}</p>
                                             </div>
                                         </div>
 
-                                        {/* Affichage de la raison du bannissement */}
+                                        {/* Affichage des raisons du bannissement */}
                                         <div className="flex flex-col mt-6">
-                                            <h2 className="flex justify-start">Ban Reason</h2>
-                                            <div className="space-y-4">
-                                                <div className="flex flex-col gap-2 bg-white rounded-md pt-2 pb-4 pl-2 pr-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <Image
-                                                            src="/icons/mobil-dashboard/userBan/warning.svg"
-                                                            width={20}
-                                                            height={20}
-                                                            alt="warning.svg"
-                                                        />
-                                                        <h2 className="text-lg font-normal">{user.banReason}</h2> {/* Affiche le banReason */}
+                                            <h2 className="flex justify-start">Ban Reasons</h2>
+                                            <div className="space-y-4 mt-4">
+                                                {user.banReason.map((reason, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex flex-col gap-2 bg-white rounded-md pt-2 pb-4 pl-2 pr-2 shadow-[0_4px_6px_rgba(0,0,0,0.4)]" 
+                                                    >
+                                                        {/* Affichage du bannTitle avec chaque raison */}
+                                                        <div className="flex items-center gap-2">
+                                                            <Image
+                                                                src="/icons/mobil-dashboard/userBan/warning.svg"
+                                                                width={20}
+                                                                height={20}
+                                                                alt="warning.svg"
+                                                            />
+                                                            <h2 className="text-lg font-semibold">{user.bannTitle}</h2>  {/* Ajout du bannTitle ici */}
+                                                        </div>
+
+                                                        {/* Affichage de la raison du bannissement */}
+                                                        <div className="flex justify-center gap-2">
+                                                            <h2 className="text-sm text-gray-700">{reason}</h2>
+                                                        </div>
+                                                        <div className="flex justify-end mr-2 text-[12px] text-red-800"> 
+                                                            <p>Banned by : {user.bannedByUsername}test</p>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                ))}
                                             </div>
                                             <div>
                                                 <button className="bg-blue-400 pl-4 pr-4 mt-4 pt-2 pb-2 rounded-full font-bold text-white text-sm">
