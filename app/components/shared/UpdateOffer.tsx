@@ -58,25 +58,160 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
   );
 };
 
-// Placeholder for Vehicle Form
 const VehicleForm: React.FC<{ offer: Vehicle }> = ({ offer }) => (
-  <form>
-    <h3>Update Vehicle Offer</h3>
-    {/* Add other fields as needed */}
+  <form className="space-y-4">
+    <h3 className="text-xl font-bold">Update Vehicle Offer</h3>
+    <label className="block">
+      <span className="text-gray-700">Vehicle Type</span>
+      <input
+        type="text"
+        defaultValue={offer.vehicleType || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Model</span>
+      <input
+        type="text"
+        defaultValue={offer.model || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Year</span>
+      <input
+        type="number"
+        defaultValue={offer.year || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Mileage</span>
+      <input
+        type="number"
+        defaultValue={offer.mileage || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Fuel Type</span>
+      <input
+        type="text"
+        defaultValue={offer.fuelType || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Color</span>
+      <input
+        type="text"
+        defaultValue={offer.color || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Transmission</span>
+      <input
+        type="text"
+        defaultValue={offer.transmission || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Number of Doors</span>
+      <input
+        type="number"
+        defaultValue={offer.numberOfDoors || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    {/* Add all other Vehicle fields similarly */}
   </form>
 );
 
 const PropertyForm: React.FC<{ offer: Property }> = ({ offer }) => (
-  <form>
-    <h3>Update Real Estate Offer</h3>
-    {/* Add other fields as needed */}
+  <form className="space-y-4">
+    <h3 className="text-xl font-bold">Update Real Estate Offer</h3>
+    <label className="block">
+      <span className="text-gray-700">Property Type</span>
+      <input
+        type="text"
+        defaultValue={offer.propertyType || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Surface</span>
+      <input
+        type="number"
+        defaultValue={offer.surface || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Rooms</span>
+      <input
+        type="number"
+        defaultValue={offer.rooms || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Bedrooms</span>
+      <input
+        type="number"
+        defaultValue={offer.bedrooms || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Bathrooms</span>
+      <input
+        type="number"
+        defaultValue={offer.bathrooms || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    {/* Add all other Property fields similarly */}
   </form>
 );
 
 const CommercialForm: React.FC<{ offer: Commercial }> = ({ offer }) => (
-  <form>
-    <h3>Update Commercial Offer</h3>
-    {/* Add other fields as needed */}
+  <form className="space-y-4">
+    <h3 className="text-xl font-bold">Update Commercial Offer</h3>
+    <label className="block">
+      <span className="text-gray-700">Commercial Type</span>
+      <input
+        type="text"
+        defaultValue={offer.commercialType || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Duration</span>
+      <input
+        type="number"
+        defaultValue={offer.duration || 0}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Contract Type</span>
+      <input
+        type="text"
+        defaultValue={offer.contractType || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    <label className="block">
+      <span className="text-gray-700">Work Schedule</span>
+      <input
+        type="text"
+        defaultValue={offer.workSchedule || ""}
+        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+      />
+    </label>
+    {/* Add all other Commercial fields similarly */}
   </form>
 );
 

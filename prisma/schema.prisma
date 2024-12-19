@@ -247,7 +247,8 @@ model Message {
   content            String
   sentAt             DateTime         @default(now())
   read               Boolean          @default(false)
-  
+  conversationId     String
+
   vehicleOfferId     Int?             // Clé étrangère pour une offre de véhicule
   realEstateOfferId  Int?             // Clé étrangère pour une offre immobilière
   commercialOfferId  Int?             // Clé étrangère pour une offre commerciale
