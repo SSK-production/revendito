@@ -18,7 +18,7 @@ type SearchResult =
       banReason: string[] | null;
       banEndDate: Date | null;
       banCount: number;
-      bannTitle: string | null;
+      bannTitle: string | null; // Modifié pour être une chaîne JSON
       bannedByUsername: string | null;
     }
   | {
@@ -34,7 +34,7 @@ type SearchResult =
       banReason: string[] | null;
       banEndDate: Date | null;
       bannedByUser: { id: string; username: string } | null; // Accepte un objet au lieu d'une chaîne
-      bannTitle: string | null;
+      bannTitle: string | null; // Modifié pour être une chaîne JSON
     };
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -99,15 +99,17 @@ export async function GET(req: NextRequest): Promise<Response> {
       },
     });
 
+    // Transformation des résultats pour convertir bannTitle en chaîne JSON
     const results: SearchResult[] = [
       ...users.map((user) => ({
         type: 'user' as const,
         ...user,
+        bannTitle: user.bannTitle ? JSON.stringify(user.bannTitle) : null, // Convertir en chaîne JSON
       })),
       ...companies.map((company) => ({
         type: 'company' as const,
         ...company,
-        banTitle: company.bannTitle || null, // Ajoutez une valeur par défaut si nécessaire
+        bannTitle: company.bannTitle ? JSON.stringify(company.bannTitle) : null, // Convertir en chaîne JSON
       })),
     ];
 
