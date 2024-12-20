@@ -18,7 +18,7 @@ type SearchResult =
       banReason: string[] | null;
       banEndDate: Date | null;
       banCount: number;
-      bannTitle: string[]; // BannTitle est maintenant un tableau avec une valeur par défaut
+      bannTitle: string | null;
       bannedByUsername: string | null;
     }
   | {
@@ -33,8 +33,8 @@ type SearchResult =
       isBanned: boolean;
       banReason: string[] | null;
       banEndDate: Date | null;
-      bannTitle: string[]; // BannTitle est maintenant un tableau avec une valeur par défaut
-      bannedByUser: { id: string; username: string } | null;
+      bannedByUser: { id: string; username: string } | null; // Accepte un objet au lieu d'une chaîne
+      bannTitle: string | null;
     };
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -72,8 +72,8 @@ export async function GET(req: NextRequest): Promise<Response> {
         banReason: true,
         banEndDate: true,
         banCount: true,
-        bannTitle: true, // Récupération explicite
-        bannedByUsername: true,
+        bannTitle: true,
+        bannedByUsername: true, // Assurez-vous que ce champ existe dans votre modèle User
       },
     });
 
@@ -94,8 +94,8 @@ export async function GET(req: NextRequest): Promise<Response> {
         isBanned: true,
         banReason: true,
         banEndDate: true,
-        bannTitle: true, // Récupération explicite
-        bannedByUser: true,
+        bannTitle: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
+        bannedByUser: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
       },
     });
 
@@ -103,14 +103,11 @@ export async function GET(req: NextRequest): Promise<Response> {
       ...users.map((user) => ({
         type: 'user' as const,
         ...user,
-        bannTitle: user.bannTitle ?? [], // Toujours un tableau
-        bannedByUsername: user.bannedByUsername ?? null, // S'assure que c'est `null` si absent
       })),
       ...companies.map((company) => ({
         type: 'company' as const,
         ...company,
-        bannTitle: company.bannTitle ?? [], // Toujours un tableau
-        bannedByUser: company.bannedByUser ?? null, // S'assure que c'est `null` si absent
+        banTitle: company.bannTitle || null, // Ajoutez une valeur par défaut si nécessaire
       })),
     ];
 
@@ -120,7 +117,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     return NextResponse.json(results);
   } catch (error: unknown) {
-    console.error('Erreur lors de la recherche :', JSON.stringify(error, null, 2));
+    console.error('Erreur lors de la recherche :', error);
     return NextResponse.json({ error: 'Erreur serveur, veuillez réessayer plus tard.' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
