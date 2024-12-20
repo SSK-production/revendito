@@ -103,12 +103,14 @@ export async function GET(req: NextRequest): Promise<Response> {
       ...users.map((user) => ({
         type: 'user' as const,
         ...user,
-        bannTitle: user.bannTitle || [], // Gestion des valeurs par défaut
+        bannTitle: user.bannTitle ?? [], // Toujours un tableau
+        bannedByUsername: user.bannedByUsername ?? null, // S'assure que c'est `null` si absent
       })),
       ...companies.map((company) => ({
         type: 'company' as const,
         ...company,
-        bannTitle: company.bannTitle || [], // Gestion des valeurs par défaut
+        bannTitle: company.bannTitle ?? [], // Toujours un tableau
+        bannedByUser: company.bannedByUser ?? null, // S'assure que c'est `null` si absent
       })),
     ];
 
@@ -118,7 +120,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     return NextResponse.json(results);
   } catch (error: unknown) {
-    console.error('Erreur lors de la recherche :', error);
+    console.error('Erreur lors de la recherche :', JSON.stringify(error, null, 2));
     return NextResponse.json({ error: 'Erreur serveur, veuillez réessayer plus tard.' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
