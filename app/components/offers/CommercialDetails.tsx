@@ -1,3 +1,4 @@
+import { Commercial } from "@/app/types";
 import React from "react";
 import {
   FaCar,
@@ -34,19 +35,10 @@ const categoryIcons: { [key: string]: JSX.Element } = {
   Other: <FaEllipsisH />,
 };
 
-interface Data {
-  commercialType?: string;
-  duration?: number;
-  contractType?: string;
-  workSchedule?: string;
-  contactNumber?: string;
-  contactEmail?: string;
-  openingHours?: string | object;
-  categories?: string[];
-}
+
 
 interface Props {
-  data: Data;
+  data: Commercial;
 }
 
 const DetailsComponent: React.FC<Props> = ({ data }) => {

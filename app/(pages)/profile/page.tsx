@@ -121,7 +121,7 @@ export default function ProfilePage() {
     return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-gray-100 shadow-md rounded-md">
+    <div className="max-w-3xl mx-auto p-6 bg-[#cfcfcf] shadow-md rounded-md">
       {data && (
         <>
           {/* Header */}

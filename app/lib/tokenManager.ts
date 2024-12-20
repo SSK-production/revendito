@@ -7,7 +7,7 @@ interface UserPayload {
   email: string;
   entity: string;
   isBanned: boolean,
-  banReason: string,
+  banReason: string[],
   banEndDate: Date
 }
 
@@ -105,7 +105,7 @@ export async function getTokenFromCookies(req: Request): Promise<string | null> 
 }
 
 
-export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; username:string; entity: 'user' | 'company', isBanned: boolean, banReason: string, banEndDate: Date; accessToken:string }> {
+export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; username:string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date; accessToken:string }> {
   let accessToken = req.cookies.get('access_token')?.value ?? undefined; // Transforme null en undefined
   const refreshToken = req.cookies.get('refresh_token')?.value ?? undefined;
 
@@ -142,7 +142,7 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
     console.log(decodedToken);
     
 
-    const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned: boolean, banReason: string, banEndDate: Date };
+    const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date };
     if (!id || !entity) {
       throw new Error('Payload du token invalide');
     }
@@ -167,7 +167,7 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
         throw new Error('Nouveau token invalide');
       }
 
-      const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned:boolean, banReason:string, banEndDate:Date };
+      const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned:boolean, banReason:string[], banEndDate:Date };
       if (!id || !entity) {
         throw new Error('Payload du nouveau token invalide');
       }

@@ -18,3 +18,28 @@ export async function verifyId(id:string, entity:string) {
         }
       }
 }
+
+export async function getReceiverDetails(receiverId: string) {
+  if (!receiverId) {
+      throw new Error("Le receiverId est requis pour déterminer le destinataire.");
+  }
+
+  // Vérifie si le destinataire est un utilisateur
+  const receiverUser = await prisma.user.findUnique({
+      where: { id: receiverId },
+  });
+  if (receiverUser) {
+      return { receiverUserId: receiverId, receiverCompanyId: null };
+  }
+
+  // Vérifie si le destinataire est une entreprise
+  const receiverCompany = await prisma.company.findUnique({
+      where: { id: receiverId },
+  });
+  if (receiverCompany) {
+      return { receiverUserId: null, receiverCompanyId: receiverId };
+  }
+
+  // Si aucun destinataire trouvé
+  return { receiverUserId: null, receiverCompanyId: null };
+}

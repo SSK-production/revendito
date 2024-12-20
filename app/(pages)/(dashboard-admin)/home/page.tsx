@@ -1,127 +1,109 @@
-"use client"
-import React, { useState } from "react";
+'use client'
+import React, { useState, useRef } from "react";
 import AddAdminModal from "./adminModal";
-import AdminUserBanModal from "./AdminUserBanModal";
+// import AdminUserBanModal from "./AdminUserBanModal";
 import AdminDeleteOfferModal from "./AdminDeleteOffer";
+import AdminUserBanModal from "./testModal";
 import Image from "next/image";
 
 export default function AdminHomePage() {
-    const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState<boolean>(false);
-    const [isDeleteOfferModalOpen, setisDeleteOfferModalOpen] = useState<boolean>(false);
-    const [isUserBanModalOpen, setisUserBanModalOpen] = useState<boolean>(false);
+  const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState<boolean>(false);
+  const [isDeleteOfferModalOpen, setisDeleteOfferModalOpen] = useState<boolean>(false);
+  const [isUserBanModalOpen, setisUserBanModalOpen] = useState<boolean>(false);
+  const [isTestModalOpen, setIsTestModalOpen] = useState<boolean>(false);
 
-    // Gestionnaires pour la modal Add Admin
-    const openAddAdminModal = () => setIsAddAdminModalOpen(true);
-    const closeAddAdminModal = () => setIsAddAdminModalOpen(false);
+  const modalContainerRef = useRef<HTMLDivElement | null>(null);
 
-    // Gestionnaires pour la modal Delete Offer
-    const openDeleteOfferModal = () => setisDeleteOfferModalOpen(true);
-    const closeDeleteOfferModal = () => setisDeleteOfferModalOpen(false);
+  const openAddAdminModal = () => setIsAddAdminModalOpen(true);
+  const closeAddAdminModal = () => setIsAddAdminModalOpen(false);
 
-    // Gestionnaires pour la modal Ban User
-    const openBanUserModal = () => setisUserBanModalOpen(true);
-    const closeBanUserModal = () => setisUserBanModalOpen(false);
+  const openDeleteOfferModal = () => setisDeleteOfferModalOpen(true);
+  const closeDeleteOfferModal = () => setisDeleteOfferModalOpen(false);
 
-    return (
-        <>
-            <div className="flex flex-col gap-3 lg:p-0 lg:border-0 lg:shadow-none">
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none">
-                    <div className="flex justify-end lg:p-0">
-                        <Image
-                            src="/icons/mobil-dashboard/bell.svg"
-                            width={25}
-                            height={25}
-                            alt="bell"
-                        />
-                    </div>
-                    <div className="flex gap-2 items-center lg:flex-none">
-                        <Image
-                            src="/icons/mobil-dashboard/status-info.svg"
-                            width={30}
-                            height={30}
-                            alt="status-info"
-                        />
-                        <p className="flex items-center">Report</p>
-                    </div>
-                </div>
+  const openBanUserModal = () => setisUserBanModalOpen(true);
+  const closeBanUserModal = () => setisUserBanModalOpen(false);
 
-                <div className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
-                    onClick={openBanUserModal}>
-                    <div className="flex gap-2 items-center mt-4 lg:flex-none">
-                        <Image
-                            src="/icons/mobil-dashboard/ban-user.svg"
-                            width={35}
-                            height={35}
-                            alt="ban-user.svg"
-                        />
-                        <p className="flex items-center">Ban User</p>
-                    </div>
-                    {/* Modal Ban User */}
-                    <AdminUserBanModal isOpen={isUserBanModalOpen} closeModal={closeBanUserModal} />
-                </div>
+  const openTestModal = () => setIsTestModalOpen(true);
+  const closeTestModal = () => setIsTestModalOpen(false);
 
-                {/* Modal Ban User */}
-                <AdminDeleteOfferModal isOpen={isDeleteOfferModalOpen} closeModal={closeDeleteOfferModal} />
-
-                <div className="flex justify-between lg:block">
-                    <div
-                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
-                        onClick={openDeleteOfferModal}
-                    >
-                        <div className="flex flex-col gap-2 items-center mt-4 lg:flex-none">
-                            <Image
-                                src="/icons/mobil-dashboard/bin.svg"
-                                width={35}
-                                height={35}
-                                alt="delete-offer.svg"
-                            />
-                            <p className="flex items-center">Delete Offer</p>
-                        </div>
-                    </div>
-
-                    {/* Add admin */}
-                    <div
-                        className="flex flex-col justify-between p-4 pb-8 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none"
-                        onClick={openAddAdminModal}
-                    >
-                        <div className="flex flex-col gap-2 items-center lg:flex-none">
-                            <Image
-                                src="/icons/mobil-dashboard/add.svg"
-                                width={55}
-                                height={55}
-                                alt="add-admin.svg"
-                            />
-                            <p className="flex items-center">Add Admin</p>
-                        </div>
-                        {/* Modal Add Admin */}
-                        <AddAdminModal isOpen={isAddAdminModalOpen} closeModal={closeAddAdminModal} />
-                    </div>
-                </div>
-
-                <div className="flex justify-between p-4 bg-[#D9D9D9] rounded-lg border border-orange-900/70 shadow-md lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none">
-                    <div className="flex gap-2 items-center lg:flex-none">
-                        <div className="flex flex-col gap-2 items-center lg:flex-none">
-                            <Image
-                                src="/icons/mobil-dashboard/user-rounded.svg"
-                                width={35}
-                                height={35}
-                                alt="user-rounded.svg"
-                            />
-                            <p className="flex items-center">1000000</p>
-                        </div>
-                    </div>
-                    <div className="w-px h-24 bg-black my-4 lg:hidden"></div>
-                    <div className="flex flex-col justify-center gap-2 items-center lg:flex-none">
-                        <Image
-                            src="/icons/mobil-dashboard/page.svg"
-                            width={35}
-                            height={35}
-                            alt="page.svg"
-                        />
-                        <p className="flex items-center">1000000</p>
-                    </div>
-                </div>
+  return (
+    <>
+      <div className=" lg:min-h-screen lg:h-full lg:flex lg:flex-row lg:bg-white lg:flex-1">
+        {/* Contenu principal */}
+        <div className="h-2/5 lg:flex lg:flex-col lg:bg-white-500 lg:rounded-lg ">
+          {/* Section Test Modal */}
+          <div onClick={openTestModal}>
+            <div className="lg:mt-4 lg:mb-4 lg:flex lg:flex-row lg:gap-3 lg:ml-4 lg:mr-4">
+              <Image
+                src="/icons/mobil-dashboard/add.svg"
+                width={55}
+                height={55}
+                alt="test-modal.svg"
+              />
+              <p className="flex items-center">Open Test Modal</p>
             </div>
-        </>
-    );
+          </div>
+
+          {/* Autres sections */}
+          <div onClick={openBanUserModal}>
+            <div className="lg:mt-4 lg:mb-4 lg:flex lg:flex-row lg:gap-3 lg:ml-4 lg:mr-4">
+              <Image
+                src="/icons/mobil-dashboard/ban-user.svg"
+                width={35}
+                height={35}
+                alt="ban-user.svg"
+              />
+              <p className="flex items-center">Ban User</p>
+            </div>
+          </div>
+
+          <div onClick={openDeleteOfferModal}>
+            <div className="lg:mt-4 lg:mb-4 lg:flex lg:flex-row lg:gap-3 lg:ml-4 lg:mr-4">
+              <Image
+                src="/icons/mobil-dashboard/bin.svg"
+                width={35}
+                height={35}
+                alt="delete-offer.svg"
+              />
+              <p className="flex items-center">Delete Offer</p>
+            </div>
+          </div>
+
+          <div className="lg:flex lg:justify-between lg:ml-2 lg:mr-4">
+            <div onClick={openAddAdminModal}>
+              <div className="lg:flex lg:justify-start">
+                <Image
+                  src="/icons/mobil-dashboard/add.svg"
+                  width={55}
+                  height={55}
+                  alt="add-admin.svg"
+                />
+                <p className="flex items-center">Add Admin</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Conteneur pour modales */}
+        <div className="lg:flex flex-1">
+            {/* user Ban */}
+            <AdminUserBanModal
+            isOpen={isTestModalOpen}
+            closeModal={closeTestModal}
+            container={modalContainerRef} 
+            // Passez la ref directement
+            />
+
+            {/* Delete Offer */}
+                <AdminDeleteOfferModal
+        isOpen={isDeleteOfferModalOpen}
+        closeModal={closeDeleteOfferModal}
+        container={modalContainerRef} 
+        // Passez la ref directement
+        />
+
+        </div>
+      </div>
+    </>
+  );
 }

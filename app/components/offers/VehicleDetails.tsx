@@ -1,22 +1,7 @@
+import { Vehicle } from "@/app/types";
 import React from "react";
 
-interface Vehicle {
-  vehicleType?: string;
-  model?: string;
-  year?: number;
-  mileage?: number;
-  fuelType?: string;
-  color?: string;
-  transmission?: string;
-  numberOfDoors?: number;
-  engineSize?: number;
-  power?: number;
-  emissionClass?: string;
-  condition?: string;
-  contactNumber?: string;
-  contactEmail?: string;
-  location?: boolean;
-}
+
 
 interface VehicleDetailsProps {
   data: Vehicle;

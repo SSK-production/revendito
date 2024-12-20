@@ -1,18 +1,9 @@
 import React from "react";
 import Image from "next/image";
 import { FaMapMarkerAlt, FaCalendarAlt, FaTag } from "react-icons/fa";
+import { Offers } from "@/app/types";
 
-interface Offers {
-  id: number;
-  title: string;
-  description: string;
-  photos: string[];
-  price: number;
-  city: string;
-  country: string;
-  createdAt: string;
-  updatedAt: string;
-}
+
 
 interface OfferCardProps {
   offer: Offers;

@@ -1,33 +1,49 @@
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { formatDate } from "@/utils/functions/timeFunction/formatDate";
 
 interface ModalProps {
     isOpen: boolean;
     closeModal: () => void;
+    container: React.RefObject<HTMLDivElement>;
 }
 
 type OfferType = "vehicleOffer" | "realEstateOffer" | "commercialOffer";
 
 interface BannedOffer {
-    vendor: string; //ok
-    vendorType: string; //ok
-    title: string; //ok
+    vendor: string;
+    vendorType: string;
+    title: string;
     description: string;
-    price: string; //ok
-    userIsBanned: boolean; //ok 
-    createdAt: string; // ok 
+    price: string;
+    userIsBanned: boolean;
+    createdAt: string;
     banReason: string;
     banEndDate: string;
-    typeOffers: OfferType; // Utilisation du type `typeOffers` venant du backend
-    src: string | null; // Assurez-vous que src peut être null
+    typeOffers: OfferType;
+    src: string | null;
 }
 
-const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
+const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, container }) => {
     const [expandedOffer, setExpandedOffer] = useState<number | null>(null);
     const [isBanned, setIsBanned] = useState<BannedOffer[]>([]);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [selectedType, setSelectedType] = useState<OfferType | "">(""); // État pour le type sélectionné
+    const [searchTerm, setSearchTerm] = useState<string>(""); // État pour la recherche
 
-    // Fetch des utilisateurs bannis uniquement lorsque la modal est ouverte
+    useEffect(() => {
+        const checkIfMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkIfMobile();
+        window.addEventListener("resize", checkIfMobile);
+
+        return () => {
+            window.removeEventListener("resize", checkIfMobile);
+        };
+    }, []);
+
     useEffect(() => {
         if (isOpen) {
             const fetchBannedEntities = async () => {
@@ -37,26 +53,22 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => 
                         throw new Error("Erreur lors de la requête");
                     }
                     const data: BannedOffer[] = await response.json();
-
-                    // Mettre à jour l'état avec toutes les offres
                     setIsBanned(data);
                 } catch (error: any) {
                     console.error("Erreur:", error.message);
                 }
             };
-
             fetchBannedEntities();
         }
-    }, [isOpen]); // Déclenche l'effet uniquement quand `isOpen` change
+    }, [isOpen]);
 
-    if (!isOpen) return null; // Si la modal n'est pas ouverte, ne rien afficher.
-
-    const toggleOfferExpand = (index: number) => {
-        setExpandedOffer(expandedOffer === index ? null : index);
-    };
+    // Filtrer les offres en fonction du type sélectionné et de la recherche par titre
+    const filteredOffers = isBanned.filter((offer) =>
+        (selectedType ? offer.typeOffers === selectedType : true) &&
+        offer.title.toLowerCase().includes(searchTerm.toLowerCase()) // Filtre par titre
+    );
 
     const getImageSrc = (offer: BannedOffer) => {
-        // Utilisation du switch pour retourner l'image en fonction du type d'offre
         switch (offer.typeOffers) {
             case "vehicleOffer":
                 return offer.src && offer.src.trim() !== "" ? offer.src : "/icons/mobil-dashboard/car-rental.svg";
@@ -65,120 +77,153 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => 
             case "commercialOffer":
                 return offer.src && offer.src.trim() !== "" ? offer.src : "/icons/mobil-dashboard/briefcase.svg";
             default:
-                return "/icons/mobil-dashboard/default-image.svg"; // Image par défaut si le type n'est pas reconnu
+                return "/icons/mobil-dashboard/default-image.svg";
         }
     };
 
+    const truncateDescription = (description: string, limit: number) => {
+        return description.length > limit ? `${description.substring(0, limit)}...` : description;
+    };
+
+    const toggleOfferExpand = (index: number) => {
+        setExpandedOffer(expandedOffer === index ? null : index);
+    };
+
+    // Si la modal est fermée, on ne la rend pas
+    if (!isOpen) return null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault(); // Empêche le rechargement de la page lors de la soumission
+        // Ajoute ici ton code pour traiter la recherche si nécessaire
+        console.log("Form submitted with search term:", searchTerm);
+    };
+
     return (
-        <div
-            className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen backdrop-blur-md bg-black bg-opacity-50 flex justify-center items-center z-50"
-            onClick={closeModal}
-        >
+        <div className="modal-overlay w-full h-full" onClick={closeModal}>
             <div
-                className="bg-white p-6 w-full h-full flex  overflow-hidden"
-                onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique à l'intérieur de la modal
+                className="modal-content w-full h-full flex flex-col"
+                ref={container}
+                onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="pb-3">
-                    <div className="flex justify-between pb-3">
-                        <div>
-                            <span className="text-orange-700 dark:text-orange-600 font-medium">Re</span>Ventures
-                        </div>
-                        <div>
+                <div className="modal-header flex justify-between items-center p-4 border-b">
+                    <div>
+                        <div className="flex items-center gap-6">
+                            {/* Formulaire de recherche */}
+                            <form onSubmit={handleSubmit} className="flex gap-4">
+                                <div>
+                                    <label htmlFor="searchOffer">Search: </label>
+                                    <input
+                                        type="text"
+                                        name="searchOffer"
+                                        id="searchOffer"
+                                        placeholder="Search by Name"
+                                        className="border border-black bg-gray-200 rounded-lg text-sm p-0.5 ml-0 pl-2"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)} // Mettre à jour l'état
+                                    />
+                                </div>
+                            </form>
+
+                            {/* Boutons pour filtrer par type d'offre */}
                             <Image
-                                src="/icons/mobil-dashboard/cross.svg"
-                                width={25}
-                                height={25}
-                                alt="close-modal"
-                                onClick={closeModal}
+                                src="/icons/mobil-dashboard/car-rental.svg"
+                                alt="Vehicle Offer"
+                                width={50}
+                                height={50}
                                 className="cursor-pointer"
+                                onClick={() => setSelectedType("vehicleOffer")}
+                            />
+                            <Image
+                                src="/icons/mobil-dashboard/building.svg"
+                                alt="Real Estate Offer"
+                                width={50}
+                                height={50}
+                                className="cursor-pointer"
+                                onClick={() => setSelectedType("realEstateOffer")}
+                            />
+                            <Image
+                                src="/icons/mobil-dashboard/briefcase.svg"
+                                alt="Commercial Offer"
+                                width={50}
+                                height={50}
+                                className="cursor-pointer"
+                                onClick={() => setSelectedType("commercialOffer")}
+                            />
+                            {/* Option pour voir toutes les offres */}
+                            <Image
+                                src="/icons/mobil-dashboard/squares-menu.svg"
+                                alt="All Offers"
+                                width={40}
+                                height={40}
+                                className="cursor-pointer"
+                                onClick={() => setSelectedType("")} // Réinitialiser le filtre
                             />
                         </div>
                     </div>
 
-                    {/* Offer List */}
-                    <div className="flex items-center flex-wrap gap-4 mt-4 overflow-y-auto max-h-[80vh] scroll-smooth">
-                        {isBanned.map((offer, index) => (
+                    {/* Bouton de fermeture */}
+                    <Image
+                        src="/icons/mobil-dashboard/cross.svg"
+                        width={25}
+                        height={25}
+                        alt="close-modal"
+                        className="cursor-pointer"
+                        onClick={closeModal}
+                    />
+                </div>
+
+                <div className="modal-body flex-1 overflow-y-auto p-4">
+                    <div className="grid gap-4">
+                        {filteredOffers.map((offer, index) => (
                             <div
                                 key={index}
-                                className="bg-white rounded-lg shadow-[0_4px_6px_rgba(0,0,0,0.4)] pl-4 pt-4 w-full flex flex-col border border-red-400 "
+                                className="border border-red-300 rounded-lg shadow-sm p-4 flex flex-col md:flex-row md:items-center gap-4"
                             >
-                                <div className="flex items-center justify-between space-x-2">
-                                    {/* Affichage de l'image en fonction du type d'offre avec `switch` */}
-                                    <div className="flex items-center gap-2">
-                                        <Image
-                                            src={getImageSrc(offer)} // Appel de la fonction `getImageSrc` pour obtenir l'image
-                                            width={40}
-                                            height={40}
-                                            alt={`${offer.typeOffers} icon`} // Utilisation du `typeOffers` pour l'icon
-
-                                        />
-
-                                        <div className="h-[40px] flex items-center ml-2">
-                                            <p className="text-ms font-bold text-gray-700 ">
-                                                {offer.title}
-                                            </p>
+                                <Image
+                                    src={getImageSrc(offer)}
+                                    width={60}
+                                    height={60}
+                                    alt={`${offer.typeOffers} icon`}
+                                    className="rounded"
+                                />
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-lg">{offer.title}</h3>
+                                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-500">
+                                        <div>
+                                            <span className="font-bold">Vendeur:</span> {offer.vendor}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold">Type:</span> {offer.vendorType}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold">Banni:</span>{" "}
+                                            <span className={offer.userIsBanned ? "text-red-500" : "text-green-500"}>
+                                                {offer.userIsBanned ? "Oui" : "Non"}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="font-bold">Date de création:</span> {formatDate(offer.createdAt)}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold">Prix:</span> {offer.price}€
                                         </div>
                                     </div>
-
-
-                                    <button onClick={() => toggleOfferExpand(index)}>
-                                        <Image
-                                            src="/icons/mobil-dashboard/userBan/arrow-narrow-down-move.svg"
-                                            width={20}
-                                            height={20}
-                                            alt="arrow"
-                                            className={`transition-transform ${expandedOffer === index ? "rotate-180" : ""} mr-2`}
-                                        />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-gray-500">
+                                        {expandedOffer === index
+                                            ? offer.description
+                                            : truncateDescription(offer.description, 20)}
+                                    </p>
+                                    <button
+                                        onClick={() => toggleOfferExpand(index)}
+                                        className="text-blue-500 text-sm mt-2"
+                                    >
+                                        {expandedOffer === index ? "Voir moins" : "Voir plus"}
                                     </button>
                                 </div>
-
-                                <div className="flex justify-end pr-2 pb-2">
-                                    <p className="text-sm text-gray-600">{offer.vendor}</p>
-                                </div>
-
-                                {expandedOffer === index && (
-                                    <div className="flex flex-col text-left pl-4 mt-4">
-                                        <div>
-                                            <p>test</p>
-                                        </div>
-                                        <div className="flex gap-1">
-                                            <p>{offer.vendor}</p>
-                                            <p>{offer.vendorType}</p>
-                                            <p>{offer.userIsBanned}</p>
-                                            <p>{formatDate(offer.createdAt)}</p>
-                                        </div>
-                                        <div className="text-sm lg:text-xl font-bold text-green-500 flex items-center border border-gray-200 w-fit p-1 rounded-md">
-                                            <svg
-                                                stroke="currentColor"
-                                                fill="currentColor"
-                                                strokeWidth="0"
-                                                viewBox="0 0 512 512"
-                                                className="mr-2"
-                                                height="1em"
-                                                width="1em"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path d="M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z"></path>
-                                            </svg>
-                                            <p className="text-sm inline-block">{offer.price}€</p>
-                                        </div>
-                                        <form action="#">
-                                            <label htmlFor="activateOffer" className="block text-gray-700 font-medium mb-2">
-                                                Activer l'offre :
-                                            </label>
-                                            <select
-                                                name="activateOffer"
-                                                id="activateOffer"
-                                                className="border border-gray-300 rounded-md p-2 w-fit focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            >
-                                                <option value="false">False</option>
-                                                <option value="true">True</option>
-                                            </select>
-                                        </form>
-                                        <button>Prévisualiser</button>
-                                    </div>
-                                )}
+                                <button className="bg-green-400 text-white rounded-lg px-4 py-2">Unban</button>
+                                <button className="bg-blue-500 text-white rounded-lg px-4 py-2">Preview</button>
                             </div>
                         ))}
                     </div>
