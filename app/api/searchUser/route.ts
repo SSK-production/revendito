@@ -18,7 +18,7 @@ type SearchResult =
       banReason: string[] | null;
       banEndDate: Date | null;
       banCount: number;
-      bannTitle: string | null;
+      bannTitle: string[]; // BannTitle est maintenant un tableau avec une valeur par défaut
       bannedByUsername: string | null;
     }
   | {
@@ -33,8 +33,8 @@ type SearchResult =
       isBanned: boolean;
       banReason: string[] | null;
       banEndDate: Date | null;
-      bannedByUser: { id: string; username: string } | null; // Accepte un objet au lieu d'une chaîne
-      bannTitle: string | null;
+      bannTitle: string[]; // BannTitle est maintenant un tableau avec une valeur par défaut
+      bannedByUser: { id: string; username: string } | null;
     };
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -72,8 +72,8 @@ export async function GET(req: NextRequest): Promise<Response> {
         banReason: true,
         banEndDate: true,
         banCount: true,
-        bannTitle: true,
-        bannedByUsername: true, // Assurez-vous que ce champ existe dans votre modèle User
+        bannTitle: true, // Récupération explicite
+        bannedByUsername: true,
       },
     });
 
@@ -94,8 +94,8 @@ export async function GET(req: NextRequest): Promise<Response> {
         isBanned: true,
         banReason: true,
         banEndDate: true,
-        bannTitle: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
-        bannedByUser: true, // Assurez-vous que ce champ existe dans le modèle Prisma Company
+        bannTitle: true, // Récupération explicite
+        bannedByUser: true,
       },
     });
 
@@ -103,11 +103,12 @@ export async function GET(req: NextRequest): Promise<Response> {
       ...users.map((user) => ({
         type: 'user' as const,
         ...user,
+        bannTitle: user.bannTitle || [], // Gestion des valeurs par défaut
       })),
       ...companies.map((company) => ({
         type: 'company' as const,
         ...company,
-        banTitle: company.bannTitle || null, // Ajoutez une valeur par défaut si nécessaire
+        bannTitle: company.bannTitle || [], // Gestion des valeurs par défaut
       })),
     ];
 
