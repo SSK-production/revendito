@@ -239,7 +239,6 @@ model CommercialOffer {
 }
 
 
-// Modèle pour les messages
 model Message {
   id                 Int              @id @default(autoincrement())
   senderUserId       String?          // Clé étrangère pour l'utilisateur envoyant le message

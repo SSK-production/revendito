@@ -131,6 +131,9 @@ export const messageSchema = Joi.object({
   read: Joi.boolean().default(false).optional().messages({
     "boolean.base": "Read must be a boolean.",
   }),
+  offerId: Joi.number().optional().messages({
+    "number.base": "Offer ID must be a number.",
+  }), // Ajout d'une validation optionnelle pour `offerId` si besoin
 });
 
 export const vehicleSchema = Joi.object({

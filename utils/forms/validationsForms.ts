@@ -30,10 +30,13 @@ export const validationSchemas: { [key: string]: ValidationSchema } = {
         },
         companyNumber: {
             rules: [
-                (value) => (!/^\d+$/.test(value) ? "Le numéro d'entreprise doit être un nombre." : null)
+                (value) =>
+                    !/^[A-Za-z]{1,3}-\d+$/.test(value)
+                        ? "Le numéro d'entreprise doit commencer par 1 à 3 lettres, suivies d'un tiret et de chiffres."
+                        : null,
             ],
-            errorMessage: "Le numéro d'entreprise est invalide."
-        },
+            errorMessage: "Le numéro d'entreprise est invalide.",
+        },        
     },
     userData: {
         username: {

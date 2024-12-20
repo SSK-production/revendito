@@ -9,7 +9,7 @@ type BanRequest = {
   username: string;
   type: 'user' | 'company';
   reason: string[];
-  banTitle: string;
+  bannTitle: string;
   duration: number; // Durée en jours
 };
 
@@ -38,9 +38,9 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     // Lecture et validation des données
     const body: BanRequest = await req.json();
-    const { id, username, type, banTitle, reason, duration } = body;
+    const { id, username, type, bannTitle, reason, duration } = body;
 
-    if (!id || !username || !type || !banTitle || !reason || typeof duration !== 'number' || duration <= 0) {
+    if (!id || !username || !type || !bannTitle || !reason || typeof duration !== 'number' || duration <= 0) {
       return NextResponse.json(
         { error: 'Données invalides : id, username, ban title, type, raison et durée sont requis.' },
         { status: 400 }
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           banCount: { increment: 1 },
           banReason: reason,
           bannedByUsername: username,
-          bannTitle: banTitle,
+          bannTitle: bannTitle,
           banEndDate: endDate,
           bannedBy: user.id,
         },
