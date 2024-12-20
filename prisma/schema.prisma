@@ -31,8 +31,7 @@ model User {
   banReason        String[]
   banEndDate       DateTime?
   bannedByUsername String?
-  bannTitle String[] @default([])
-
+  bannTitle        String[] @default([])
   
 
   createdAt       DateTime @default(now())  // Date de création
@@ -78,7 +77,7 @@ model Company {
   banEndDate       DateTime?
   bannedBy         String? 
   bannedByUsername String?
-  bannTitle String[] @default([])
+  bannTitle        String[] @default([])
 
   bannedByUser     User?    @relation("UserBannedCompanies", fields: [bannedBy], references: [id])
 
