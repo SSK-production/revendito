@@ -69,6 +69,7 @@ export async function POST(req: Request) {
         city,
         country,
         profilePicture: "", // Placeholder pour une future logique de photo de profil
+        
       },
     });
 

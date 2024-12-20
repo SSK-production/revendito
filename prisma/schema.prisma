@@ -28,10 +28,10 @@ model User {
   // Système de bannissement
   isBanned         Boolean  @default(false)
   banCount         Int      @default(0)
-  banReason        String[]
-  banEndDate       DateTime?
-  bannedByUsername String?
-  bannTitle        Json
+  banReason        String[]  @default([])
+  banEndDate       DateTime? @default(dbgenerated("NULL")) // Ou une autre valeur par défaut compatible avec SQL
+  bannedByUsername String?   @default("")
+  bannTitle        Json      @default("{}")
   
 
   createdAt       DateTime @default(now())  // Date de création
@@ -73,11 +73,13 @@ model Company {
   // Système de bannissement
   isBanned         Boolean  @default(false)
   banCount         Int      @default(0)
-  banReason        String[]
-  banEndDate       DateTime?
+   banReason        String[]  @default([])
+  banEndDate       DateTime? @default(dbgenerated("NULL")) // Ou une autre valeur par défaut compatible avec SQL
+  bannedByUsername String?   @default("")
+  bannTitle        Json      @default("{}")
+
   bannedBy         String? 
-  bannedByUsername String?
-  bannTitle        Json
+
 
   bannedByUser     User?    @relation("UserBannedCompanies", fields: [bannedBy], references: [id])
 
