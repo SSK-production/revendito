@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@hookform/resolvers": "^3.9.1",
-    "@prisma/client": "^5.22.0",
+    "@prisma/client": "^6.1.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.7.8",
     "@radix-ui/react-progress": "^1.1.0",

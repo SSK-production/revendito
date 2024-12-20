@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "Company" ALTER COLUMN "banEndDate" SET DEFAULT NULL,
+ALTER COLUMN "bannedByUsername" SET DEFAULT '',
+ALTER COLUMN "banReason" SET DEFAULT ARRAY[]::TEXT[],
+ALTER COLUMN "bannTitle" SET DEFAULT '{}';
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "banEndDate" SET DEFAULT NULL,
+ALTER COLUMN "bannedByUsername" SET DEFAULT '',
+ALTER COLUMN "banReason" SET DEFAULT ARRAY[]::TEXT[],
+ALTER COLUMN "bannTitle" SET DEFAULT '{}';
