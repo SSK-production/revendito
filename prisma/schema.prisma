@@ -31,7 +31,7 @@ model User {
   banReason        String[]
   banEndDate       DateTime?
   bannedByUsername String?
-  bannTitle        Json
+  bannTitle        String[] @default([])
   
 
   createdAt       DateTime @default(now())  // Date de création
