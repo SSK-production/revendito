@@ -1,114 +1,126 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
 
-const BanUserForm = () => {
-  const [isMounted, setIsMounted] = useState(false); // Pour vérifier si le composant est monté
-  const [id, setId] = useState('');
-  const [username, setUsername] = useState('');
-  const [type, setType] = useState<'user' | 'company'>('user');
-  const [bannTitle, setBannTitle] = useState('');
-  const [reason, setReason] = useState<string[]>([]);
+// Définir le type de données pour la requête de bannissement
+interface BanRequest {
+  id: string;
+  username: string;
+  type: "user" | "company";
+  reason: string[];
+  bannTitle: object; // BannTitle est un objet JSON
+  duration: number; // Durée en jours
+}
+
+const BanUserForm: React.FC = () => {
+  const [id, setId] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [type, setType] = useState<"user" | "company">("user");
+  const [reason, setReason] = useState<string>("");
+  const [bannTitle, setBannTitle] = useState<{ title: string; description: string }>({
+    title: "",
+    description: "",
+  });
   const [duration, setDuration] = useState<number>(1);
-  const [error, setError] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>('');
-  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
-  useEffect(() => {
-    setIsMounted(true); // Une fois monté, set le state
-  }, []);
-
-  // Fonction pour ajouter une raison
-  const addReason = (newReason: string) => {
-    if (newReason.trim()) {
-      setReason((prev) => [...prev, newReason]);
+  // Fonction pour obtenir le token d'accès du cookie
+  const getAccessToken = (): string | null => {
+    const cookie = document.cookie
+      .split(";")
+      .find((cookie) => cookie.trim().startsWith("access_token="));
+    if (cookie) {
+      return cookie.split("=")[1];
     }
+    return null;
   };
 
-  // Fonction pour gérer la soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccessMessage('');
 
-    // Validation des entrées
-    if (!id || !username || !bannTitle || reason.length === 0 || duration <= 0) {
-      setError('Tous les champs doivent être remplis correctement.');
+    // Vérification de la validité des champs
+    if (!id || !username || !reason || !bannTitle.title || duration <= 0) {
+      setErrorMessage("Tous les champs sont requis et la durée doit être positive.");
       return;
     }
 
-    // Vérification du format de l'ID (UUID)
-    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    if (!uuidRegex.test(id)) {
-      setError('L\'ID doit être au format UUID valide.');
+    // Préparer les données à envoyer
+    const banData: BanRequest = {
+      id,
+      username,
+      type,
+      reason: [reason],
+      bannTitle: bannTitle, // BannTitle est un objet JSON
+      duration,
+    };
+
+    const accessToken = getAccessToken(); // Obtenir le token d'accès
+    if (!accessToken) {
+      setErrorMessage("Accès non autorisé. Veuillez vous connecter.");
       return;
     }
 
     try {
-      const response = await fetch('/api/bans', {
-        method: 'POST',
+      // Envoi de la requête POST à l'API
+      const response = await fetch("/api/bans", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`, // Ajouter le token d'accès dans les en-têtes
         },
-        body: JSON.stringify({
-          id,
-          username,
-          type,
-          bannTitle,
-          reason,
-          duration,
-        }),
+        body: JSON.stringify(banData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage('Bannissement appliqué avec succès.');
-        if (isMounted) {
-          router.push('/path-to-redirect'); // Remplacez par votre route
-        }
+        setSuccessMessage("Bannissement appliqué avec succès.");
+        setErrorMessage("");
       } else {
-        setError(data.error || 'Une erreur est survenue.');
+        setErrorMessage(data.error || "Erreur inconnue.");
+        setSuccessMessage("");
       }
     } catch (error) {
-      setError('Erreur lors de la communication avec le serveur.');
+      console.error("Erreur lors de la requête:", error);
+      setErrorMessage("Erreur serveur, veuillez réessayer plus tard.");
+      setSuccessMessage("");
     }
   };
 
-  if (!isMounted) return null; // Ne pas rendre le composant avant le montage côté client
-
   return (
-    <div className="max-w-3xl mx-auto mt-6 p-6 bg-white border rounded-md shadow-md">
-      <h1 className="text-2xl font-bold">Bannir un utilisateur ou une entreprise</h1>
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <div>
+      <h2>Bannir un utilisateur ou une entreprise</h2>
+      <form onSubmit={handleSubmit}>
         <div>
-          <label className="block text-sm font-medium text-gray-700">ID</label>
+          <label htmlFor="id">ID de l'utilisateur (UUID):</label>
           <input
             type="text"
+            id="id"
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+            placeholder="Entrez l'ID de l'utilisateur"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Nom d'utilisateur</label>
+          <label htmlFor="username">Nom d'utilisateur:</label>
           <input
             type="text"
+            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+            placeholder="Entrez le nom d'utilisateur"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Type</label>
+          <label htmlFor="type">Type:</label>
           <select
+            id="type"
             value={type}
-            onChange={(e) => setType(e.target.value as 'user' | 'company')}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+            onChange={(e) => setType(e.target.value as "user" | "company")}
             required
           >
             <option value="user">Utilisateur</option>
@@ -117,61 +129,59 @@ const BanUserForm = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Titre du Bannissement</label>
-          <input
-            type="text"
-            value={bannTitle}
-            onChange={(e) => setBannTitle(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+          <label htmlFor="reason">Raison du bannissement:</label>
+          <textarea
+            id="reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Entrez la raison du bannissement"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Raisons du Bannissement</label>
+          <label htmlFor="bannTitle">Titre du bannissement:</label>
           <input
             type="text"
-            placeholder="Entrez une raison"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && (e.target as HTMLInputElement).value) {
-                addReason((e.target as HTMLInputElement).value);
-                (e.target as HTMLInputElement).value = '';
-              }
-            }}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+            id="bannTitle"
+            value={bannTitle.title}
+            onChange={(e) =>
+              setBannTitle((prev) => ({ ...prev, title: e.target.value }))
+            }
+            placeholder="Entrez le titre du bannissement"
+            required
           />
-          <div className="mt-2 space-x-2">
-            {reason.map((r, index) => (
-              <span key={index} className="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded-full text-xs">
-                {r}
-              </span>
-            ))}
-          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Durée (en jours)</label>
+          <label htmlFor="bannDescription">Description du bannissement:</label>
+          <textarea
+            id="bannDescription"
+            value={bannTitle.description}
+            onChange={(e) =>
+              setBannTitle((prev) => ({ ...prev, description: e.target.value }))
+            }
+            placeholder="Entrez la description du bannissement"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="duration">Durée du bannissement (en jours):</label>
           <input
             type="number"
+            id="duration"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+            min="1"
             required
-            min={1}
           />
         </div>
 
-        <div className="mt-6">
-          {error && <p className="text-red-500">{error}</p>}
-          {successMessage && <p className="text-green-500">{successMessage}</p>}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md"
-          >
-            Appliquer le bannissement
-          </button>
-        </div>
+        <button type="submit">Bannir</button>
       </form>
+
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
     </div>
   );
 };
