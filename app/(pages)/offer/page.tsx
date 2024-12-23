@@ -13,9 +13,11 @@ import "swiper/css/pagination";
 import VehicleDetails from "@/app/components/offers/VehicleDetails";
 import PropertyDetails from "@/app/components/offers/PropertyDetails";
 import CommercialDetails from "@/app/components/offers/CommercialDetails";
+import MessageModal from "@/app/components/Messages/MessageModal";
 
 interface BaseOffer {
   id: number;
+  userId: string;
   vendor: string;
   vendorType: string;
   title: string;
@@ -39,6 +41,7 @@ const Page: React.FC = () => {
   const [data, setData] = useState<BaseOffer | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (!offerId || !category) {
@@ -119,6 +122,23 @@ const Page: React.FC = () => {
         </p>
       </div>
 
+      {/* Bouton pour ouvrir la modal */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      >
+        Contacter le vendeur
+      </button>
+
+      {/* Modal */}
+      <MessageModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        receiverId={data.userId} // Passe l'ID du vendeur
+        offerId={data.id} // Passe l'ID de l'offre
+        offerType={category || ""} // Passe le type de l'offre
+      />
+
       {/* Détails de l'offre */}
       <div className="w-full text-center max-w-4xl p-6">
         {/* Informations générales */}
@@ -131,7 +151,8 @@ const Page: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <p className="text-gray-500">Vendor</p>
-                <a className="text-lg text-gray-800 font-semibold flex items-center justify-center gap-2"
+                <a
+                  className="text-lg text-gray-800 font-semibold flex items-center justify-center gap-2"
                   href={`/profile/?user=${data.vendor}&role=${data.vendorType}`}
                 >
                   {data.vendor}

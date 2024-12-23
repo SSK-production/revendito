@@ -3,6 +3,7 @@ import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { messageSchema } from "@/app/validation";
 import { Message, PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { log } from "node:console";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
 
         // 3. Retourner les derniers messages de chaque conversation
         return NextResponse.json({ latestMessages }, { status: 200 });
+
     } catch (error: unknown) {
         console.error("Erreur lors de la récupération des messages:", error);
         const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
@@ -58,6 +60,8 @@ export async function POST(req: NextRequest) {
             console.error("Erreurs de validation:", validationErrors);
             return NextResponse.json({ error: validationErrors }, { status: 400 });
         }
+
+        log("offerId", offerId);
 
         // 3. Générer un conversationId unique basé sur les participants
         const participants = [id, receiverId].sort().join("-");
