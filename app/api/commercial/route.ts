@@ -93,6 +93,27 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Début de la création de l\'offre');
+    console.log({data: {
+      vendor: username,
+      vendorType: entity,
+      title: fields.title,
+      description: fields.description,
+      price: parseFloat(fields.price),
+      city: fields.city,
+      country: fields.country,
+      openingHours: JSON.stringify(fields.openingHours),
+      categories: [JSON.stringify(fields.categories)],
+      commercialType: fields.commercialType,
+      duration: parseInt(fields.duration),
+      contractType: fields.contractType,
+      workSchedule: fields.workSchedule,
+      contactNumber: fields.contactNumber,
+      contactEmail: fields.contactEmail,
+      photos,  
+      userId: entity === 'user' ? id : null,
+      companyId: entity === 'company' ? id : null,
+    }});
+    
     const newCommercialOffer: CommercialOffer = await prisma.commercialOffer.create({
       data: {
         vendor: username,
@@ -102,8 +123,8 @@ export async function POST(req: NextRequest) {
         price: parseFloat(fields.price),
         city: fields.city,
         country: fields.country,
-        openingHours: fields.openingHours,
-        categories: [fields.categories],
+        openingHours: JSON.stringify(fields.openingHours),
+        categories: [JSON.stringify(fields.categories)],
         commercialType: fields.commercialType,
         duration: parseInt(fields.duration),
         contractType: fields.contractType,

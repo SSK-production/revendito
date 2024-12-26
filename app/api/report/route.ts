@@ -1,112 +1,99 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, Report, ReporterType } from "@prisma/client";
-import { reportSchema } from "@/app/validation";
-import { getUserFromRequest } from "@/app/lib/tokenManager";
+import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
+import Joi from 'joi';
+import { reportSchema } from '@/app/validation';  // Assurez-vous que le chemin vers votre fichier de validation est correct
 
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
+  // Récupérer tous les rapports
   try {
-    // Récupération de l'id, entity, et accessToken via le cookie
-    const { id, entity, accessToken } = await getUserFromRequest(req);
-
-    // Création de la réponse avec la mise à jour du cookie
-    const response = NextResponse.json(
-      { id, entity, accessToken },
-      { status: 201 }
-    );
-
-    // Mise à jour du cookie dans la réponse
-    response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Assure-toi que secure est vrai en production
-      maxAge: 3600, // 1 heure
-      sameSite: "strict",
-      path: "/",
+    const reports = await prisma.report.findMany({
+      include: {
+        vehicleOffer: true,
+        realEstateOffer: true,
+        commercialOffer: true,
+        reporterUser: true,
+        reporterCompany: true,
+      },
     });
-
-    return response; // Retourne la réponse avec les cookies mis à jour
-  } catch (error: unknown) {
-    console.error("Erreur lors de la création du report:", error);
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: "Erreur lors de la création du report: " + error.message },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Erreur inconnue lors de la création du report" },
-      { status: 500 }
-    );
+    return NextResponse.json(reports, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erreur lors de la récupération des rapports' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
+  // Valider les données de la requête avec Joi
+  const data = await req.json();
+
+  // Validation avec Joi
+  const { error } = reportSchema.validate(data, { abortEarly: false });
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return NextResponse.json({ error: errorMessages }, { status: 400 });
+  }
+
+  const { reason, reporterId, reporterType, vehicleOfferId, realEstateOfferId, commercialOfferId } = data;
+
   try {
-    // réception des données
-
-    // récupèration de l'id et de l'entity via le cookie
-    const { id, entity, accessToken } = await getUserFromRequest(req);
-    let reporterId: string = "null";
-    let reporterType: ReporterType = ReporterType.USER;
-
-    if (entity === "user") {
-      reporterId = id;
-      reporterType = ReporterType.USER;
-    } else if (entity === "company") {
-      reporterId = id;
-      reporterType = ReporterType.COMPANY;
-    }
-    const { reason, vehicleOfferId, realEstateOfferId, commercialOfferId } =
-      await req.json();
-
-    //vérification des données
-    const { error } = reportSchema.validate(
-      { reason, vehicleOfferId, realEstateOfferId, commercialOfferId },
-      { abortEarly: false }
-    );
-    if (error) {
-      const validationErrors = error.details.map((err) => err.message);
-      console.log("Erreurs de validation:", validationErrors);
-      return NextResponse.json({ error: validationErrors }, { status: 400 });
-    }
-
-    //ajout des donnée
-    const newReport: Report = await prisma.report.create({
+    const newReport = await prisma.report.create({
       data: {
         reason,
+        reporterId,
+        reporterType,
         vehicleOfferId,
         realEstateOfferId,
         commercialOfferId,
-        reporterId,
-        reporterType,
       },
     });
+    return NextResponse.json(newReport, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erreur lors de la création du rapport' }, { status: 500 });
+  }
+}
 
-    //recrée un accessToken
-    const response = NextResponse.json({ newReport }, { status: 201 });
-    response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 3600,
-      sameSite: "strict",
-      path: "/",
+export async function PUT(req: NextRequest) {
+  // Valider les données de la requête avec Joi
+  const data = await req.json();
+
+  const { error } = reportSchema.validate(data, { abortEarly: false });
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return NextResponse.json({ error: errorMessages }, { status: 400 });
+  }
+
+  const { id, reason, status } = data;
+
+  if (!id) {
+    return NextResponse.json({ error: 'L\'ID du rapport est requis' }, { status: 400 });
+  }
+
+  try {
+    const updatedReport = await prisma.report.update({
+      where: { id },
+      data: { reason, status },
     });
+    return NextResponse.json(updatedReport, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erreur lors de la mise à jour du rapport' }, { status: 500 });
+  }
+}
 
-    return response;
+export async function DELETE(req: NextRequest) {
+  // Valider les données de la requête avec Joi
+  const { id } = await req.json();
 
-    //gestion des erreurs
-  } catch (error: unknown) {
-    console.error("Erreur lors de la création du report:", error);
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: "Erreur lors de la création du report: " + error.message },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(
-      { error: "Erreur inconnue lors de la création du report" },
-      { status: 500 }
-    );
+  if (!id) {
+    return NextResponse.json({ error: 'L\'ID du rapport est requis' }, { status: 400 });
+  }
+
+  try {
+    await prisma.report.delete({
+      where: { id },
+    });
+    return NextResponse.json({}, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erreur lors de la suppression du rapport' }, { status: 500 });
   }
 }

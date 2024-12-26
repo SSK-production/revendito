@@ -37,7 +37,7 @@ export default function Categories({ onLoad }: CategoriesProps) {
     <Link
       href={`/offer?category=${category}&offerId=${offer.id}`}
       key={offer.id}
-      className="group block bg-white p-4 rounded-lg shadow hover:shadow-lg transition-all border border-gray-200"
+      className="group block bg-white rounded-sm shadow hover:shadow-lg transition-all border border-gray-200"
     >
       {offer.photos.length > 0 ? (
         <Image
@@ -45,14 +45,14 @@ export default function Categories({ onLoad }: CategoriesProps) {
           alt={offer.title}
           width={300}
           height={200}
-          className="w-full h-40 object-cover rounded-t-md group-hover:opacity-90"
+          className="w-full h-40 object-cover rounded-t-sm group-hover:opacity-90"
         />
       ) : (
         <div className="w-full h-40 bg-gray-100 rounded-t-md flex items-center justify-center text-gray-400">
           No Image
         </div>
       )}
-      <div className="mt-0">
+      <div className="mt-0 p-4">
         <h3 className="font-semibold text-gray-800 text-sm group-hover:underline">{offer.title}</h3>
         <p className="text-gray-600 text-xs mt-1">
           {offer.description.length > 50
