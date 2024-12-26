@@ -22,12 +22,12 @@ export default function AdminHomePage() {
 
   return (
     <>
-      <div className="lg:min-h-screen lg:h-full lg:flex lg:flex-row lg:bg-white lg:flex-1">
+      <div className="lg:min-h-screen lg:h-full lg:flex lg:flex-row  lg:flex-1 lg:bg-[#dbdbdb] lg:rounded-md ">
         {/* Contenu principal */}
-        <div className="h-2/5 lg:flex lg:flex-col lg:bg-white-500 lg:rounded-lg ">
+        <div className="h-2/5 lg:flex lg:flex-col lg:bg-[#d6d4d4] lg:rounded-lg lg:m-4 ">
           {/* Section Test Modal */}
           <div onClick={() => openModalHandler("test")}>
-            <div className="lg:mt-4 lg:mb-4 lg:flex lg:flex-row lg:gap-3 lg:ml-4 lg:mr-4">
+            <div className="lg:mt-4 lg:mb-4 lg:flex lg:flex-row lg:gap-3 lg:ml-4 lg:mr-4 ">
               <Image
                 src="/icons/mobil-dashboard/add.svg"
                 width={55}

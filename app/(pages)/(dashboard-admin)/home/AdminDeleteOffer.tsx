@@ -172,12 +172,12 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
                     />
                 </div>
 
-                <div className="modal-body flex-1 overflow-y-auto p-4">
+                <div className="modal-body flex-1 overflow-y-auto p-4 ">
                     <div className="grid gap-4">
                         {filteredOffers.map((offer, index) => (
                             <div
                                 key={index}
-                                className="border border-red-300 rounded-lg shadow-sm p-4 flex flex-col md:flex-row md:items-center gap-4"
+                                className="border border-red-300 rounded-lg shadow-sm p-4 flex flex-col md:flex-row md:items-center gap-4 bg-white"
                             >
                                 <Image
                                     src={getImageSrc(offer)}
