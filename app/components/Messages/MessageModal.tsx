@@ -5,8 +5,8 @@ import { FaTimesCircle, FaPaperPlane } from 'react-icons/fa';
 interface MessageModalProps {
     show: boolean;
     handleClose: () => void;
-    receiverId: string;
-    offerId: number;
+    receiverId: string | null;
+    offerId: number | null;
     offerType: string;
 }
 

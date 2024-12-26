@@ -4,7 +4,7 @@ import {Dirent} from "fs";
 
 export default async function generateRoutes(): Promise<{name: string; path: string }[]> {
     const pagesDir: string = path.join(process.cwd(), 'app/(pages)');
-    const ignored: string[] = ['layout.tsx', 'check-login', 'test', 'offer'];
+    const ignored: string[] = ['layout.tsx', 'check-login', 'test', 'offer', "offers", 'profile', 'messages',"notifications", "login", "company-register", "user-register"];
 
     try {
         const files: Dirent[] = await readdir(pagesDir, { withFileTypes: true });

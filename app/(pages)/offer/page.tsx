@@ -18,6 +18,7 @@ import MessageModal from "@/app/components/Messages/MessageModal";
 interface BaseOffer {
   id: number;
   userId: string;
+  companyId: string;
   vendor: string;
   vendorType: string;
   title: string;
@@ -134,7 +135,7 @@ const Page: React.FC = () => {
       <MessageModal
         show={showModal}
         handleClose={() => setShowModal(false)}
-        receiverId={data.userId} // Passe l'ID du vendeur
+        receiverId={data.vendorType === "user" ? data.userId : data.vendorType === "company" ?  data.companyId : null} // Passe l'ID du vendeur
         offerId={data.id} // Passe l'ID de l'offre
         offerType={category || ""} // Passe le type de l'offre
       />

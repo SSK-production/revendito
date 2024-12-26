@@ -73,7 +73,7 @@ model Company {
   // Système de bannissement
   isBanned         Boolean  @default(false)
   banCount         Int      @default(0)
-   banReason        String[]  @default([])
+  banReason        String[]  @default([])
   banEndDate       DateTime? @default(dbgenerated("NULL")) // Ou une autre valeur par défaut compatible avec SQL
   bannedByUsername String?   @default("")
   bannTitle        Json      @default("{}")
