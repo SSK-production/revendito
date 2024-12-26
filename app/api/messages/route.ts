@@ -3,48 +3,105 @@ import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { messageSchema } from "@/app/validation";
 import { Message, PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-
+import Pusher from "pusher";
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
     try {
-        // 1. Extraire les paramètres de la requête
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get("userId");
-
-        if (!userId) {
-            return NextResponse.json({ error: "L'ID utilisateur est requis." }, { status: 400 });
-        }
-        console.log(userId);
-        
-        // 2. Récupérer les derniers messages de chaque conversation
-        const latestMessages = await prisma.message.findMany({
-            where: {
-                OR: [
-                    { senderUserId: userId },
-                    { receiverUserId: userId },
-                ],
+      // 1. Extraire les paramètres de la requête
+      const { searchParams } = new URL(req.url);
+      const userId = searchParams.get("userId");
+  
+      if (!userId) {
+        return NextResponse.json({ error: "L'ID utilisateur est requis." }, { status: 400 });
+      }
+  
+      // 2. Récupérer les derniers messages de chaque conversation
+      const latestMessages = await prisma.message.findMany({
+        where: {
+          OR: [
+            { senderUserId: userId },
+            { receiverUserId: userId },
+            { senderCompanyId: userId },
+            { receiverCompanyId: userId },
+          ],
+        },
+        orderBy: {
+          sentAt: "desc",
+        },
+        distinct: ["conversationId"],
+        include: {
+          senderUser: {
+            select: {
+              username: true,
             },
-            orderBy: {
-                sentAt: "desc",
+          },
+          senderCompany: {
+            select: {
+              companyName: true,
             },
-            distinct: ["conversationId"],
-        });
-
-        // 3. Retourner les derniers messages de chaque conversation
-        return NextResponse.json({ latestMessages }, { status: 200 });
+          },
+          receiverUser: {
+            select: {
+              username: true,
+            },
+          },
+          receiverCompany: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
+      });
+  
+      // 3. Transformer les données pour inclure le nom de l'autre personne
+      const conversations = latestMessages.map((message) => {
+        const otherPerson =
+          message.senderUserId === userId
+            ? message.receiverUser
+              ? { name: message.receiverUser.username }
+              : message.receiverCompany
+              ? { name: message.receiverCompany.companyName }
+              : { name: "Unknown" }
+            : message.senderUser
+            ? { name: message.senderUser.username }
+            : message.senderCompany
+            ? { name: message.senderCompany.companyName }
+            : { name: "Unknown" };
+  
+        return {
+          id: message.id,
+          content: message.content,
+          sentAt: message.sentAt,
+          conversationId: message.conversationId,
+          otherPersonName: otherPerson.name, // Le nom de l'autre personne
+        };
+      });
+  
+      // 4. Retourner les résultats
+      return NextResponse.json({ conversations }, { status: 200 });
     } catch (error: unknown) {
-        console.error("Erreur lors de la récupération des messages:", error);
-        const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
-        return NextResponse.json(
-            { error: `Erreur lors de la récupération des messages: ${errorMessage}` },
-            { status: 500 }
-        );
+      console.error("Erreur lors de la récupération des messages:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
+      return NextResponse.json(
+        { error: `Erreur lors de la récupération des messages: ${errorMessage}` },
+        { status: 500 }
+      );
     }
-}
+  }
+  
+
+  // Configuration de Pusher
+    const pusher = new Pusher({
+        appId: process.env.PUSHER_APP_ID!,
+        key: process.env.PUSHER_KEY!,
+        secret: process.env.PUSHER_SECRET!,
+        cluster: process.env.PUSHER_CLUSTER!,
+        useTLS: true,
+    });
 
 
-export async function POST(req: NextRequest) {
+  export async function POST(req: NextRequest) {
     try {
         // 1. Récupérer les informations de l'utilisateur
         const { id, entity, accessToken } = await getUserFromRequest(req);
@@ -61,7 +118,7 @@ export async function POST(req: NextRequest) {
 
         // 3. Générer un conversationId unique basé sur les participants
         const participants = [id, receiverId].sort().join("-");
-        const conversationId = participants; // Utilise une combinaison triée pour garantir l'unicité
+        const conversationId = participants;
         const { receiverUserId, receiverCompanyId } = await getReceiverDetails(receiverId);
 
         if (!receiverUserId && !receiverCompanyId) {
@@ -70,22 +127,28 @@ export async function POST(req: NextRequest) {
                 { status: 400 }
             );
         }
+
         // 4. Créer le message dans la base de données
-        const newMessage: Message = await prisma.message.create({
+        const newMessage = await prisma.message.create({
             data: {
                 senderUserId: entity === "user" ? id : null,
                 senderCompanyId: entity === "company" ? id : null,
                 receiverUserId,
                 receiverCompanyId,
                 content,
-                conversationId, // Associe le message à une conversation unique
+                conversationId,
                 vehicleOfferId: offerType === "vehicle" ? offerId : null,
                 realEstateOfferId: offerType === "property" ? offerId : null,
                 commercialOfferId: offerType === "commercial" ? offerId : null,
             },
         });
 
-        // 5. Configurer la réponse avec le cookie d'authentification
+        // 5. Émettre l'événement avec Pusher
+        await pusher.trigger(`chat-${conversationId}`, "new-message", {
+            newMessage
+        });
+
+        // 6. Configurer la réponse avec le cookie d'authentification
         const response = NextResponse.json({ newMessage }, { status: 201 });
         response.cookies.set("access_token", accessToken, {
             httpOnly: true,

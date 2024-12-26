@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
 import UserOffers from "@/app/components/profile/UserOffer";
+import MessageModal from "@/app/components/Messages/MessageModal";
 
 interface ProfileData {
   id: string;
@@ -31,11 +32,14 @@ interface ProfileData {
 interface Offer {
   id: number;
   title: string;
+  description: string;
   price: number;
   city: string;
   country: string;
   active: boolean;
   photos: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface UserOffersData {
@@ -55,7 +59,8 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
-    
+  const [showModal, setShowModal] = useState<boolean>(false);
+
   useEffect(() => {
     // Function to check authentication
     const checkAuth = async () => {
@@ -68,7 +73,6 @@ export default function ProfilePage() {
 
         const data = await response.json();
         console.log(data);
-        
 
         if (response.status === 200) {
           // Successfully authenticated
@@ -76,9 +80,11 @@ export default function ProfilePage() {
           setUserId(data.id);
         } else if (response.status === 401) {
           // Not authenticated or tokens expired
-          setIsLogin(false);        } else {
+          setIsLogin(false);
+        } else {
           // Handle unexpected status
-          setIsLogin(false);        }
+          setIsLogin(false);
+        }
       } catch (error) {
         console.error("Error checking authentication:", error);
         setIsLogin(false);
@@ -125,28 +131,47 @@ export default function ProfilePage() {
       {data && (
         <>
           {/* Header */}
-          <div className="flex items-center space-x-6 mb-6">
-            {data.profilePicture ? (
-              <Image
-                src={data.profilePicture}
-                width={80}
-                height={80}
-                alt="Profile Picture"
-                className="w-20 h-20 rounded-full"
-              />
-            ) : (
-              <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-xl font-bold text-gray-700">
-                {data.username?.charAt(0) || "P"}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-6">
+              {data.profilePicture ? (
+                <Image
+                  src={data.profilePicture}
+                  width={80}
+                  height={80}
+                  alt="Profile Picture"
+                  className="w-20 h-20 rounded-full"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-xl font-bold text-orange-700">
+                  {data.username?.charAt(0) || "P"}
+                </div>
+              )}
+              <div>
+                <h1 className="text-2xl font-semibold text-orange-700">
+                  {data.firstName && data.lastName
+                    ? `${data.firstName} ${data.lastName}`
+                    : data.companyName || data.username || "User"}
+                </h1>
+                <p className="text-gray-500">{data.role}</p>
               </div>
-            )}
-            <div>
-              <h1 className="text-2xl font-semibold text-orange-700">
-                {data.firstName && data.lastName
-                  ? `${data.firstName} ${data.lastName}`
-                  : data.companyName || data.username || "User"}
-              </h1>
-              <p className="text-gray-500">{data.role}</p>
             </div>
+
+            {isLogin && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Contacter le vendeur
+              </button>
+            )}
+
+            <MessageModal
+              show={showModal}
+              handleClose={() => setShowModal(false)}
+              receiverId={data.id} // Passe l'ID du vendeur
+              offerId={null} // Passe l'ID de l'offre
+              offerType={""} // Passe le type de l'offre
+            />
           </div>
 
           {/* General Information */}
@@ -203,7 +228,11 @@ export default function ProfilePage() {
               <h2 className="text-lg font-medium text-gray-700 mb-3">
                 User Offers
               </h2>
-              <UserOffers offers={userOffers} currentUserId={userId} userId={data.id} />
+              <UserOffers
+                offers={userOffers}
+                currentUserId={userId}
+                userId={data.id}
+              />
             </div>
           )}
         </>

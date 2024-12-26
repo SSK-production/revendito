@@ -116,11 +116,11 @@ export const messageSchema = Joi.object({
     "string.uuid": "senderCompanyId must be a valid UUID.",
     "any.required": "senderCompanyId is required.",
   }),
-  receiverUserId: Joi.string().uuid().required().messages({
+  receiverUserId: Joi.string().uuid().optional().messages({
     "string.uuid": "receiverUserId must be a valid UUID.",
     "any.required": "receiverUserId is required.",
   }),
-  receiverCompanyId: Joi.string().uuid().required().messages({
+  receiverCompanyId: Joi.string().uuid().optional().messages({
     "string.uuid": "receiverCompanyId must be a valid UUID.",
     "any.required": "receiverCompanyId is required.",
   }),
