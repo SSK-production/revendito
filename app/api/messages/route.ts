@@ -109,6 +109,8 @@ export async function GET(req: NextRequest) {
 
         // 2. Récupérer et valider les données du corps de la requête
         const { receiverId, offerId, offerType, content } = await req.json();
+        console.log("receiverId", receiverId, "content", content);
+        
         const { error } = messageSchema.validate({ content }, { abortEarly: false });
         if (error) {
             const validationErrors = error.details.map((err) => err.message);
@@ -129,7 +131,7 @@ export async function GET(req: NextRequest) {
         }
 
         // 4. Créer le message dans la base de données
-        const newMessage = await prisma.message.create({
+        const newMessage : Message = await prisma.message.create({
             data: {
                 senderUserId: entity === "user" ? id : null,
                 senderCompanyId: entity === "company" ? id : null,
