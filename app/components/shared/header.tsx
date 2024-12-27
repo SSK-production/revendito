@@ -39,6 +39,16 @@ export default function Header() {
                                     <Link href={"/commercial-offer"} className="hover:bg-orange-100 px-2 py-1 text-center cursor-pointer">Commercial</Link>
                                 </ul>
                             </li>
+                            <li className="relative group">
+                              <span className="text-orange-700 font-bold hover:underline hover:decoration-orange-700 cursor-pointer">
+                                Profile
+                              </span>
+                                <ul className="absolute  hidden group-hover:flex flex-col bg-white shadow-md border rounded-md">
+                                    <Link href={"/profile"} className="hover:bg-blue-100 px-2 py-1 text-center cursor-pointer">Profile</Link>
+                                    <hr className="border-orange-200"/>
+                                    <Link href={"/messages"} className="hover:bg-green-100 px-2 py-1 text-center cursor-pointer">Messages</Link>
+                                </ul>
+                            </li>
                         </ul>
                     </nav>
                 </section>

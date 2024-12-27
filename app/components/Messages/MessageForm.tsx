@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faSpinner, faUser } from "@fortawesome/free-solid-svg-icons";
 import Pusher from "pusher-js";
@@ -9,42 +9,60 @@ interface ConversationIdProps {
   userId: string | null;
 }
 
+interface NewMessage {
+  senderUserId: string | null;
+  senderCompanyId: string | null;
+  receiverUserId: string | null;
+  receiverCompanyId: string | null;
+  content: string;
+  conversationId: string;
+  vehicleOfferId: number | null;
+  realEstateOfferId: number | null;
+  commercialOfferId: number | null;
+  sentAt: string;
+}
+
 const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    { content: string; senderUserId: string | null; senderCompanyId: string | null; sentAt: string }[]
-  >([]);
+  const [messages, setMessages] = useState<NewMessage[]>([]);
+  const [receiverId, setReceiverId] = useState<string | null>(null);
+  const [otherPersonName, setOtherPersonName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Référence pour le conteneur des messages
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Fonction pour faire défiler vers le bas
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
   // Configuration de Pusher côté client
   useEffect(() => {
-    // Vérifie que les variables d'environnement existent
     if (!process.env.NEXT_PUBLIC_PUSHER_KEY || !process.env.NEXT_PUBLIC_PUSHER_CLUSTER) {
-        console.error("Les variables d'environnement Pusher sont manquantes.");
-        return;
+      console.error("Les variables d'environnement Pusher sont manquantes.");
+      return;
     }
 
-    // Initialisation de Pusher
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
-        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     });
 
-    // Abonnement au canal de conversation spécifique
     const channel = pusher.subscribe(`chat-${conversationId}`);
-    channel.bind("new-message", (data) => {
-        console.log("Nouveau message reçu :", data);
-        setMessages((prevMessages) => [...prevMessages, data.newMessage]);
+    channel.bind("new-message", (data: { newMessage: NewMessage }) => {
+      setMessages((prevMessages) => [...prevMessages, data.newMessage]);
     });
 
-    // Nettoyage lors de la désactivation du composant
     return () => {
-        channel.unbind_all();
-        channel.unsubscribe();
+      channel.unbind_all();
+      channel.unsubscribe();
     };
-}, [conversationId]);
+  }, [conversationId]);
 
-  // Fetch messages function remains the same
+  // Récupération des messages et identification de l'autre utilisateur
   const fetchMessages = async () => {
     try {
       if (!conversationId) {
@@ -63,6 +81,31 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
 
       const fetchedMessages = await response.json();
       setMessages(fetchedMessages);
+
+      // Identifier l'autre utilisateur
+      if (fetchedMessages.length > 0) {
+        const firstMessage = fetchedMessages[0];
+        const isUser = firstMessage.senderUserId !== null;
+        const otherUserId = isUser
+          ? firstMessage.senderUserId === userId
+            ? firstMessage.receiverUserId
+            : firstMessage.senderUserId
+          : firstMessage.senderCompanyId === userId
+          ? firstMessage.receiverCompanyId
+          : firstMessage.senderCompanyId;
+
+        setReceiverId(otherUserId || null);
+
+        const username = isUser
+          ? firstMessage.senderUserId === userId
+            ? firstMessage.receiverUser?.username
+            : firstMessage.senderUser?.username
+          : firstMessage.senderCompanyId === userId
+          ? firstMessage.receiverCompany?.companyName
+          : firstMessage.senderCompany?.companyName;
+
+        setOtherPersonName(username || "Unknown");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error.");
     } finally {
@@ -70,27 +113,36 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
     }
   };
 
-  // Updated send message function to use Socket.IO
+  // Charger les messages au montage
+  useEffect(() => {
+    if (conversationId) {
+      fetchMessages();
+    }
+  }, [conversationId]);
+
+  // Faire défiler vers le bas à chaque mise à jour des messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Envoi de message
   const sendMessage = async () => {
     try {
-      if (!conversationId) {
-        setError("No conversation ID provided or socket not connected.");
+      if (!conversationId || !receiverId) {
+        setError("Conversation ID or Receiver ID is missing.");
         return;
       }
 
       setError(null);
 
       const newMessage = {
-        conversationId,
+        receiverId,
+        offerId: null,
+        offerType: null,
         content: message,
-        senderUserId: userId,
-        senderCompanyId: userId,
-        sentAt: new Date().toISOString(),
+        Credentials: "include",
       };
 
-      // Emit the message through Socket.IO
-
-      // Also send to API for persistence
       const response = await fetch(`/api/messages`, {
         method: "POST",
         headers: {
@@ -116,21 +168,18 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
     setMessage("");
   };
 
-  // Updated Socket.IO effect to use our custom hook
-
-
-  // Load initial messages
-  useEffect(() => {
-    if (conversationId) {
-      fetchMessages();
-    }
-  }, [conversationId]);
-
-  // Rest of the component remains the same
   return (
     <div className="flex flex-col h-[80vh] w-full max-w-5xl mx-auto bg-gray-100 shadow-lg rounded-lg overflow-hidden">
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+      {/* Header avec le nom de l'autre personne */}
+      <div className="bg-blue-500 text-white text-center py-3 font-semibold">
+        {otherPersonName || "Loading..."}
+      </div>
+
+      {/* Conteneur des messages */}
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
+      >
         {loading && (
           <div className="text-center">
             <FontAwesomeIcon icon={faSpinner} spin className="text-blue-500" />
@@ -140,17 +189,13 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
           <div
             key={index}
             className={`flex ${
-              (msg.senderUserId === userId || msg.senderCompanyId === userId)
-                ? "justify-end"
-                : "justify-start"
+              msg.senderUserId === userId ? "justify-end" : "justify-start"
             }`}
           >
             <div className="max-w-xs">
               <div
                 className={`p-3 rounded-lg shadow text-white flex items-center space-x-2 ${
-                  (msg.senderUserId === userId || msg.senderCompanyId === userId)
-                    ? "bg-blue-500"
-                    : "bg-orange-500 text-black"
+                  msg.senderUserId === userId ? "bg-blue-500" : "bg-orange-500 text-black"
                 }`}
               >
                 <FontAwesomeIcon icon={faUser} />
@@ -158,9 +203,7 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
               </div>
               <p
                 className={`text-xs text-gray-500 mt-1 ${
-                  (msg.senderUserId === userId || msg.senderCompanyId === userId)
-                    ? "text-right"
-                    : "text-left"
+                  msg.senderUserId === userId ? "text-right" : "text-left"
                 }`}
               >
                 {new Date(msg.sentAt).toLocaleTimeString()}
@@ -173,10 +216,9 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
         )}
       </div>
 
-      {/* Error Message */}
       {error && <p className="text-red-500 text-center p-2">{error}</p>}
 
-      {/* Input Box */}
+      {/* Formulaire d'envoi de message */}
       <form
         onSubmit={handleSubmit}
         className="bg-gray-200 p-4 flex items-center space-x-4 border-t border-gray-300"
@@ -200,4 +242,3 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
 };
 
 export default ChatInterface;
-

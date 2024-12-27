@@ -113,135 +113,135 @@ const VehicleOfferForm = () => {
   };
 
   return (
-    <div>
-      <h1>Créer une offre de véhicule</h1>
-      <form onSubmit={handleSubmit}>
-        {error && <div className="error">{error}</div>}
-        {successMessage && <div className="success">{successMessage}</div>}
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Créer une offre de véhicule</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <div className="text-red-500">{error}</div>}
+      {successMessage && <div className="text-green-500">{successMessage}</div>}
 
-        {/* Title */}
-        <label>
-          Titre:
-          <input type="text" name="title" value={formData.title} onChange={handleChange} required />
-        </label>
+      {/* Title */}
+      <label className="block">
+        <span className="text-gray-700">Titre:</span>
+        <input type="text" name="title" value={formData.title} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        {/* Description */}
-        <label>
-          Description:
-          <textarea name="description" value={formData.description} onChange={handleChange} required />
-        </label>
+      {/* Description */}
+      <label className="block">
+        <span className="text-gray-700">Description:</span>
+        <textarea name="description" value={formData.description} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        {/* Price */}
-        <label>
-          Prix:
-          <input type="number" name="price" value={formData.price} onChange={handleChange} required />
-        </label>
+      {/* Price */}
+      <label className="block">
+        <span className="text-gray-700">Prix:</span>
+        <input type="number" name="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        {/* Other fields */}
-        <label>
-          Ville:
-          <input type="text" name="city" value={formData.city} onChange={handleChange} required />
-        </label>
+      {/* Other fields */}
+      <label className="block">
+        <span className="text-gray-700">Ville:</span>
+        <input type="text" name="city" value={formData.city} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Pays:
-          <input type="text" name="country" value={formData.country} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Pays:</span>
+        <input type="text" name="country" value={formData.country} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Type de véhicule:
-          <select name="vehicleType" value={formData.vehicleType} onChange={handleChange} required>
-            <option value="Car">Voiture</option>
-            <option value="Truck">Camion</option>
-            <option value="Motorcycle">Moto</option>
-            <option value="Van">Van</option>
-            <option value="Bicycle">Vélo</option>
-            <option value="Boat">Bateau</option>
-          </select>
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Type de véhicule:</span>
+        <select name="vehicleType" value={formData.vehicleType} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <option value="Car">Voiture</option>
+        <option value="Truck">Camion</option>
+        <option value="Motorcycle">Moto</option>
+        <option value="Van">Van</option>
+        <option value="Bicycle">Vélo</option>
+        <option value="Boat">Bateau</option>
+        </select>
+      </label>
 
-        <label>
-          Modèle:
-          <input type="text" name="model" value={formData.model} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Modèle:</span>
+        <input type="text" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Année:
-          <input type="number" name="year" value={formData.year} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Année:</span>
+        <input type="number" name="year" value={formData.year} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Kilométrage:
-          <input type="number" name="mileage" value={formData.mileage} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Kilométrage:</span>
+        <input type="number" name="mileage" value={formData.mileage} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Type de carburant:
-          <input type="text" name="fuelType" value={formData.fuelType} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Type de carburant:</span>
+        <input type="text" name="fuelType" value={formData.fuelType} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Couleur:
-          <input type="text" name="color" value={formData.color} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Couleur:</span>
+        <input type="text" name="color" value={formData.color} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Transmission:
-          <input type="text" name="transmission" value={formData.transmission} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Transmission:</span>
+        <input type="text" name="transmission" value={formData.transmission} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Nombre de portes:
-          <input type="number" name="numberOfDoors" value={formData.numberOfDoors} onChange={handleChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Nombre de portes:</span>
+        <input type="number" name="numberOfDoors" value={formData.numberOfDoors} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Taille du moteur (L):
-          <input type="text" name="engineSize" value={formData.engineSize} onChange={handleChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Taille du moteur (L):</span>
+        <input type="text" name="engineSize" value={formData.engineSize} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Puissance (CV):
-          <input type="text" name="power" value={formData.power} onChange={handleChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Puissance (CV):</span>
+        <input type="text" name="power" value={formData.power} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Classe d'émission:
-          <input type="text" name="emissionClass" value={formData.emissionClass} onChange={handleChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Classe d'émission:</span>
+        <input type="text" name="emissionClass" value={formData.emissionClass} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          État:
-          <select name="condition" value={formData.condition} onChange={handleChange}>
-            <option value="User">Used</option>
-            <option value="New">New</option>
-            <option value="For Renovation">For Renovation</option>
-          </select>
-        </label>
+      <label className="block">
+        <span className="text-gray-700">État:</span>
+        <select name="condition" value={formData.condition} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <option value="User">Used</option>
+        <option value="New">New</option>
+        <option value="For Renovation">For Renovation</option>
+        </select>
+      </label>
 
-        <label>
-          Numéro de contact:
-          <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Numéro de contact:</span>
+        <input type="text" name="contactNumber" value={formData.contactNumber} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Email de contact:
-          <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} required />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Email de contact:</span>
+        <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+      </label>
 
-        <label>
-          Localisation automatique:
-          <input type="checkbox" name="location" checked={formData.location} onChange={handleChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Localisation automatique:</span>
+        <input type="checkbox" name="location" checked={formData.location} onChange={handleChange} className="mt-1" />
+      </label>
 
-        <label>
-          Photos:
-          <input type="file" name="photos" multiple onChange={handleFileChange} />
-        </label>
+      <label className="block">
+        <span className="text-gray-700">Photos:</span>
+        <input type="file" name="photos" multiple onChange={handleFileChange} className="mt-1 block w-full" />
+      </label>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Envoi en cours..." : "Créer l'offre"}
-        </button>
+      <button type="submit" disabled={isSubmitting} className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:opacity-50">
+        {isSubmitting ? "Envoi en cours..." : "Créer l'offre"}
+      </button>
       </form>
     </div>
   );

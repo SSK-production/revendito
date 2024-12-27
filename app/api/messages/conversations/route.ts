@@ -14,10 +14,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Conversation ID is required' }, { status: 400 });
     }
 
-    // Récupérer les messages liés à la conversation
+    // Récupérer les messages avec les noms associés
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { sentAt: 'asc' }, // Trier par date d'envoi
+      include: {
+        senderUser: { select: { username: true } }, // Inclure le username de l'expéditeur (si user)
+        senderCompany: { select: { companyName: true } }, // Inclure le companyName de l'expéditeur (si company)
+        receiverUser: { select: { username: true } }, // Inclure le username du destinataire (si user)
+        receiverCompany: { select: { companyName: true } }, // Inclure le companyName du destinataire (si company)
+      },
     });
 
     // Retourner les messages récupérés
