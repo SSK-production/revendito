@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import AddAdminModal from "./adminModal";
 import AdminDeleteOfferModal from "./AdminDeleteOffer";
 import AdminUserBanModal from "./AdminUserBanModal";
+import TestAdminDeleteOfferModal from "./testModal";
 import Image from "next/image";
 
 export default function AdminHomePage() {
@@ -81,6 +82,15 @@ export default function AdminHomePage() {
         {/* Conteneur pour modales */}
         <div className="lg:flex flex-1">
           {/* Modales */}
+
+          {openModal === "test" && (
+            <TestAdminDeleteOfferModal
+              isOpen={openModal === "test"}
+              closeModal={closeModalHandler}
+              container={modalContainerRef}
+            />
+          )}
+
           {openModal === "banUser" && (
             <AdminUserBanModal
               isOpen={openModal === "banUser"}
