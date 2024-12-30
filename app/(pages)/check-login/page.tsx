@@ -16,7 +16,7 @@ const AuthCheckPage = () => {
         });
 
         const data = await response.json();
-        console.log(data);
+        console.log("Voici les data de l'auth : ", data);
         
 
         if (response.status === 200) {

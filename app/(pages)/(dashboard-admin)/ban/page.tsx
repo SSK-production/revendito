@@ -1,237 +1,87 @@
-'use client'
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { formatDate } from "@/utils/functions/timeFunction/formatDate";
+import { useState } from 'react';
 
-interface ModalProps {
-    isOpen: boolean;
-    closeModal: () => void;
-    container: React.RefObject<HTMLDivElement>;
+interface UserData {
+  id: string;
+  username: string;
+  email: string;
+  entity: 'user' | 'company';
+  isBanned: boolean;
+  banReason: string[];
+  banEndDate: Date;
 }
 
-type OfferType = "vehicleOffer" | "realEstateOffer" | "commercialOffer";
+const Home = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null); // Données utilisateur typées
+  const [error, setError] = useState<string | null>(null);
 
-interface BannedOffer {
-    vendor: string;
-    vendorType: string;
-    title: string;
-    description: string;
-    price: string;
-    userIsBanned: boolean;
-    createdAt: string;
-    banReason: string;
-    banEndDate: string;
-    typeOffers: OfferType;
-    src: string | null;
-}
+  async function fetchUserData() {
+    try {
+      // Récupérer le token depuis les cookies
+      const token = document.cookie.split('; ').find(row => row.startsWith('access_token'))?.split('=')[1];
 
-const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, container }) => {
-    const [expandedOffer, setExpandedOffer] = useState<number | null>(null);
-    const [isBanned, setIsBanned] = useState<BannedOffer[]>([]);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
-    const [selectedType, setSelectedType] = useState<OfferType | "">(""); // État pour le type sélectionné
-    const [searchTerm, setSearchTerm] = useState<string>(""); // État pour la recherche
+      if (!token) {
+        setError('Token manquant');
+        return;
+      }
 
-    useEffect(() => {
-        const checkIfMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
+      // Envoi de la requête pour vérifier le token
+      const response = await fetch('/api/verify-token', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-        checkIfMobile();
-        window.addEventListener("resize", checkIfMobile);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la vérification du token');
+      }
 
-        return () => {
-            window.removeEventListener("resize", checkIfMobile);
-        };
-    }, []);
+      const data: UserData = await response.json();
+      setUserData(data); // Mettre à jour l'état avec les données de l'utilisateur
+      setModalVisible(true); // Afficher la modal
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Erreur inconnue'); // Gestion d'erreur
+    }
+  }
 
-    useEffect(() => {
-        if (isOpen) {
-            const fetchBannedEntities = async () => {
-                try {
-                    const response = await fetch(`/api/allOffers`);
-                    if (!response.ok) {
-                        throw new Error("Erreur lors de la requête");
-                    }
-                    const data: BannedOffer[] = await response.json();
-                    setIsBanned(data);
-                } catch (error: any) {
-                    console.error("Erreur:", error.message);
-                }
-            };
-            fetchBannedEntities();
-        }
-    }, [isOpen]);
+  function closeModal() {
+    setModalVisible(false); // Fermer la modal
+  }
 
-    // Filtrer les offres en fonction du type sélectionné et de la recherche par titre
-    const filteredOffers = isBanned.filter((offer) =>
-        (selectedType ? offer.typeOffers === selectedType : true) &&
-        offer.title.toLowerCase().includes(searchTerm.toLowerCase()) // Filtre par titre
-    );
+  return (
+    <div>
+      <button onClick={fetchUserData}>Ouvrir la modal</button>
 
-    const getImageSrc = (offer: BannedOffer) => {
-        switch (offer.typeOffers) {
-            case "vehicleOffer":
-                return offer.src && offer.src.trim() !== "" ? offer.src : "/icons/mobil-dashboard/car-rental.svg";
-            case "realEstateOffer":
-                return offer.src && offer.src.trim() !== "" ? offer.src : "/icons/mobil-dashboard/building.svg";
-            case "commercialOffer":
-                return offer.src && offer.src.trim() !== "" ? offer.src : "/icons/mobil-dashboard/briefcase.svg";
-            default:
-                return "/icons/mobil-dashboard/default-image.svg";
-        }
-    };
+      {error && <p>{error}</p>}
 
-    const truncateDescription = (description: string, limit: number) => {
-        return description.length > limit ? `${description.substring(0, limit)}...` : description;
-    };
-
-    const toggleOfferExpand = (index: number) => {
-        setExpandedOffer(expandedOffer === index ? null : index);
-    };
-
-    // Si la modal est fermée, on ne la rend pas
-    if (!isOpen) return null;
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault(); // Empêche le rechargement de la page lors de la soumission
-        // Ajoute ici ton code pour traiter la recherche si nécessaire
-        console.log("Form submitted with search term:", searchTerm);
-    };
-
-    return (
-        <div className="modal-overlay w-full h-full" onClick={closeModal}>
-            <div
-                className="modal-content w-full h-full flex flex-col"
-                ref={container}
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="modal-header flex justify-between items-center p-4 border-b">
-                    <div>
-                        <div className="flex items-center gap-6">
-                            {/* Formulaire de recherche */}
-                            <form onSubmit={handleSubmit} className="flex gap-4">
-                                <div>
-                                    <label htmlFor="searchOffer">Search: </label>
-                                    <input
-                                        type="text"
-                                        name="searchOffer"
-                                        id="searchOffer"
-                                        placeholder="Search by Name"
-                                        className="border border-black bg-gray-200 rounded-lg text-sm p-0.5 ml-0 pl-2"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)} // Mettre à jour l'état
-                                    />
-                                </div>
-                            </form>
-
-                            {/* Boutons pour filtrer par type d'offre */}
-                            <Image
-                                src="/icons/mobil-dashboard/car-rental.svg"
-                                alt="Vehicle Offer"
-                                width={50}
-                                height={50}
-                                className="cursor-pointer"
-                                onClick={() => setSelectedType("vehicleOffer")}
-                            />
-                            <Image
-                                src="/icons/mobil-dashboard/building.svg"
-                                alt="Real Estate Offer"
-                                width={50}
-                                height={50}
-                                className="cursor-pointer"
-                                onClick={() => setSelectedType("realEstateOffer")}
-                            />
-                            <Image
-                                src="/icons/mobil-dashboard/briefcase.svg"
-                                alt="Commercial Offer"
-                                width={50}
-                                height={50}
-                                className="cursor-pointer"
-                                onClick={() => setSelectedType("commercialOffer")}
-                            />
-                            {/* Option pour voir toutes les offres */}
-                            <Image
-                                src="/icons/mobil-dashboard/squares-menu.svg"
-                                alt="All Offers"
-                                width={40}
-                                height={40}
-                                className="cursor-pointer"
-                                onClick={() => setSelectedType("")} // Réinitialiser le filtre
-                            />
-                        </div>
-                    </div>
-
-                    {/* Bouton de fermeture */}
-                    <Image
-                        src="/icons/mobil-dashboard/cross.svg"
-                        width={25}
-                        height={25}
-                        alt="close-modal"
-                        className="cursor-pointer"
-                        onClick={closeModal}
-                    />
-                </div>
-
-                <div className="modal-body flex-1 overflow-y-auto p-4 ">
-                    <div className="grid gap-4">
-                        {filteredOffers.map((offer, index) => (
-                            <div
-                                key={index}
-                                className="border border-red-300 rounded-lg shadow-sm p-4 flex flex-col md:flex-row md:items-center gap-4 bg-white"
-                            >
-                                <Image
-                                    src={getImageSrc(offer)}
-                                    width={60}
-                                    height={60}
-                                    alt={`${offer.typeOffers} icon`}
-                                    className="rounded"
-                                />
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-lg">{offer.title}</h3>
-                                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-500">
-                                        <div>
-                                            <span className="font-bold">Vendeur:</span> {offer.vendor}
-                                        </div>
-                                        <div>
-                                            <span className="font-bold">Type:</span> {offer.vendorType}
-                                        </div>
-                                        <div>
-                                            <span className="font-bold">Banni:</span>{" "}
-                                            <span className={offer.userIsBanned ? "text-red-500" : "text-green-500"}>
-                                                {offer.userIsBanned ? "Oui" : "Non"}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <span className="font-bold">Date de création:</span> {formatDate(offer.createdAt)}
-                                        </div>
-                                        <div>
-                                            <span className="font-bold">Prix:</span> {offer.price}€
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm text-gray-500">
-                                        {expandedOffer === index
-                                            ? offer.description
-                                            : truncateDescription(offer.description, 20)}
-                                    </p>
-                                    <button
-                                        onClick={() => toggleOfferExpand(index)}
-                                        className="text-blue-500 text-sm mt-2"
-                                    >
-                                        {expandedOffer === index ? "Voir moins" : "Voir plus"}
-                                    </button>
-                                </div>
-                                <button className="bg-green-400 text-white rounded-lg px-4 py-2">Unban</button>
-                                <button className="bg-blue-500 text-white rounded-lg px-4 py-2">Preview</button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+      {modalVisible && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)' }}>
+          <div style={{ backgroundColor: 'white', padding: '20px', margin: '100px auto', width: '50%' }}>
+            <h2>Informations de l'Utilisateur</h2>
+            {userData ? (
+              <div>
+                <p>ID : {userData.id}</p>
+                <p>Nom d'utilisateur : {userData.username}</p>
+                <p>Email : {userData.email}</p>
+                <p>Entité : {userData.entity}</p>
+                <p>Compte banni : {userData.isBanned ? 'Oui' : 'Non'}</p>
+                {userData.isBanned && (
+                  <>
+                    <p>Raison du bannissement : {userData.banReason.join(', ')}</p>
+                    <p>Date de fin du bannissement : {new Date(userData.banEndDate).toLocaleString()}</p>
+                  </>
+                )}
+              </div>
+            ) : (
+              <p>Aucune donnée disponible</p>
+            )}
+            <button onClick={closeModal}>Fermer</button>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
-export default AdminDeleteOfferModal;
+export default Home;

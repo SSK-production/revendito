@@ -11,6 +11,7 @@ interface ModalProps {
 type OfferType = "vehicleOffer" | "realEstateOffer" | "commercialOffer";
 
 interface BannedOffer {
+    id : number;
     vendor: string;
     vendorType: string;
     title: string;
@@ -63,6 +64,55 @@ const TestAdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, c
         }
     }, [isOpen]);
 
+    const [authStatus, setAuthStatus] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    // Function to check authentication
+    const checkAuth = async () => {
+      try {
+        // Make the GET request to /api/auth/check
+        const response = await fetch("/api/auth", {
+          method: "GET",
+          credentials: "include", // Ensure cookies are sent with the request
+        });
+
+        const data = await response.json();
+        console.log("Voici les data de l'auth : ", data);
+        
+
+        if (response.status === 200) {
+          // Successfully authenticated
+          setAuthStatus("Authenticated");
+          setUserEmail(data.username);
+          setUserId(data.id)
+          console.log(userId);
+        } else if (response.status === 401) {
+          // Not authenticated or tokens expired
+          setAuthStatus(data.error || "Authentication failed");
+        } else {
+          // Handle unexpected status
+          setAuthStatus("An error occurred during authentication");
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setAuthStatus("Error during authentication check");
+      }
+    };
+
+    // Call the checkAuth function on page load
+    checkAuth();
+  }, []);
+
+    const handleReportClick = (offer: BannedOffer) => {
+        console.log("Offer ID:", offer.id); // Remplacez `vendor` par l'id réel si applicable
+        console.log("Offer Title:", offer.title);
+        console.log("Offer Type:", offer.typeOffers);
+        // Ici, vous pouvez appeler une API ou effectuer une action supplémentaire avec ces données
+    };
+    
     // Filtrer les offres en fonction du type sélectionné et de la recherche par titre
     const filteredOffers = isBanned.filter((offer) =>
         (selectedType ? offer.typeOffers === selectedType : true) &&
@@ -223,7 +273,7 @@ const TestAdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, c
                                         {expandedOffer === index ? "Voir moins" : "Voir plus"}
                                     </button>
                                 </div>
-                                <button className="bg-red-400 text-white rounded-lg px-4 py-2">report</button>
+                                <button className="bg-red-400 text-white rounded-lg px-4 py-2" onClick={() => handleReportClick(offer)}>report</button>
                                 <button className="bg-green-400 text-white rounded-lg px-4 py-2">Unban</button>
                                 <button className="bg-blue-500 text-white rounded-lg px-4 py-2">Preview</button>
                             </div>
