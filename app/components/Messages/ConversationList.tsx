@@ -66,7 +66,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ userId }) => {
     channel.bind("new-conversation", (newConversation: Conversation) => {
       setConversations((prev) => {
         const conversationIndex = prev.findIndex(
-          (conversation) => conversation.id === newConversation.id
+          (conversation) => conversation.conversationId === newConversation.id
         );
   
         if (conversationIndex !== -1) {
