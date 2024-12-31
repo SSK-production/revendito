@@ -8,6 +8,7 @@ interface MessageModalProps {
     receiverId: string | null;
     offerId: number | null;
     offerType: string;
+    otherPersonName: string;
 }
 
 const MessageModal: React.FC<MessageModalProps> = ({ show, handleClose, receiverId, offerId, offerType }) => {

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import MessageForm from "@/app/components/Messages/MessageForm";
+import Pusher from "pusher-js";
+import { capitalizeFirstLetter } from "@/app/lib/function";
 
 interface ConversationListProps {
   userId: string | null;
@@ -23,22 +25,21 @@ const ConversationList: React.FC<ConversationListProps> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
   const [showMessageForm, setShowMessageForm] = useState<boolean>(false);
 
+  // Récupération des conversations
   useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      setError("User ID is required to fetch conversations.");
-      return;
-    }
-
     const fetchConversations = async () => {
+      if (!userId) {
+        setError("User ID is required to fetch conversations.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(`/api/messages?userId=${userId}`);
-        if (response.data && Array.isArray(response.data.conversations)) {
-          setConversations(response.data.conversations);
-        } else {
-          setError("Invalid data format.");
-        }
-      } catch {
+        const initialConversations = response.data.conversations || [];
+        setConversations(initialConversations);
+      } catch (error) {
+        console.error("Failed to fetch conversations:", error);
         setError("Failed to load conversations.");
       } finally {
         setLoading(false);
@@ -48,6 +49,55 @@ const ConversationList: React.FC<ConversationListProps> = ({ userId }) => {
     fetchConversations();
   }, [userId]);
 
+  // Abonnement à Pusher
+  useEffect(() => {
+    if (!userId) return;
+  
+    if (!process.env.NEXT_PUBLIC_PUSHER_KEY || !process.env.NEXT_PUBLIC_PUSHER_CLUSTER) {
+      console.error("Les variables d'environnement Pusher sont manquantes.");
+      return;
+    }
+  
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    });
+  
+    const channel = pusher.subscribe(`conversations-${userId}`);
+  
+    channel.bind("new-conversation", (newConversation: Conversation) => {
+      setConversations((prev) => {
+        const conversationIndex = prev.findIndex(
+          (conversation) => conversation.conversationId === newConversation.id
+        );
+  
+        if (conversationIndex !== -1) {
+          // Mise à jour et déplacement de la conversation mise à jour en tête
+          const updatedConversations = [...prev];
+          const updatedConversation = {
+            ...updatedConversations[conversationIndex],
+            ...newConversation, // Mise à jour des propriétés
+          };
+  
+          // Supprimez l'ancienne conversation et ajoutez la mise à jour en tête
+          updatedConversations.splice(conversationIndex, 1);
+          return [updatedConversation, ...updatedConversations];
+        }
+  
+        // Ajouter une nouvelle conversation en tête si elle n'existe pas
+        return [newConversation, ...prev];
+      });
+    });
+  
+    return () => {
+      channel.unbind("new-conversation");
+      pusher.unsubscribe(`conversations-${userId}`);
+    };
+  }, [userId]);
+  
+  
+
+  console.log(userId);
+  
   const onSelectConversation = (id: string) => {
     setConversationId(id);
     setShowMessageForm(true); // Affiche le formulaire de message
@@ -92,7 +142,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ userId }) => {
               onClick={() => onSelectConversation(conversation.conversationId)}
             >
               <h3 className="text-lg font-semibold">
-                {conversation.otherPersonName}
+                {capitalizeFirstLetter(conversation.otherPersonName) }
               </h3>
               <p className="text-gray-600 truncate">{conversation.content}</p>
               <span className="text-sm text-gray-500">

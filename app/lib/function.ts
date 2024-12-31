@@ -43,3 +43,8 @@ export async function getReceiverDetails(receiverId: string) {
   // Si aucun destinataire trouvé
   return { receiverUserId: null, receiverCompanyId: null };
 }
+
+// première l'ettre en majuscule
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
