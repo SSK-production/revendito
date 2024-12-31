@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
   export async function POST(req: NextRequest) {
     try {
         // 1. Récupérer les informations de l'utilisateur
-        const { id, entity, accessToken } = await getUserFromRequest(req);
+        const { id, entity, username,accessToken } = await getUserFromRequest(req);
         verifyId(id, entity);
 
         // 2. Récupérer et valider les données du corps de la requête
@@ -143,6 +143,15 @@ export async function GET(req: NextRequest) {
                 realEstateOfferId: offerType === "property" ? offerId : null,
                 commercialOfferId: offerType === "commercial" ? offerId : null,
             },
+        });
+
+        // Lors de l'envoi d'un nouveau message, déclencher un événement conversation si nécessaire
+        await pusher.trigger(`conversations-${receiverId}`, "new-conversation", {
+            id: conversationId,
+            otherPersonName: username,
+            conversationId: conversationId,
+            content: content,
+            sentAt: new Date().toISOString(),
         });
 
         // 5. Émettre l'événement avec Pusher
