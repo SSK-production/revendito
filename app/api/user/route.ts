@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { createUserSchema } from '@/app/validation';
+import { capitalizeFirstLetter } from "@/app/lib/function";
 const prisma = new PrismaClient();
 
 // interface UserData {
@@ -56,14 +57,17 @@ export async function POST(req: Request) {
 
     // Hachage du mot de passe avant de le stocker dans la base de données
     const hashedPassword = await bcrypt.hash(password, 10);
+    const capitalizeUsername = capitalizeFirstLetter(username);
+    const capitalizeFirstName = capitalizeFirstLetter(firstName);
+    const capitalizeLastName = capitalizeFirstLetter(lastName);
 
     // Création d'un nouvel utilisateur
     const newUser:User = await prisma.user.create({
       data: {
-        username,
+        username: capitalizeUsername,
         password: hashedPassword,
-        firstName,
-        lastName,
+        firstName: capitalizeFirstName,
+        lastName: capitalizeLastName,
         email,
         birthDate: new Date(birthDate), // Convertir en objet Date
         city,

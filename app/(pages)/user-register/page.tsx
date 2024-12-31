@@ -40,10 +40,10 @@ export default function RegisterForm() {
     setSuccess(null);
 
     try {
-      const response = await axios.post("/api/user", formData); // URL à adapter si nécessaire
+      await axios.post("/api/user", formData); // URL à adapter si nécessaire
       setSuccess("User registered successfully!");
-    } catch (err: any) {
-      if (err.response?.data?.error) {
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
         if (Array.isArray(err.response.data.error)) {
           setErrors(err.response.data.error); // Erreurs de validation
         } else {

@@ -140,6 +140,7 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
         offerId: null,
         offerType: null,
         content: message,
+        otherPersonName: otherPersonName || "Unknown",
         Credentials: "include",
       };
 

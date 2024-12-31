@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import MessageForm from "@/app/components/Messages/MessageForm";
 import Pusher from "pusher-js";
+import { capitalizeFirstLetter } from "@/app/lib/function";
 
 interface ConversationListProps {
   userId: string | null;
@@ -141,7 +142,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ userId }) => {
               onClick={() => onSelectConversation(conversation.conversationId)}
             >
               <h3 className="text-lg font-semibold">
-                {conversation.otherPersonName}
+                {capitalizeFirstLetter(conversation.otherPersonName) }
               </h3>
               <p className="text-gray-600 truncate">{conversation.content}</p>
               <span className="text-sm text-gray-500">

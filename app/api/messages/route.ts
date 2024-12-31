@@ -108,8 +108,9 @@ export async function GET(req: NextRequest) {
         verifyId(id, entity);
 
         // 2. Récupérer et valider les données du corps de la requête
-        const { receiverId, offerId, offerType, content } = await req.json();
-        console.log("receiverId", receiverId, "content", content);
+        const { receiverId, offerId, offerType, content, otherPersonName } = await req.json();
+        console.log("receiverId : ", receiverId, "content : ", content);
+        
         
         const { error } = messageSchema.validate({ content }, { abortEarly: false });
         if (error) {
@@ -149,6 +150,14 @@ export async function GET(req: NextRequest) {
         await pusher.trigger(`conversations-${receiverId}`, "new-conversation", {
             id: conversationId,
             otherPersonName: username,
+            conversationId: conversationId,
+            content: content,
+            sentAt: new Date().toISOString(),
+        });
+
+        await pusher.trigger(`conversations-${id}`, "new-conversation", {
+            id: conversationId,
+            otherPersonName: otherPersonName,
             conversationId: conversationId,
             content: content,
             sentAt: new Date().toISOString(),
