@@ -171,7 +171,7 @@ export default function ProfilePage() {
               receiverId={data.id} // Passe l'ID du vendeur
               offerId={null} // Passe l'ID de l'offre
               offerType={""} // Passe le type de l'offre
-              otherPersonName={data.username || data.companyName || "User"}
+              otherPersonName={data?.username || data?.companyName || "User"}
             />
           </div>
 

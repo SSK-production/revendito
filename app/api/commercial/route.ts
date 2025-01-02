@@ -9,50 +9,62 @@ import { verifyId } from '@/app/lib/function';
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
-    try {
-      // Paramètres de pagination, avec des valeurs par défaut
-      const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10); // Page par défaut : 1
-      const limit = parseInt(req.nextUrl.searchParams.get('limit') || '10', 10); // Limite par défaut : 10
+  try {
+    // Paramètres de pagination, avec des valeurs par défaut
+    const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10); // Page par défaut : 1
+    const limit = parseInt(req.nextUrl.searchParams.get('limit') || '10', 10); // Limite par défaut : 10
   
-      // Validation des paramètres pour éviter les valeurs trop grandes ou invalides
-      if (page <= 0 || limit <= 0) {
-        return NextResponse.json({ error: "Page et limit doivent être des valeurs positives" }, { status: 400 });
-      }
-  
-      // Calcul du skip pour l'offset
-      const skip = (page - 1) * limit;
-  
-      // Requête Prisma avec pagination
-      const commercialOffers = await prisma.commercialOffer.findMany({
-        skip: skip,
-        take: limit,
-      });
-  
-      const totalOffers = await prisma.commercialOffer.count();
-  
-      return NextResponse.json({
-        data: commercialOffers,
-        meta: {
-          page,
-          limit,
-          total: totalOffers,
-          totalPages: Math.ceil(totalOffers / limit), // Nombre total de pages
-        }
-      }, { status: 200 });
-    } catch (error: unknown) {
-      console.error("Error fetching commercial offers:", error);
-  
-      if (error instanceof Error) {
-        return NextResponse.json(
-          { error: `Error fetching commercial offers: ${error.message}` },
-          { status: 500 }
-        );
-      }
-      return NextResponse.json(
-        { error: "An unexpected error occurred." },
-        { status: 500 }
-      );
+    // Validation des paramètres pour éviter les valeurs trop grandes ou invalides
+    if (page <= 0 || limit <= 0) {
+    return NextResponse.json({ error: "Page et limit doivent être des valeurs positives" }, { status: 400 });
     }
+  
+    // Calcul du skip pour l'offset
+    const skip = (page - 1) * limit;
+  
+    // Requête Prisma avec pagination et filtre validated = true
+    const commercialOffers = await prisma.commercialOffer.findMany({
+    skip: skip,
+    take: limit,
+    where: {
+      validated: true,
+      active: true,
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+    });
+  
+    const totalOffers = await prisma.commercialOffer.count({
+    where: {
+      validated: true,
+      active: true,
+    },
+    });
+  
+    return NextResponse.json({
+    data: commercialOffers,
+    meta: {
+      page,
+      limit,
+      total: totalOffers,
+      totalPages: Math.ceil(totalOffers / limit), // Nombre total de pages
+    }
+    }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Error fetching commercial offers:", error);
+  
+    if (error instanceof Error) {
+    return NextResponse.json(
+      { error: `Error fetching commercial offers: ${error.message}` },
+      { status: 500 }
+    );
+    }
+    return NextResponse.json(
+    { error: "An unexpected error occurred." },
+    { status: 500 }
+    );
+  }
   }
 
 export async function POST(req: NextRequest) {

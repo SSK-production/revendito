@@ -11,12 +11,27 @@ export async function GET(req: NextRequest) {
       // 1. Extraire les paramètres de la requête
       const { searchParams } = new URL(req.url);
       const userId = searchParams.get("userId");
+      const page = parseInt(searchParams.get("page") || "1", 10); // Par défaut, page 1
+      const pageSize = parseInt(searchParams.get("pageSize") || "10", 10); // Par défaut, 10 éléments par page
   
       if (!userId) {
-        return NextResponse.json({ error: "L'ID utilisateur est requis." }, { status: 400 });
+        return NextResponse.json(
+          { error: "L'ID utilisateur est requis." },
+          { status: 400 }
+        );
       }
   
-      // 2. Récupérer les derniers messages de chaque conversation
+      if (page < 1 || pageSize < 1) {
+        return NextResponse.json(
+          { error: "Les paramètres page et pageSize doivent être supérieurs à 0." },
+          { status: 400 }
+        );
+      }
+  
+      // 2. Calculer l'offset pour la pagination
+      const offset = (page - 1) * pageSize;
+  
+      // 3. Récupérer les derniers messages de chaque conversation avec pagination
       const latestMessages = await prisma.message.findMany({
         where: {
           OR: [
@@ -29,6 +44,8 @@ export async function GET(req: NextRequest) {
         orderBy: {
           sentAt: "desc",
         },
+        skip: offset, // Ignorer les éléments avant l'offset
+        take: pageSize, // Nombre d'éléments à récupérer
         distinct: ["conversationId"],
         include: {
           senderUser: {
@@ -54,7 +71,7 @@ export async function GET(req: NextRequest) {
         },
       });
   
-      // 3. Transformer les données pour inclure le nom de l'autre personne
+      // 4. Transformer les données pour inclure le nom de l'autre personne
       const conversations = latestMessages.map((message) => {
         const otherPerson =
           message.senderUserId === userId
@@ -78,17 +95,27 @@ export async function GET(req: NextRequest) {
         };
       });
   
-      // 4. Retourner les résultats
-      return NextResponse.json({ conversations }, { status: 200 });
+      // 5. Retourner les résultats avec les informations de pagination
+      return NextResponse.json(
+        {
+          conversations,
+          page,
+          pageSize,
+          total: conversations.length, // Nombre d'éléments retournés
+        },
+        { status: 200 }
+      );
     } catch (error: unknown) {
       console.error("Erreur lors de la récupération des messages:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erreur inconnue";
+      const errorMessage =
+        error instanceof Error ? error.message : "Erreur inconnue";
       return NextResponse.json(
         { error: `Erreur lors de la récupération des messages: ${errorMessage}` },
         { status: 500 }
       );
     }
   }
+  
   
 
   // Configuration de Pusher
@@ -109,7 +136,7 @@ export async function GET(req: NextRequest) {
 
         // 2. Récupérer et valider les données du corps de la requête
         const { receiverId, offerId, offerType, content, otherPersonName } = await req.json();
-        console.log("receiverId : ", receiverId, "content : ", content);
+        console.log("receiverId : ", receiverId, "content : ", content, "otherPersonName : ", otherPersonName);
         
         
         const { error } = messageSchema.validate({ content }, { abortEarly: false });
@@ -188,3 +215,5 @@ export async function GET(req: NextRequest) {
         );
     }
 }
+
+
