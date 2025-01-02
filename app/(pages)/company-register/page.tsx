@@ -7,6 +7,7 @@ import { CompanyData } from "@/utils/interfaces/formsInterface"; // Interface po
 import { useRouter } from "next/navigation";
 import DOMPurify from "dompurify";
 import { useNotifications } from "@/components/notifications"; // Import du système de notifications
+import { capitalizeFirstLetter } from "@/app/lib/function";
 
 // Composant de formulaire d'enregistrement de l'entreprise
 export default function CompanyRegister() {
@@ -129,7 +130,7 @@ export default function CompanyRegister() {
               id="companyName"
               name="companyName"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-lg focus:border-indigo-500 focus:ring-indigo-500"
-              value={formData.companyName}
+              value= {capitalizeFirstLetter(formData.companyName)}
               onChange={(e) => handleChange(e, setFormData)}
               maxLength={20}
               required

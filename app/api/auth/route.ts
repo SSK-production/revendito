@@ -22,6 +22,7 @@ interface UserPayload {
   isBanned: boolean;
   banReason: string[];
   banEndDate: Date;
+  role: string;
 }
 
 type AuthenticatedEntity = {
@@ -202,6 +203,7 @@ export async function GET(req: Request) {
             username: user.username,
             id: user.id,
             banEndDate: user.banEndDate,
+            entity: user.entity.toLocaleLowerCase(),
           }),
           {
             status: 200,
