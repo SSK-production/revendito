@@ -21,12 +21,21 @@ export async function GET(req: NextRequest) {
     const vehicleOffers = await prisma.vehicleOffer.findMany({
       skip: skip,
       take: limit,
+      where: {
+        validated: true,
+        active: true,
+      },
       orderBy: {
         createdAt: 'desc'
     }
     });
 
-    const totalOffers = await prisma.vehicleOffer.count();
+    const totalOffers = await prisma.vehicleOffer.count({
+      where: {
+        validated: true,
+        active: true,
+      },
+      });
 
     return NextResponse.json({
       data: vehicleOffers,

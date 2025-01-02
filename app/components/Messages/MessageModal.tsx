@@ -11,7 +11,7 @@ interface MessageModalProps {
     otherPersonName: string;
 }
 
-const MessageModal: React.FC<MessageModalProps> = ({ show, handleClose, receiverId, offerId, offerType }) => {
+const MessageModal: React.FC<MessageModalProps> = ({ show, handleClose, receiverId, offerId, offerType, otherPersonName }) => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,6 +31,7 @@ const MessageModal: React.FC<MessageModalProps> = ({ show, handleClose, receiver
                 offerId,
                 offerType,
                 content: message,
+                otherPersonName,
                 credentials: "include",
             });
 

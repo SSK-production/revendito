@@ -170,9 +170,9 @@ const ChatInterface: React.FC<ConversationIdProps> = ({ conversationId, userId }
   };
 
   return (
-    <div className="flex flex-col h-[80vh] w-full max-w-5xl mx-auto bg-gray-100 shadow-lg rounded-lg overflow-hidden">
+    <div className="flex flex-col h-[90vh] w-full max-w-5xl mx-auto bg-gray-100 shadow-lg rounded-lg overflow-hidden">
       {/* Header avec le nom de l'autre personne */}
-      <div className="bg-blue-500 text-white text-center py-3 font-semibold">
+      <div className="bg-gray-200 text-black text-center py-3 font-semibold">
         {otherPersonName || "Loading..."}
       </div>
 
