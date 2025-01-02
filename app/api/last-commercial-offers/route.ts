@@ -7,6 +7,10 @@ export async function GET() {
 
     try {
         const offers = await prisma.commercialOffer.findMany({
+            where: {
+                validated: true,
+                active: true
+            },
             take: 3,
             orderBy: {
                 createdAt: 'desc'

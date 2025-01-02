@@ -61,6 +61,7 @@ export interface Property {
     city: string;
     country: string;
     active: boolean;
+    validated: boolean;
     createdAt: string;
     updatedAt: string;
   }

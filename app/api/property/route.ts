@@ -20,12 +20,21 @@ export async function GET(req: NextRequest) {
     const realEstateOffers = await prisma.realEstateOffer.findMany({
       skip: skip,
       take: limit,
+      where: {
+        validated: true,
+        active: true,
+      },
       orderBy: {
         createdAt: 'desc'
-    }
+      }
     });
 
-    const totalOffers = await prisma.realEstateOffer.count();
+    const totalOffers = await prisma.realEstateOffer.count({
+      where: {
+        validated: true,
+        active: true,
+      },
+      });
 
     return NextResponse.json({
       data: realEstateOffers,

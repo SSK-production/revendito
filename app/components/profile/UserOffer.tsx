@@ -67,7 +67,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
 
   const renderOffers = (offerList: Offers[], offerType: string) => {
     const filteredOffers = offerList.filter((offer) =>
-      currentUserId === userId ? true : offer.active
+      currentUserId === userId ? !offer.validated : offer.validated
     );
     return (
       <section>
