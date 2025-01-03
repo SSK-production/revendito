@@ -1,4 +1,9 @@
 export interface Property {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     propertyType?: string;
     propertyCondition?: string;
     surface?: number;
@@ -24,6 +29,11 @@ export interface Property {
   }
 
   export interface Vehicle {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     vehicleType?: string;
     model?: string;
     year?: number;
@@ -42,6 +52,11 @@ export interface Property {
   }
 
   export interface Commercial {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     commercialType?: string;
     duration?: number;
     contractType?: string;
