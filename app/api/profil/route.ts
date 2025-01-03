@@ -30,18 +30,18 @@ export async function GET(req: NextRequest) {
       userData = await prisma.user.findUnique({
         where: { username },
         include: {
-          vehicleOffers: true,
-          realEstateOffers: true,
-          commercialOffers: true,
+          vehicleOffers: { orderBy: { createdAt: 'desc' } },
+          realEstateOffers: { orderBy: { createdAt: 'desc' } },
+          commercialOffers: { orderBy: { createdAt: 'desc' } },
         },
       });
     } else if (role === 'company') {
       userData = await prisma.company.findFirst({
         where: { companyName: username },
         include: {
-          vehicleOffers: true,
-          realEstateOffers: true,
-          commercialOffers: true,
+          vehicleOffers: { orderBy: { createdAt: 'desc' } },
+          realEstateOffers: { orderBy: { createdAt: 'desc' } },
+          commercialOffers: { orderBy: { createdAt: 'desc' } },
         },
       });
     } else {

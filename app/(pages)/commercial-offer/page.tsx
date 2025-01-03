@@ -2,9 +2,7 @@
 import React, { useState } from "react";
 
 type Day = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
-type OpeningHours = {
-  [key in Day]: { start: string; end: string };
-};
+
 
 const CommercialOfferForm = () => {
   const [formData, setFormData] = useState({
@@ -153,7 +151,7 @@ const CommercialOfferForm = () => {
       } else {
         setError(data.error || "Une erreur est survenue");
       }
-    } catch (error) {
+    } catch {
       setError("Erreur lors de l'envoi de la requête");
     } finally {
       setIsSubmitting(false);
