@@ -1,4 +1,4 @@
-const specialChars = "!@#$%^&*(),.?\":{}|<>";
+
 type ValidationRule = (value: string) => string | null;
 
 interface ValidationSchema {
@@ -20,7 +20,7 @@ export const validationSchemas: { [key: string]: ValidationSchema } = {
                 (value) => (value.length < 8 ? "Le mot de passe doit avoir au moins 8 caractères." : null),
                 (value) => (!/[A-Z]/.test(value) ? "Le mot de passe doit contenir au moins une lettre majuscule." : null),
                 (value) => (!/[0-9]/.test(value) ? "Le mot de passe doit contenir au moins un chiffre." : null),
-                (value) => (!/[!@#$%^&*(),.?":{}|<>]/.test(value) ? `Le mot de passe doit contenir au moins un caractère spécial : ${specialChars}` : null),
+                
             ],
             errorMessage: "Le mot de passe est invalide."
         },
@@ -51,7 +51,6 @@ export const validationSchemas: { [key: string]: ValidationSchema } = {
                 (value) => (value.length < 8 ? "Le mot de passe doit avoir au moins 8 caractères." : null),
                 (value) => (!/[A-Z]/.test(value) ? "Le mot de passe doit contenir au moins une lettre majuscule." : null),
                 (value) => (!/[0-9]/.test(value) ? "Le mot de passe doit contenir au moins un chiffre." : null),
-                (value) => (!/[!@#$%^&*(),.?":{}|<>]/.test(value) ? "Le mot de passe doit contenir au moins un caractère spécial : !@#$%^&*(),.?\":{}|<>." : null),
             ],
             errorMessage: "Le mot de passe est invalide."
         },

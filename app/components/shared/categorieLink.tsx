@@ -9,7 +9,7 @@ export default function CategorieLink() {
   const { category } = useParams(); // Récupère la catégorie depuis l'URL
 
   return (
-    <section className="flex flex-wrap justify-center gap-4 p-4 fixed w-full top-10 left-0 bg-gray-50 z-40">
+    <section className="flex flex-wrap justify-center gap-4 pt-16 fixed w-full top-0 left-0 bg-gray-50 z-40">
       <Link href="/offers/vehicle">
         <header
           className={`group flex flex-col items-center gap-2 bg-blue-100 rounded-lg text-blue-800 font-medium shadow transition-transform hover:scale-105 hover:shadow-lg ${

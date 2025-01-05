@@ -138,6 +138,7 @@ const Page: React.FC = () => {
         receiverId={data.vendorType === "user" ? data.userId : data.vendorType === "company" ?  data.companyId : null} // Passe l'ID du vendeur
         offerId={data.id} // Passe l'ID de l'offre
         offerType={category || ""} // Passe le type de l'offre
+        otherPersonName={data.vendor}
       />
 
       {/* Détails de l'offre */}

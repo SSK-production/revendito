@@ -9,6 +9,7 @@ interface UserPayload {
   isBanned: boolean,
   banReason: string[],
   banEndDate: Date
+  role: string;
 }
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_JWT_SECRET || "fallback_secret";
@@ -44,7 +45,8 @@ export function refreshAccessToken(refreshToken: string): string | null {
       entity: user.entity,
       isBanned: user.isBanned,
       banReason: user.banReason,
-      banEndDate: user.banEndDate
+      banEndDate: user.banEndDate,
+      role: user.role,
     });
 
     // Create the response with the new access token (if needed elsewhere)

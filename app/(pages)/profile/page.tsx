@@ -149,7 +149,7 @@ export default function ProfilePage() {
               <div>
                 <h1 className="text-2xl font-semibold text-orange-700">
                   {data.firstName && data.lastName
-                    ? `${data.firstName} ${data.lastName}`
+                    ? `${data.username}`
                     : data.companyName || data.username || "User"}
                 </h1>
                 <p className="text-gray-500">{data.role}</p>
@@ -171,6 +171,7 @@ export default function ProfilePage() {
               receiverId={data.id} // Passe l'ID du vendeur
               offerId={null} // Passe l'ID de l'offre
               offerType={""} // Passe le type de l'offre
+              otherPersonName={data?.username || data?.companyName || "User"}
             />
           </div>
 
@@ -180,6 +181,13 @@ export default function ProfilePage() {
               General Information
             </h2>
             <div className="space-y-2 text-gray-600">
+
+              <p>
+                <strong>Firstname:</strong> {data.firstName}
+              </p>
+              <p>
+                <strong>Lastname:</strong> {data.lastName}
+              </p>
               <p>
                 <strong>Email:</strong> {data.email}
               </p>

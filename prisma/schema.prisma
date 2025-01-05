@@ -103,6 +103,7 @@ model Company {
 
 model VehicleOffer {
   id          Int      @id @default(autoincrement())
+  type        String @default("vehicle")
   vendor      String?
   vendorType  String?
   title       String
@@ -112,6 +113,7 @@ model VehicleOffer {
   country     String
   userIsBanned Boolean @default(false)
   active      Boolean @default(true)
+  validated   Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -148,6 +150,7 @@ model VehicleOffer {
 
 model RealEstateOffer {
   id            Int      @id @default(autoincrement())
+  type          String @default("property")
   vendor        String?
   vendorType    String?
   title         String
@@ -157,6 +160,7 @@ model RealEstateOffer {
   country       String
   userIsBanned Boolean @default(false)
   active        Boolean @default(true)
+  validated     Boolean @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -201,6 +205,7 @@ model RealEstateOffer {
 
 model CommercialOffer {
   id          Int      @id @default(autoincrement())
+  type        String @default("commercial")
   vendor      String?
   vendorType  String?
   title       String
@@ -210,6 +215,7 @@ model CommercialOffer {
   country     String
   userIsBanned Boolean @default(false)
   active      Boolean @default(true)
+  validated   Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -294,15 +300,17 @@ model Report {
   commercialOffer    CommercialOffer? @relation(fields: [commercialOfferId], references: [id], map: "Report_commercialOffer_fkey")
 
   // Relation avec le rapporteur
-  reporterId    String
+  reporterUserId    String?
+  reporterCompanyId    String?
   reporterType  ReporterType
-  reporterUser  User?         @relation("UserSubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterUser_fkey")
-  reporterCompany Company?    @relation("CompanySubmittedReports", fields: [reporterId], references: [id], map: "Report_reporterCompany_fkey")
+  reporterUser  User?         @relation("UserSubmittedReports", fields: [reporterUserId], references: [id], map: "Report_reporterUser_fkey")
+  reporterCompany Company?    @relation("CompanySubmittedReports", fields: [reporterCompanyId], references: [id], map: "Report_reporterCompany_fkey")
 
   @@index([vehicleOfferId], name: "idx_vehicleOfferId")
   @@index([realEstateOfferId], name: "idx_realEstateOfferId")
   @@index([commercialOfferId], name: "idx_commercialOfferId")
-  @@index([reporterId], name: "idx_reporterId")
+  @@index([reporterUserId], name: "idx_reporterUserId")
+  @@index([reporterCompanyId], name: "idx_reporterCompanyId")
 }
 
 // Enum pour les rôles
