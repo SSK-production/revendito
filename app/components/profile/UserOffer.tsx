@@ -110,12 +110,15 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-gray-500">No offers available.</p>
-        )}
+        ) : null}
       </section>
     );
   };
+
+  const allOffersEmpty =
+    vehicleOffers.length === 0 &&
+    realEstateOffers.length === 0 &&
+    commercialOffers.length === 0;
 
   return (
     <div className="space-y-8 p-4 sm:p-6 bg-white">
@@ -123,14 +126,20 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
         {currentUserId === userId ? "Toutes vos offres" : "Offres disponibles"}
       </h1>
 
-      {/* Vehicle Offers */}
-      {renderOffers(vehicleOffers, "vehicle")}
+      {allOffersEmpty ? (
+        <p className="text-gray-500">No offers available.</p>
+      ) : (
+        <>
+          {/* Vehicle Offers */}
+          {renderOffers(vehicleOffers, "vehicle")}
 
-      {/* Real Estate Offers */}
-      {renderOffers(realEstateOffers, "property")}
+          {/* Real Estate Offers */}
+          {renderOffers(realEstateOffers, "property")}
 
-      {/* Commercial Offers */}
-      {renderOffers(commercialOffers, "commercial")}
+          {/* Commercial Offers */}
+          {renderOffers(commercialOffers, "commercial")}
+        </>
+      )}
 
       {/* Modal */}
       {isModalOpen && selectedOffer && selectedOfferType && (

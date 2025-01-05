@@ -131,7 +131,15 @@ export async function GET(req: NextRequest) {
   export async function POST(req: NextRequest) {
     try {
         // 1. Récupérer les informations de l'utilisateur
-        const { id, entity, username,accessToken } = await getUserFromRequest(req);
+        const { id, entity, username,accessToken, active } = await getUserFromRequest(req);
+
+        if (!active) {
+            return NextResponse.json({
+              error: "Inactive",
+              message: "Your account is inactive. Please contact the support team for more information.",
+            });
+          }
+
         verifyId(id, entity);
 
         // 2. Récupérer et valider les données du corps de la requête
