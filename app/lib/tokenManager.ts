@@ -10,6 +10,7 @@ interface UserPayload {
   banReason: string[],
   banEndDate: Date
   role: string;
+  active: boolean;
 }
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_JWT_SECRET || "fallback_secret";
@@ -47,6 +48,7 @@ export function refreshAccessToken(refreshToken: string): string | null {
       banReason: user.banReason,
       banEndDate: user.banEndDate,
       role: user.role,
+      active: user.active,
     });
 
     // Create the response with the new access token (if needed elsewhere)
@@ -107,7 +109,7 @@ export async function getTokenFromCookies(req: Request): Promise<string | null> 
 }
 
 
-export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; username:string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date; accessToken:string }> {
+export async function getUserFromRequest(req: NextRequest): Promise<{ id: string; username:string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date; accessToken:string, role:string, active:boolean }> {
   let accessToken = req.cookies.get('access_token')?.value ?? undefined; // Transforme null en undefined
   const refreshToken = req.cookies.get('refresh_token')?.value ?? undefined;
 
@@ -144,12 +146,12 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
     console.log(decodedToken);
     
 
-    const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date };
+    const { id, username, entity, isBanned, banReason, banEndDate, role, active } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned: boolean, banReason: string[], banEndDate: Date, role: string, active: boolean };
     if (!id || !entity) {
       throw new Error('Payload du token invalide');
     }
 
-    return { id, username, entity, isBanned, banReason, banEndDate, accessToken };
+    return { id, username, entity, isBanned, banReason, banEndDate, accessToken, role, active };
   } catch (error) {
     console.error('Erreur avec l\'access-token:', error);
 
@@ -169,7 +171,7 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
         throw new Error('Nouveau token invalide');
       }
 
-      const { id, username, entity, isBanned, banReason, banEndDate } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned:boolean, banReason:string[], banEndDate:Date };
+      const { id, username, entity, isBanned, banReason, banEndDate, role, active } = decodedToken as { id: string; username: string; entity: 'user' | 'company', isBanned:boolean, banReason:string[], banEndDate:Date, role:string, active:boolean };
       if (!id || !entity) {
         throw new Error('Payload du nouveau token invalide');
       }
@@ -184,7 +186,7 @@ export async function getUserFromRequest(req: NextRequest): Promise<{ id: string
         path: '/',
       });
       
-      return { id, username, entity, isBanned, banReason, banEndDate, accessToken };
+      return { id, username, entity, isBanned, banReason, banEndDate, accessToken, role, active };
     }
 
     throw new Error('Access token invalide ou rafraîchissement impossible');

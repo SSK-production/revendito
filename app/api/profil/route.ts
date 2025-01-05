@@ -14,11 +14,20 @@ export async function GET(req: NextRequest) {
   try {
     const username = req.nextUrl.searchParams.get('user');
     const role = req.nextUrl.searchParams.get('role');
+    const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
+    const pageSize = parseInt(req.nextUrl.searchParams.get('pageSize') || '10', 10);
 
     // Vérifiez que l'username et le rôle sont valides
     if (!username || !role) {
       return NextResponse.json(
         { error: 'Username et rôle sont obligatoires.' },
+        { status: 400 }
+      );
+    }
+
+    if (page <= 0 || pageSize <= 0) {
+      return NextResponse.json(
+        { error: 'Page et pageSize doivent être des nombres positifs.' },
         { status: 400 }
       );
     }
@@ -30,18 +39,42 @@ export async function GET(req: NextRequest) {
       userData = await prisma.user.findUnique({
         where: { username },
         include: {
-          vehicleOffers: { orderBy: { createdAt: 'desc' } },
-          realEstateOffers: { orderBy: { createdAt: 'desc' } },
-          commercialOffers: { orderBy: { createdAt: 'desc' } },
+          vehicleOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
+          realEstateOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
+          commercialOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
         },
       });
     } else if (role === 'company') {
       userData = await prisma.company.findFirst({
         where: { companyName: username },
         include: {
-          vehicleOffers: { orderBy: { createdAt: 'desc' } },
-          realEstateOffers: { orderBy: { createdAt: 'desc' } },
-          commercialOffers: { orderBy: { createdAt: 'desc' } },
+          vehicleOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
+          realEstateOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
+          commercialOffers: {
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+          },
         },
       });
     } else {
@@ -69,6 +102,10 @@ export async function GET(req: NextRequest) {
           vehicleOffers: userData.vehicleOffers || [],
           realEstateOffers: userData.realEstateOffers || [],
           commercialOffers: userData.commercialOffers || [],
+        },
+        pagination: {
+          page,
+          pageSize,
         },
       },
       { status: 200 }

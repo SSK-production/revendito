@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
     // On récup le token
-    const { id, username, entity,isBanned, banReason, banEndDate, accessToken } = await getUserFromRequest(req);
+    const { id, username, entity,isBanned, banReason, banEndDate, accessToken, active } = await getUserFromRequest(req);
     if (isBanned && banEndDate && banEndDate > new Date()) {
       // Si l'utilisateur est banni et la date de fin de bannissement n'est pas dépassée
       return NextResponse.json({
@@ -80,6 +80,13 @@ export async function POST(req: NextRequest) {
           banReason || "No reason specified"
         }. Ban will end on: ${banEndDate.toISOString()}.`,
       })
+    }
+
+    if (!active) {
+      return NextResponse.json({
+        error: "Inactive",
+        message: "Your account is inactive. Please contact the support team for more information.",
+      });
     }
     // Vérification si l'entité existe
     verifyId(id, entity);

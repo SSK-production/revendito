@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Commercial, Property, Vehicle } from "@/app/types";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -34,7 +35,7 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
       });
       console.log("Offer updated successfully:", response.data);
       alert("Offer updated successfully!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating offer:", error);
       throw new Error("Failed to update the offer.");
     }

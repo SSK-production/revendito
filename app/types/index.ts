@@ -80,3 +80,25 @@ export interface Property {
     createdAt: string;
     updatedAt: string;
   }
+
+  export interface ProfileData {
+      id: string;
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      companyName?: string;
+      role: string;
+      email: string;
+      emailVerified: boolean;
+      profilePicture?: string;
+      active: boolean;
+      city: string;
+      country: string;
+      street?: string;
+      birthDate?: string;
+      idCardVerified?: boolean;
+      companyNumber?: string;
+      isBanned?: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }
