@@ -1,4 +1,9 @@
 export interface Property {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     propertyType?: string;
     propertyCondition?: string;
     surface?: number;
@@ -24,6 +29,11 @@ export interface Property {
   }
 
   export interface Vehicle {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     vehicleType?: string;
     model?: string;
     year?: number;
@@ -42,6 +52,11 @@ export interface Property {
   }
 
   export interface Commercial {
+    title?: string;
+    description?: string;
+    price?: number;
+    city?: string;
+    country?: string;
     commercialType?: string;
     duration?: number;
     contractType?: string;
@@ -65,3 +80,25 @@ export interface Property {
     createdAt: string;
     updatedAt: string;
   }
+
+  export interface ProfileData {
+      id: string;
+      username?: string;
+      firstName?: string;
+      lastName?: string;
+      companyName?: string;
+      role: string;
+      email: string;
+      emailVerified: boolean;
+      profilePicture?: string;
+      active: boolean;
+      city: string;
+      country: string;
+      street?: string;
+      birthDate?: string;
+      idCardVerified?: boolean;
+      companyNumber?: string;
+      isBanned?: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }

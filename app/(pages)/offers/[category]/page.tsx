@@ -27,6 +27,7 @@ interface Offers {
   createdAt: string;
   updatedAt: string;
   active: boolean;
+  validated: boolean;
 }
 
 const Page: React.FC = () => {
@@ -78,6 +79,11 @@ const Page: React.FC = () => {
         <div className="flex-1 w-full p-5">
           <main className="flex flex-col min-h-f4/5">
             <div className="flex-1 mb-4">
+              {error && (
+                <div className="text-center text-red-500 mb-4">
+                  {error}
+                </div>
+              )}
               {isLoading ? (
                 <div className='space-y-8 gap-8'>
                   <OfferCardListSkeleton />
