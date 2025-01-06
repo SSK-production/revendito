@@ -121,9 +121,15 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
       >
         <UpdateProfileForm
           initialData={{
-            firstName: data.firstName,
-            lastName: data.lastName,
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
             email: data.email,
+            active: data.active,
+            birthDate: data.birthDate,
+            companyNumber: data.companyNumber,
+            city: data.city,
+            country: data.country,
+            street: data.street,
           }}
           onSave={handleSave}
           onCancel={() => setIsModalOpen(false)}
