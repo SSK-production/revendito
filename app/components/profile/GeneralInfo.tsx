@@ -1,5 +1,7 @@
 import { ProfileData } from "@/app/types";
-import React from "react";
+import React, { useState } from "react";
+import Modal from "./Modal";
+import UpdateProfileForm from "./UpdateProfileForm";
 
 interface GeneralInfoProps {
   data: ProfileData;
@@ -12,6 +14,27 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
   currentUserId,
   userId,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSave = (updatedData: { firstName: string; lastName: string; email: string }) => {
+    console.log("Updated profile data:", updatedData);
+    setIsModalOpen(false); // Ferme la modal après sauvegarde
+  };
+ 
+
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setUpdatedData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+
+  // const handleUpdate = () => {
+  //   console.log("Updated profile data:", updatedData);
+  //   setIsModalOpen(false); // Ferme la modal après soumission
+  // };
+
   return (
     <div className="bg-white p-4 rounded-md shadow-sm mb-6">
       <div className="flex justify-between items-center mb-3">
@@ -20,10 +43,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
         </h2>
         {currentUserId === userId && (
           <button
-            onClick={() => {
-              // Add your update logic here
-              console.log("Update profile data");
-            }}
+            onClick={() => setIsModalOpen(true)}
             className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             Update Profile
@@ -92,6 +112,23 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
                 Deactivate Account
             </button>
         )}
+
+        {/* Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Update Profile"
+      >
+        <UpdateProfileForm
+          initialData={{
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+          }}
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
       </div>
     </div>
   );
