@@ -100,6 +100,28 @@ export default function ProfilePage() {
     fetchData();
   }, [user, role]);
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+
+      try {
+        setLoading(true);
+        const response = await axios.get<{ user: ProfileData }>("/api/report", {
+          
+        });
+        console.log(response);
+        
+        
+      } catch {
+        setError("Account not found.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, role]);
+
   // Récupération des offres uniquement
   useEffect(() => {
     const fetchOffers = async () => {

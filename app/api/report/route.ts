@@ -7,39 +7,29 @@ const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    // Récupération de l'id, entity, et accessToken via le cookie
-    const { id, entity, accessToken } = await getUserFromRequest(req);
-
-    // Création de la réponse avec la mise à jour du cookie
-    const response = NextResponse.json(
-      { id, entity, accessToken },
-      { status: 201 }
-    );
-
-    // Mise à jour du cookie dans la réponse
-    response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Assure-toi que secure est vrai en production
-      maxAge: 3600, // 1 heure
-      sameSite: "strict",
-      path: "/",
-    });
-
-    return response; // Retourne la réponse avec les cookies mis à jour
+    const reports = await prisma.report.findMany();
+    if (!reports) {
+      return NextResponse.json(
+        { error: "Aucun rapport trouvé" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json(reports, { status: 200 });
   } catch (error: unknown) {
-    console.error("Erreur lors de la création du report:", error);
+    console.error("Erreur lors de la récupération des reports:", error);
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: "Erreur lors de la création du report: " + error.message },
+        { error: "Erreur lors de la récupération des reports: " + error.message },
         { status: 500 }
       );
     }
     return NextResponse.json(
-      { error: "Erreur inconnue lors de la création du report" },
+      { error: "Erreur inconnue lors de la récupération des reports" },
       { status: 500 }
     );
   }
 }
+
 
 export async function POST(req: NextRequest) {
   try {
