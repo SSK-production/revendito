@@ -67,7 +67,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
 
   const renderOffers = (offerList: Offers[], offerType: string) => {
     const filteredOffers = offerList.filter((offer) =>
-      currentUserId === userId ? !offer.validated : offer.validated
+      currentUserId === userId ? true : offer.validated
     );
     return (
       <section>
@@ -76,7 +76,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
             {filteredOffers.map((offer) => (
               <li
                 key={offer.id}
-                className="p-4 border border-gray-200 rounded-md hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                className="p-4 border border-gray-200 hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
               >
                 <div className="flex items-start space-x-4">
                   {offer.photos && offer.photos.length > 0 && (
@@ -122,9 +122,9 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
 
   return (
     <div className="space-y-8 p-4 sm:p-6 bg-white">
-      <h1 className="text-xl font-bold text-center md:text-left">
+      <h2 className="text-xl font-normal text-center md:text-left">
         {currentUserId === userId ? "Toutes vos offres" : "Offres disponibles"}
-      </h1>
+      </h2>
 
       {allOffersEmpty ? (
         <p className="text-gray-500">No offers available.</p>

@@ -208,6 +208,7 @@ export async function GET(req: Request) {
             entity: user.entity.toLocaleLowerCase(),
             role: user.role,
             active: user.active,
+            isBanned: user.isBanned,
           }),
           {
             status: 200,

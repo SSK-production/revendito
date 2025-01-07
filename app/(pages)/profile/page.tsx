@@ -16,6 +16,7 @@ interface Offer {
   city: string;
   country: string;
   active: boolean;
+  isBanned: boolean;
   validated: boolean;
   photos: string[];
   createdAt: string;
@@ -54,7 +55,7 @@ export default function ProfilePage() {
         });
 
         const data = await response.json();
-        console.log(data);
+        console.log(data.isBanned);
 
         if (response.status === 200) {
           setIsLogin(true);
@@ -74,7 +75,6 @@ export default function ProfilePage() {
     checkAuth();
   }, []);
 
-  // Récupération des informations générales (profil uniquement)
   useEffect(() => {
     const fetchData = async () => {
       if (!user || !role) {
@@ -90,6 +90,8 @@ export default function ProfilePage() {
         });
 
         setData(response.data.user);
+        console.log(response.data.user);
+        
       } catch {
         setError("Account not found.");
       } finally {
@@ -99,19 +101,13 @@ export default function ProfilePage() {
 
     fetchData();
   }, [user, role]);
-
 
   useEffect(() => {
     const fetchData = async () => {
-
       try {
         setLoading(true);
-        const response = await axios.get<{ user: ProfileData }>("/api/report", {
-          
-        });
+        const response = await axios.get<{ user: ProfileData }>("/api/report", {});
         console.log(response);
-        
-        
       } catch {
         setError("Account not found.");
       } finally {
@@ -122,7 +118,6 @@ export default function ProfilePage() {
     fetchData();
   }, [user, role]);
 
-  // Récupération des offres uniquement
   useEffect(() => {
     const fetchOffers = async () => {
       if (!user || !role) return;
@@ -156,65 +151,64 @@ export default function ProfilePage() {
     return <div className="text-center mt-10 text-red-500">Account not found.</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6">
       {data && (
-        <>
-          <ProfileHeader
-            data={data}
-            isLogin={isLogin}
-            showModal={showModal}
-            setShowModal={setShowModal}
+      <>
+        <ProfileHeader
+        data={data}
+        isLogin={isLogin}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        currentUserId={userId}
+        userId={data.id}
+        role={userrole}
+        />
+        <GeneralInfo data={data} currentUserId={userId} userId={data.id} />
+        {!data.isBanned && userOffers && (
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mt-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">User Offers</h2>
+          {loadingOffers ? (
+          <div className="text-center">Loading offers...</div>
+          ) : (
+          <UserOffers
+            offers={userOffers}
             currentUserId={userId}
             userId={data.id}
-            onBanUser={(userId) => console.log("Ban user:", userId)}
-            role={userrole}
           />
-          <GeneralInfo data={data} currentUserId={userId} userId={data.id} />
-          {!data.isBanned && userOffers && (
-            <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">User Offers</h2>
-              {loadingOffers ? (
-                <div className="text-center">Loading offers...</div>
-              ) : (
-                <UserOffers
-                  offers={userOffers}
-                  currentUserId={userId}
-                  userId={data.id}
-                />
-              )}
-            </div>
           )}
-        </>
-      )}
-      {userOffers && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page === 1}
-            className={`px-4 py-2 mx-1 border rounded ${
-              page === 1 ? "bg-gray-300" : "bg-blue-500 text-white"
-            }`}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={
-              userOffers.vehicleOffers.length < pageSize &&
-              userOffers.realEstateOffers.length < pageSize &&
-              userOffers.commercialOffers.length < pageSize
-            }
-            className={`px-4 py-2 mx-1 border rounded ${
-              userOffers.vehicleOffers.length < pageSize &&
-              userOffers.realEstateOffers.length < pageSize &&
-              userOffers.commercialOffers.length < pageSize
-                ? "bg-gray-300"
-                : "bg-blue-500 text-white"
-            }`}
-          >
-            Next
-          </button>
         </div>
+        )}
+      </>
+      )}
+      {!data?.isBanned && userOffers && (
+      <div className="flex justify-center mt-6">
+        <button
+        onClick={() => handlePageChange(page - 1)}
+        disabled={page === 1}
+        className={`px-4 py-2 mx-1 border rounded ${
+          page === 1 ? "bg-gray-300" : "bg-blue-500 text-white"
+        }`}
+        >
+        Previous
+        </button>
+        <button
+        onClick={() => handlePageChange(page + 1)}
+        disabled={
+          userOffers.vehicleOffers.length < pageSize &&
+          userOffers.realEstateOffers.length < pageSize &&
+          userOffers.commercialOffers.length < pageSize
+        }
+        className={`px-4 py-2 mx-1 border rounded ${
+          userOffers.vehicleOffers.length < pageSize &&
+          userOffers.realEstateOffers.length < pageSize &&
+          userOffers.commercialOffers.length < pageSize
+          ? "bg-gray-300"
+          : "bg-blue-500 text-white"
+        }`}
+        >
+        Next
+        </button>
+      </div>
       )}
     </div>
   );
