@@ -18,8 +18,16 @@ interface ReportModalProps {
   entity: string | null; // Ajout de l'argument entity ici
 }
 
+
+
 const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit, userId, offerId, offerTitle, offerCategory, entity }) => {
   const [reason, setReason] = useState<string>("");
+
+  const reporterUserId: ReportModalProps['userId'] = userId;
+  const reporterType: ReportModalProps['entity'] = entity;
+  console.log("reporterType = ",reporterType);
+  console.log("userId = ", reporterUserId);
+
 
   if (!isOpen) return null;
 
@@ -34,6 +42,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit, us
       return;
     }
   
+
     onSubmit(reason, userId, parseInt(offerId), offerTitle, offerCategory, entity); // Passez entity ici
     setReason(""); // Réinitialise le champ de texte après soumission
   };
