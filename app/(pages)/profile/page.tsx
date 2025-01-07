@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userrole, setUserRole] = useState<string | null>(null);
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(2);
@@ -61,6 +62,7 @@ export default function ProfilePage() {
           setIsLogin(true);
           setUserId(data.id);
           setUserRole(data.role);
+          setCurrentUsername(data.username);
         } else if (response.status === 401) {
           setIsLogin(false);
         } else {
@@ -160,6 +162,7 @@ export default function ProfilePage() {
         showModal={showModal}
         setShowModal={setShowModal}
         currentUserId={userId}
+        currentUsername={currentUsername}
         userId={data.id}
         role={userrole}
         />

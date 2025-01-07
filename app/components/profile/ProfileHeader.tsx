@@ -10,6 +10,7 @@ import { faBan, faMessage } from "@fortawesome/free-solid-svg-icons";
 interface ProfileHeaderProps {
   data: ProfileData;
   currentUserId: string | null;
+  currentUsername: string | null;
   userId: string;
   isLogin: boolean;
   showModal: boolean;
@@ -20,6 +21,7 @@ interface ProfileHeaderProps {
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   data,
   currentUserId,
+  currentUsername,
   isLogin,
   showModal,
   setShowModal,
@@ -30,7 +32,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     try {
       const response = await axios.post("/api/bans", {
         id: userId,
-        username: data.username,
+        username: currentUsername,
         type: "user", // ou "company" si nécessaire
         bannTitle: "Violation des règles",
         reason: ["Comportement inapproprié"],
