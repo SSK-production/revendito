@@ -30,8 +30,8 @@ model User {
   banCount         Int      @default(0)
   banReason        String[]  @default([])
   banEndDate       DateTime? @default(dbgenerated("NULL")) // Ou une autre valeur par défaut compatible avec SQL
-  bannedByUsername String?   @default("")
-  bannTitle        Json      @default("{}")
+  bannedByUsername String[]  @default([])
+  bannTitle        String[]  @default([])
   
 
   createdAt       DateTime @default(now())  // Date de création
@@ -75,8 +75,8 @@ model Company {
   banCount         Int      @default(0)
   banReason        String[]  @default([])
   banEndDate       DateTime? @default(dbgenerated("NULL")) // Ou une autre valeur par défaut compatible avec SQL
-  bannedByUsername String?   @default("")
-  bannTitle        Json      @default("{}")
+  bannedByUsername String[]  @default([])
+  bannTitle        String[]  @default([])
 
   bannedBy         String? 
 

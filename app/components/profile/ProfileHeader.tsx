@@ -1,11 +1,14 @@
 // Fichier : ProfileHeader.tsx
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import MessageModal from "@/app/components/Messages/MessageModal";
 import { ProfileData } from "@/app/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan, faMessage } from "@fortawesome/free-solid-svg-icons";
+import Modal from "./Modal";
+import BanUserForm from "../shared/BanUserForm";
+import { useNotifications } from "@/components/notifications";
 
 interface ProfileHeaderProps {
   data: ProfileData;
@@ -27,29 +30,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   setShowModal,
   role,
 }) => {
-  // Fonction pour bannir un utilisateur
-  const handleBanUser = async (userId: string) => {
-    try {
-      const response = await axios.post("/api/bans", {
-        id: userId,
-        username: currentUsername,
-        type: "user", // ou "company" si nécessaire
-        bannTitle: "Violation des règles",
-        reason: ["Comportement inapproprié"],
-        duration: 30, // Durée en jours
-      });
-
-      if (response.status === 200) {
-        alert("L'utilisateur a été banni avec succès.");
-      } else {
-        alert("Une erreur s'est produite lors du bannissement.");
-      }
-    } catch (error) {
-      console.error("Erreur lors du bannissement :", error);
-      alert("Impossible de bannir l'utilisateur. Veuillez réessayer.");
-    }
-  };
-
+  const [isModalOpenBanForm, setisModalOpenBanForm] = useState(false);
+  const { NotificationsComponent, addNotification } = useNotifications();
   return (
     <div className="flex flex-col md:flex-row items-center justify-between mb-6 space-y-4 md:space-y-0">
       <div className="flex flex-col md:flex-row items-center space-x-0 md:space-x-6 space-y-4 md:space-y-0">
@@ -87,10 +69,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </button>
         )}
 
-        {isLogin && data.id !== currentUserId && (role === "MODERATOR" || role === "ADMIN") && (
-          !data.isBanned ? (
+        {isLogin &&
+          data.id !== currentUserId &&
+          (role === "MODERATOR" || role === "ADMIN") &&
+          (!data.isBanned ? (
             <button
-              onClick={() => handleBanUser(data.id)}
+              onClick={() => setisModalOpenBanForm(true)}
               className="flex items-center justify-center space-x-2 text-white bg-red-500 hover:bg-red-700 p-2 rounded-full shadow-md transition duration-300"
             >
               <FontAwesomeIcon icon={faBan} />
@@ -101,9 +85,56 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <FontAwesomeIcon icon={faBan} />
               <span>Banned</span>
             </span>
-          )
-        )}
+          ))}
       </div>
+      {/* Modal */}
+      <Modal
+        isOpen={isModalOpenBanForm}
+        onClose={() => setisModalOpenBanForm(false)}
+        title="ban user"
+      >
+        <BanUserForm
+          initialData={{
+            id: data.id,
+            username: currentUsername || "",
+            type: "user",
+            bannTitle: "",
+            reason: "",
+            duration: "",
+          }}
+          onSave={async (updatedData) => {
+            try {
+              // Adapter les données pour correspondre à ce que l'API attend
+              const payload = {
+                id: data.id, // Remplacez par l'identifiant de l'utilisateur ou de l'entreprise à bannir
+                username: currentUsername, // Facultatif selon votre cas d'usage
+                type: "user", // ou "company"
+                bannTitle: [updatedData.bannTitle],
+                reason: [updatedData.reason],
+                duration: parseInt(updatedData.duration, 10), // Convertir en nombre (jours)
+              };
+
+              const response = await axios.patch("/api/bans", payload);
+              console.log("Response from server:", response.data);
+
+              addNotification({
+                message: "user banned successfully",
+                variant: "success",
+                duration: 7000,
+              });
+              setisModalOpenBanForm(false); // Fermer la modale après succès
+            } catch (error) {
+              console.error("Error while sending data:", error);
+                addNotification({
+                message: "An error occurred while banning the user. Please try again.",
+                variant: "error",
+                duration: 7000,
+                });
+            }
+          }}
+          onCancel={() => setisModalOpenBanForm(false)} // Ferme la modale en cas d'annulation
+        />
+      </Modal>
       <MessageModal
         show={showModal}
         handleClose={() => setShowModal(false)}
@@ -112,6 +143,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         offerType={""}
         otherPersonName={data?.username || data?.companyName || "User"}
       />
+      <NotificationsComponent />
     </div>
   );
 };

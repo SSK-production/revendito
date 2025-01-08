@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 
 type BanRequest = {
   id: string;
-  username: string;
+  username: string[];
   type: 'user' | 'company';
   reason: string[];
-  bannTitle: string;
+  bannTitle: string[];
   duration: number; // Durée en jours
 };
 
@@ -19,9 +19,10 @@ function isValidRole(role: string | null): boolean {
 }
 
 // Bannir un utilisateur ou une entreprise
-export async function POST(req: NextRequest): Promise<Response> {
+
+export async function PATCH(req: NextRequest): Promise<Response> {
   try {
-    // Récupération de l'utilisateur connecté
+    // Récupérer l'utilisateur connecté
     const user = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json({ error: 'Utilisateur non authentifié.' }, { status: 401 });
@@ -32,17 +33,18 @@ export async function POST(req: NextRequest): Promise<Response> {
       where: { id: user.id },
       select: { role: true },
     });
+
     if (!currentUser || !isValidRole(currentUser.role)) {
       return NextResponse.json({ error: 'Accès non autorisé.' }, { status: 403 });
     }
 
-    // Lecture et validation des données
-    const body: BanRequest = await req.json();
-    const { id, username, type, bannTitle, reason, duration } = body;
+    // Lire les données envoyées dans le corps de la requête
+    const body = await req.json();
+    const { id, bannTitle, reason, duration, type } = body;
 
-    if (!id || !username || !type || !bannTitle || !reason || typeof duration !== 'number' || duration <= 0) {
+    if (!id || !bannTitle || !reason || typeof duration !== 'number' || duration <= 0 || !type) {
       return NextResponse.json(
-        { error: 'Données invalides : id, username, ban title, type, raison et durée sont requis.' },
+        { error: 'Données invalides : id, bannTitle, reason, duration et type sont requis.' },
         { status: 400 }
       );
     }
@@ -50,17 +52,47 @@ export async function POST(req: NextRequest): Promise<Response> {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + duration);
 
-    // Logique de bannissement
     if (type === 'user') {
+      // Récupérer les données existantes pour l'utilisateur
+      const existingUser = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          bannTitle: true,
+          banReason: true,
+          bannedByUsername: true,
+        },
+      });
+
+      if (!existingUser) {
+        return NextResponse.json({ error: 'Utilisateur introuvable.' }, { status: 404 });
+      }
+
+      // Fusionner les données existantes avec les nouvelles
+      
+      const updatedBanTitle = existingUser.bannTitle
+        ? [...existingUser.bannTitle, ...bannTitle]
+        : bannTitle;
+
+      const updatedBanReason = existingUser.banReason
+        ? [...existingUser.banReason, ...reason]
+        : reason;
+
+        const updatedBannedByUsername = existingUser.bannedByUsername
+        ? [...existingUser.bannedByUsername, user.username]
+        : [user.username];
+
+      
+
+      // Mettre à jour l'utilisateur
       await prisma.user.update({
         where: { id },
         data: {
           isBanned: true,
           banCount: { increment: 1 },
-          banReason: reason,
-          bannedByUsername: username,
-          bannTitle: bannTitle,
+          banReason: updatedBanReason,
+          bannTitle: updatedBanTitle,
           banEndDate: endDate,
+          bannedByUsername: updatedBannedByUsername,
           bannedBy: user.id,
         },
       });
@@ -77,16 +109,40 @@ export async function POST(req: NextRequest): Promise<Response> {
         }),
         prisma.commercialOffer.updateMany({
           where: { userId: id },
-          data: {userIsBanned: true },
+          data: { userIsBanned: true },
         }),
       ]);
     } else if (type === 'company') {
+      // Récupérer les données existantes pour l'entreprise
+      const existingCompany = await prisma.company.findUnique({
+        where: { id },
+        select: {
+          bannTitle: true,
+          banReason: true,
+        },
+      });
+
+      if (!existingCompany) {
+        return NextResponse.json({ error: 'Entreprise introuvable.' }, { status: 404 });
+      }
+
+      // Fusionner les données existantes avec les nouvelles
+      const updatedBanTitle = existingCompany.bannTitle
+        ? `${existingCompany.bannTitle}, ${bannTitle}`
+        : bannTitle;
+
+      const updatedBanReason = existingCompany.banReason
+        ? [...existingCompany.banReason, ...reason]
+        : reason;
+
+      // Mettre à jour l'entreprise
       await prisma.company.update({
         where: { id },
         data: {
           isBanned: true,
           banCount: { increment: 1 },
-          banReason: reason,
+          banReason: updatedBanReason,
+          bannTitle: updatedBanTitle,
           banEndDate: endDate,
           bannedBy: user.id,
         },
@@ -111,13 +167,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       return NextResponse.json({ error: 'Type invalide (user ou company requis).' }, { status: 400 });
     }
 
-    // Réponse en cas de succès
     return NextResponse.json({ message: 'Bannissement appliqué avec succès.' });
-  } catch (error: unknown) {
-    console.error('Erreur lors du traitement du bannissement :', error);
-    return NextResponse.json({ error: 'Erreur serveur, veuillez réessayer plus tard.' }, { status: 500 });
+  } catch (error) {
+    console.error('Erreur lors du bannissement :', error);
+    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   } finally {
-    // Fermer le client Prisma pour éviter les fuites de mémoire
     await prisma.$disconnect();
   }
 }
