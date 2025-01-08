@@ -2,28 +2,30 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Header() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [username, setUsername] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [entity, setEntity] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth", {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await axios.get("/api/auth", { withCredentials: true });
 
-        if (response.ok) {
-          const data = await response.json();
+        if (response.status === 200) {
+          const data = response.data;
           console.log(data);
-          
+
           setIsLogin(true);
           setUsername(data.username);
-          setRole(data.entity);
+          setEntity(data.entity);
+          setRole(data.role);
+          console.log(data.role);
+          
         } else {
           setIsLogin(false);
         }
@@ -184,7 +186,7 @@ export default function Header() {
                   >
                     <li>
                       <Link
-                        href={`/profile?user=${username}&role=${role}`}
+                        href={`/profile?user=${username}&role=${entity}`}
                         className="block px-4 py-2 hover:bg-blue-100"
                       >
                         Profile
@@ -199,6 +201,19 @@ export default function Header() {
                         Messages
                       </Link>
                     </li>
+                    {role === "MODERATOR" || role === "ADMIN" ? (
+                      <>
+                        <li>
+                          <hr className="border-orange-200" />
+                          <Link
+                            href="/home"
+                            className="block px-4 py-2 hover:bg-yellow-100"
+                          >
+                            Administration
+                          </Link>
+                        </li>
+                      </>
+                    ) : null}
                     <li>
                       <hr className="border-orange-200" />
                       <button
