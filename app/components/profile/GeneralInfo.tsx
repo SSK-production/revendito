@@ -6,28 +6,44 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UpdateEmailForm from "./UpdateEmailForm";
 import ChangePasswordForm from "./ChangePasswordForm";
+import axios from "axios";
 
 interface GeneralInfoProps {
   data: ProfileData;
   currentUserId: string | null;
   userId: string;
+  entity: string | null;
 }
 
 const GeneralInfo: React.FC<GeneralInfoProps> = ({
   data,
   currentUserId,
   userId,
+  entity
 }) => {
   const [isModalOpenGeneralInfo, setIsModalOpenGeneralInfo] = useState(false);
   const [isModalOpenAccount, setIsModalOpenAccount] = useState(false);
   const [isModalOpenPassword, setIsModalOpenPassword] = useState(false);
-
-  const handleSave = (updatedData: {
-    firstName: string;
-    lastName: string;
+  console.log(data);
+  
+  const handleSave = async (updatedData: {
+    username?: string | null;
+    companyName?: string | null;
+    firstName?: string;
+    lastName?: string;
+    birthDate?: string;
+    companyNumber?: string;
+    city?: string;
+    country?: string;
+    street?: string;
   }) => {
-    console.log("Updated profile data:", updatedData);
-    setIsModalOpenGeneralInfo(false); // Close the modal after saving
+    try {
+      const response = await axios.put(`/api/profileUpdate`, updatedData);
+      console.log("Updated profile data:", response.data);
+      setIsModalOpenGeneralInfo(false); // Close the modal after saving
+    } catch (error) {
+      console.error("Error updating profile data:", error);
+    }
   };
 
   const handleSaveAccount = (updatedData: {
@@ -60,13 +76,16 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
           )}
         </div>
         <div className="space-y-2 text-gray-600">
-          <p>
+          {data.firstName && (
+            <p>
             <strong>Firstname:</strong> {data.firstName}
           </p>
-          <p>
-            <strong>Lastname:</strong> {data.lastName}
-          </p>
-
+          )}
+          {data.lastName && (
+            <p>
+              <strong>Lastname:</strong> {data.lastName}
+            </p>
+          )}
           {data.birthDate && (
             <p>
               <strong>Birth Date:</strong>{" "}
@@ -100,6 +119,9 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
           >
             <UpdateProfileForm
               initialData={{
+                entity: entity || "",
+                username: data.username,
+                companyName: data.companyName,
                 firstName: data.firstName || "",
                 lastName: data.lastName || "",
                 birthDate: data.birthDate,
@@ -164,6 +186,17 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               Deactivate Account
+            </button>
+          )}
+          {!data.active && currentUserId === userId && (
+            <button
+              onClick={() => {
+                // Add your deactivate account logic here
+                console.log("Activate account");
+              }}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              Activate Account
             </button>
           )}
         </div>

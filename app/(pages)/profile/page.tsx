@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userrole, setUserRole] = useState<string | null>(null);
+  const [entity, setEntity] = useState<string | null>(null);
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
@@ -63,6 +64,7 @@ export default function ProfilePage() {
           setUserId(data.id);
           setUserRole(data.role);
           setCurrentUsername(data.username);
+          setEntity(data.entity);
         } else if (response.status === 401) {
           setIsLogin(false);
         } else {
@@ -165,8 +167,9 @@ export default function ProfilePage() {
         currentUsername={currentUsername}
         userId={data.id}
         role={userrole}
+        entity={entity}
         />
-        <GeneralInfo data={data} currentUserId={userId} userId={data.id} />
+        <GeneralInfo data={data} currentUserId={userId} userId={data.id} entity={entity} />
         {!data.isBanned && userOffers && (
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mt-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">User Offers</h2>

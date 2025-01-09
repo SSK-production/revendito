@@ -2,6 +2,8 @@
 import { Commercial, Property, Vehicle } from "@/app/types";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNotifications } from "@/components/notifications";
+
 
 interface UpdateOfferProps {
   offerId: number;
@@ -15,6 +17,8 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState<string>(""); // Champ pour le mot de passe
   const [globalError, setGlobalError] = useState<string | null>(null); // Erreur globale
+  const { NotificationsComponent, addNotification } = useNotifications();
+  
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -30,17 +34,24 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
 
   const updateOffer = async (id: number, type: string, data: Record<string, any>) => {
     try {
-      const response = await axios.put(`/api/updateOffer`, {
-        id,
+      await axios.put(`/api/updateOffer`,  {
+        offerId : id,
         offerType: type,
         data,
         password, // Inclure le mot de passe dans la requête
+      }, { withCredentials: true });
+      addNotification({
+        message: "Offer updated successfully!",
+        variant: "success",
+        duration: 3000,
       });
-      console.log("Offer updated successfully:", response.data);
-      alert("Offer updated successfully!");
+      setTimeout(() => onClose(), 3000); // Fermer la modal après une mise à jour réussie
     } catch (error: unknown) {
-      console.error("Error updating offer:", error);
-      throw new Error("Failed to update the offer.");
+      addNotification({
+        message: error instanceof Error ? error.message : "An error occurred while updating the offer.",
+        variant: "error",
+        duration: 7000,
+        });
     }
   };
 
@@ -49,19 +60,27 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
     setGlobalError(null); // Réinitialiser l'erreur globale
     try {
       if (!offer) {
-        showGlobalError("No offer data available for update.");
+        addNotification({
+          message: "No offer data available for update.",
+          variant: "error",
+          duration: 7000,
+          });
         return;
       }
 
       if (!password) {
-        showGlobalError("Password is required.");
+        addNotification({
+          message: "Password is required.",
+          variant: "error",
+          duration: 7000,
+          });
         return;
       }
 
       // Appeler la fonction updateOffer
       await updateOffer(offerId, offerType, offer);
 
-      onClose(); // Fermer la modal après une mise à jour réussie
+      // onClose(); // Fermer la modal après une mise à jour réussie
     } catch {
       showGlobalError("An error occurred while updating the offer.");
     } finally {
@@ -125,6 +144,7 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
           </button>
         </div>
         <div className="p-4 bg-white h-[70vh] overflow-y-auto grid grid-cols-1 gap-4 w-3/4 mx-auto">
+        <NotificationsComponent />
           {renderForm()}
           <div>
             <label className="block text-sm font-medium text-gray-700">Password</label>
@@ -155,6 +175,7 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
           </button>
         </div>
       </div>
+      
     </div>
   );
 };

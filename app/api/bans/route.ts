@@ -4,15 +4,6 @@ import { getUserFromRequest } from '@/app/lib/tokenManager';
 
 const prisma = new PrismaClient();
 
-type BanRequest = {
-  id: string;
-  username: string[];
-  type: 'user' | 'company';
-  reason: string[];
-  bannTitle: string[];
-  duration: number; // Durée en jours
-};
-
 // Vérifier si un rôle est valide
 function isValidRole(role: string | null): boolean {
   return role === 'ADMIN' || role === 'MODERATOR';

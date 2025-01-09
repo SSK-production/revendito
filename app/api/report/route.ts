@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const reports = await prisma.report.findMany();
     if (!reports) {
@@ -105,8 +105,12 @@ export async function POST(req: Request) {
 
     // Retour de la réponse avec le signalement créé
     return NextResponse.json(report);
-  } catch (error: any) {
-    console.error('Erreur lors de la création du signalement:', error.message);
+  } catch (error: unknown) {
+    console.error('Erreur lors de la création du signalement:', error);
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: 'Erreur lors de la création du signalement: ' + error.message }, { status: 500 });
+    }
 
     // Gestion des erreurs générales
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });

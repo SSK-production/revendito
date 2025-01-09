@@ -18,6 +18,7 @@ interface ProfileHeaderProps {
   isLogin: boolean;
   showModal: boolean;
   role: string | null;
+  entity: string | null;
   setShowModal: (value: boolean) => void;
 }
 
@@ -29,6 +30,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   showModal,
   setShowModal,
   role,
+  entity
 }) => {
   const [isModalOpenBanForm, setisModalOpenBanForm] = useState(false);
   const { NotificationsComponent, addNotification } = useNotifications();
@@ -54,7 +56,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               ? `${data.username}`
               : data.companyName || data.username || "User"}
           </h1>
-          <p className="text-gray-500">{data.role}</p>
+          <p className="text-gray-500">{entity}</p>
         </div>
       </div>
 

@@ -52,9 +52,9 @@ export async function POST(request: NextRequest) {
       data: updatedOffer,
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erreur:", error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
   } finally {
     // Ferme la connexion Prisma
     await prisma.$disconnect();

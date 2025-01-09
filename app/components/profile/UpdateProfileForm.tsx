@@ -2,8 +2,11 @@ import React, { useState } from "react";
 
 interface UpdateProfileFormProps {
   initialData: {
-    firstName: string;
-    lastName: string;
+    entity: string;
+    username?: string | null;
+    companyName?: string | null;
+    firstName?: string;
+    lastName?: string;
     birthDate?: string;
     companyNumber?: string;
     city: string;
@@ -11,8 +14,11 @@ interface UpdateProfileFormProps {
     street?: string;
   };
   onSave: (updatedData: {
-    firstName: string;
-    lastName: string;
+    entity: string;
+    username?: string | null;
+    companyName?: string | null;
+    firstName?: string;
+    lastName?: string;
     birthDate?: string;
     companyNumber?: string;
     city: string;
@@ -61,19 +67,50 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         {/* Champs du profil */}
+        {formData.entity === 'user' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username || ""}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+          </div>
+        )}
+        {formData.entity === 'company' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Company Name
+            </label>
+            <input
+              type="text"
+              name="companyName"
+              value={formData.companyName || ""}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+            />
+          </div>
+        )}
+        {formData.entity === 'user' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Firstname
-          </label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
-        </div>
-        <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Firstname
+        </label>
+        <input
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+        />
+      </div>  
+        )}
+        {formData.entity === 'user' &&(
+          <div>
           <label className="block text-sm font-medium text-gray-700">
             Lastname
           </label>
@@ -85,6 +122,8 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
+        )}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Birth Date
@@ -97,7 +136,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
-        {formData.companyNumber && (
+        {formData.entity === 'company' && (
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Company Number
@@ -133,7 +172,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
-        {formData.street && (
+        {formData.entity === 'company' && (
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Street
