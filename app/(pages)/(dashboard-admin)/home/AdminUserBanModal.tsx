@@ -19,8 +19,8 @@ interface BannedUser {
     banReason: string[];
     banEndDate: string;
     banCount: number;
-    bannTitle: string; // bannTitle est une chaîne JSON
-    bannedByUsername: string;
+    bannTitle: string[];
+    bannedByUsername: string[];
 }
 
 function useMediaQuery(query: string): boolean {
@@ -50,21 +50,19 @@ const UserCard: React.FC<{
     toggleExpand: () => void;
     isDesktop: boolean;
 }> = ({ user, isExpanded, toggleExpand, isDesktop }) => {
-    let bannTitle: string = 'Unknown reason';
-
-    // Tenter de convertir bannTitle (qui est une chaîne JSON) en objet
+    // Assurez-vous que bannTitle est un tableau
+    let bannTitles: string[] = [];
     try {
-        const parsedBannTitle = JSON.parse(user.bannTitle);
-        if (typeof parsedBannTitle === 'object' && parsedBannTitle !== null) {
-            bannTitle = parsedBannTitle.super || 'Unknown reason'; // Exemple: on prend la clé 'super' si elle existe
-        }
-    } catch (e) {
-        // Si l'analyse échoue, on laisse 'Unknown reason'
+        bannTitles = Array.isArray(user.bannTitle)
+            ? user.bannTitle
+            : JSON.parse(user.bannTitle || '[]');
+    } catch {
+        bannTitles = []; // Valeur par défaut en cas d'erreur de parsing
     }
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4 border border-red-300">
-            <div className="flex justify-between items-center p-4 bg-gray-50 ">
+            <div className="flex justify-between items-center p-4 bg-gray-50">
                 <div className="flex items-center space-x-3">
                     <Image
                         src="/icons/mobil-dashboard/ban-user.svg"
@@ -93,8 +91,8 @@ const UserCard: React.FC<{
                 <div className="p-4 space-y-4">
                     <div className="flex flex-col md:flex-row md:space-x-4">
                         <div className="flex-1 space-y-4">
-                            <p className='w-fit border border-b-gray-400'>
-                                <strong className="font-semibold "> General Informations</strong>
+                            <p className="w-fit border border-b-gray-400">
+                                <strong className="font-semibold">General Informations</strong>
                             </p>
                             <div className="flex space-x-4">
                                 <div className="flex-1 bg-gray-300 p-3 rounded-lg text-center">
@@ -127,7 +125,7 @@ const UserCard: React.FC<{
                         <div className="flex-1 mt-4 md:mt-0">
                             <h3 className="text-lg font-semibold mb-2 border border-b-gray-400 w-fit">Ban Reasons</h3>
                             <div className="space-y-2">
-                                {user.banReason.map((reason, index) => (
+                                {bannTitles.map((title, index) => (
                                     <div key={index} className="bg-gray-300 p-3 rounded-lg">
                                         <div className="flex items-center space-x-2 mb-1">
                                             <Image
@@ -136,11 +134,11 @@ const UserCard: React.FC<{
                                                 height={16}
                                                 alt="Warning"
                                             />
-                                            <h4 className="font-semibold">{bannTitle}</h4> {/* Affichage de bannTitle */}
+                                            <h4 className="font-semibold">{title}</h4>
                                         </div>
-                                        <p className="text-sm text-gray-600">{reason}</p>
+                                        <p className="text-sm text-gray-600">{user.banReason[index] || "No reason provided"}</p>
                                         <p className="text-xs text-right text-red-600 mt-1">
-                                            Banned by: {user.bannedByUsername}
+                                            Banned by: {user.bannedByUsername[index] || "Unknown"}
                                         </p>
                                     </div>
                                 ))}
@@ -153,10 +151,11 @@ const UserCard: React.FC<{
     );
 };
 
+
 const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [expandedUserId, setExpandedUserId] = useState<string | null>(null); // Changer ici à string | null
+    const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -184,7 +183,7 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
             .includes(searchTerm.toLowerCase())
     );
 
-    const toggleExpand = (userId: string) => { // Utiliser string ici aussi
+    const toggleExpand = (userId: string) => {
         setExpandedUserId(expandedUserId === userId ? null : userId);
     };
 
