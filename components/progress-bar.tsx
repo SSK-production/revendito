@@ -7,7 +7,7 @@ const progressBarVariants = cva("h-1 w-full transition-all", {
   variants: {
     variant: {
       default: "bg-primary",
-      success: "bg-success",
+      success: "bg-green-500",
       error: "bg-destructive",
       warning: "bg-warning",
     },

@@ -5,10 +5,36 @@ const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    // Récupérer les données des trois tables
-    const commercialOffer = await prisma.commercialOffer.findMany();
-    const realEstateOffer = await prisma.realEstateOffer.findMany();
-    const vehicleOffer = await prisma.vehicleOffer.findMany();
+    // Récupérer le paramètre 'validation' de la requête
+    const { searchParams } = new URL(req.url);
+    const validation = searchParams.get('validation');
+
+    // Préparer les filtres pour chaque type d'offre
+    let vehicleOfferFilter: any = {};
+    let realEstateOfferFilter: any = {};
+    let commercialOfferFilter: any = {};
+
+    // Si un filtre de validation est spécifié, ajoutez-le au filtre de chaque type d'offre
+    if (validation === "validated") {
+      vehicleOfferFilter = { validated: true };
+      realEstateOfferFilter = { validated: true };
+      commercialOfferFilter = { validated: true };
+    } else if (validation === "notValidated") {
+      vehicleOfferFilter = { validated: false };
+      realEstateOfferFilter = { validated: false };
+      commercialOfferFilter = { validated: false };
+    }
+
+    // Récupérer les données des trois tables avec les filtres appliqués
+    const commercialOffer = await prisma.commercialOffer.findMany({
+      where: commercialOfferFilter,
+    });
+    const realEstateOffer = await prisma.realEstateOffer.findMany({
+      where: realEstateOfferFilter,
+    });
+    const vehicleOffer = await prisma.vehicleOffer.findMany({
+      where: vehicleOfferFilter,
+    });
 
     // Fusionner les données en ajoutant un paramètre typeOffers
     const allOffers = [

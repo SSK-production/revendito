@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Commercial, Property, Vehicle } from "@/app/types";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNotifications } from "@/components/notifications";
+
 
 interface UpdateOfferProps {
   offerId: number;
@@ -12,6 +15,10 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
   const [offer, setOffer] = useState<Record<string, any> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState<string>(""); // Champ pour le mot de passe
+  const [globalError, setGlobalError] = useState<string | null>(null); // Erreur globale
+  const { NotificationsComponent, addNotification } = useNotifications();
+  
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -27,36 +34,64 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
 
   const updateOffer = async (id: number, type: string, data: Record<string, any>) => {
     try {
-      const response = await axios.put(`/api/updateOffer`, {
-        id,
+      await axios.put(`/api/updateOffer`,  {
+        offerId : id,
         offerType: type,
         data,
+        password, // Inclure le mot de passe dans la requête
+      }, { withCredentials: true });
+      addNotification({
+        message: "Offer updated successfully!",
+        variant: "success",
+        duration: 3000,
       });
-      console.log("Offer updated successfully:", response.data);
-      alert("Offer updated successfully!");
-    } catch (error: any) {
-      console.error("Error updating offer:", error);
-      throw new Error("Failed to update the offer.");
+      setTimeout(() => onClose(), 3000); // Fermer la modal après une mise à jour réussie
+    } catch (error: unknown) {
+      addNotification({
+        message: error instanceof Error ? error.message : "An error occurred while updating the offer.",
+        variant: "error",
+        duration: 7000,
+        });
     }
   };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setGlobalError(null); // Réinitialiser l'erreur globale
     try {
       if (!offer) {
-        alert("No offer data available for update.");
+        addNotification({
+          message: "No offer data available for update.",
+          variant: "error",
+          duration: 7000,
+          });
+        return;
+      }
+
+      if (!password) {
+        addNotification({
+          message: "Password is required.",
+          variant: "error",
+          duration: 7000,
+          });
         return;
       }
 
       // Appeler la fonction updateOffer
       await updateOffer(offerId, offerType, offer);
 
-      onClose(); // Fermer la modal après une mise à jour réussie
+      // onClose(); // Fermer la modal après une mise à jour réussie
     } catch {
-      alert("An error occurred while updating the offer.");
+      showGlobalError("An error occurred while updating the offer.");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Fonction pour afficher une erreur globale avec expiration automatique
+  const showGlobalError = (message: string) => {
+    setGlobalError(message);
+    setTimeout(() => setGlobalError(null), 3000); // Effacer le message après 5 secondes
   };
 
   const renderForm = () => {
@@ -91,7 +126,14 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full overflow-hidden transform transition-all duration-300">
+      <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full overflow-hidden transform transition-all duration-300 relative">
+        {/* Message d'erreur global toujours visible */}
+        {globalError && (
+          <div className="absolute top-0 left-0 w-full bg-red-500 text-white text-center py-2 z-50">
+            {globalError}
+          </div>
+        )}
+
         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 bg-blue-600 text-white w-full">
           <h3 className="text-lg font-semibold">Update Offer</h3>
           <button
@@ -102,7 +144,19 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
           </button>
         </div>
         <div className="p-4 bg-white h-[70vh] overflow-y-auto grid grid-cols-1 gap-4 w-3/4 mx-auto">
+        <NotificationsComponent />
           {renderForm()}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 border-gray-300 focus:ring-green-400"
+              placeholder="Enter your password to confirm changes"
+              required
+            />
+          </div>
         </div>
         <div className="p-4 border-t border-gray-200 bg-green-100 w-full">
           <button
@@ -121,52 +175,72 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
           </button>
         </div>
       </div>
+      
     </div>
   );
 };
 
-const FormField: React.FC<{
+interface FormFieldProps {
   label: string;
   type: string;
   value: string | number | boolean;
   error?: string;
   onChange: (value: string | number | boolean) => void;
-}> = ({ label, type, value, error, onChange }) => (
-  <label className="block text-center">
-    <span className="text-gray-700 font-medium">{label}</span>
+}
+
+const FormField: React.FC<FormFieldProps> = ({
+  label,
+  type,
+  value,
+  error,
+  onChange,
+}) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700">
+      {label}
+    </label>
     {type === "textarea" ? (
       <textarea
         value={value as string}
         onChange={(e) => onChange(e.target.value)}
-        className={`mt-1 block w-3/4 mx-auto border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300 transition-all duration-150 ${
-          error ? "border-red-500 focus:ring-red-200 focus:border-red-300" : ""
+        className={`w-full px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-400"
+            : "border-gray-300 focus:ring-green-400"
         }`}
         rows={4}
       ></textarea>
     ) : type === "checkbox" ? (
-      <input
-        type="checkbox"
-        checked={!!value} // Utilisation de `checked` pour synchroniser la case
-        onChange={(e) => onChange(e.target.checked)}
-        className={`mt-1 block w-6 h-6 mx-auto border-gray-300 rounded shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300 transition-all duration-150 ${
-          error ? "border-red-500 focus:ring-red-200 focus:border-red-300" : ""
-        }`}
-      />
+      <div className="flex items-center mt-1">
+        <input
+          type="checkbox"
+          checked={!!value}
+          onChange={(e) => onChange(e.target.checked)}
+          className={`h-5 w-5 rounded focus:ring-2 ${
+            error
+              ? "border-red-500 focus:ring-red-400"
+              : "border-gray-300 focus:ring-green-400"
+          }`}
+        />
+        <span className="ml-2 text-sm text-gray-700">{label}</span>
+      </div>
     ) : (
       <input
         type={type}
         value={value as string | number | readonly string[] | undefined}
-        onChange={(e) =>
-          onChange(type === "checkbox" ? e.target.checked : e.target.value)
-        }
-        className={`mt-1 block w-3/4 mx-auto border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300 transition-all duration-150 ${
-          error ? "border-red-500 focus:ring-red-200 focus:border-red-300" : ""
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 ${
+          error
+            ? "border-red-500 focus:ring-red-400"
+            : "border-gray-300 focus:ring-green-400"
         }`}
       />
     )}
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-  </label>
+    {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+  </div>
 );
+
+
 
 
 

@@ -124,6 +124,7 @@ export async function POST(req: Request) {
         isBanned: user.isBanned,
         banReason: user.banReason,
         banEndDate: user.banEndDate,
+        active: user.active,
       },
       ACCESS_TOKEN_SECRET,
       { expiresIn: "3h" }
@@ -140,6 +141,7 @@ export async function POST(req: Request) {
         isBanned: user.isBanned,
         banReason: user.banReason,
         banEndDate: user.banEndDate,
+        active: user.active,
       },
       REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
@@ -204,6 +206,9 @@ export async function GET(req: Request) {
             id: user.id,
             banEndDate: user.banEndDate,
             entity: user.entity.toLocaleLowerCase(),
+            role: user.role,
+            active: user.active,
+            isBanned: user.isBanned,
           }),
           {
             status: 200,

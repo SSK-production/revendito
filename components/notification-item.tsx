@@ -10,8 +10,8 @@ const notificationVariants = cva(
     variants: {
       variant: {
         default: "bg-background text-foreground",
-        success: "bg-success/15 text-success-foreground",
-        error: "bg-destructive/15 text-destructive-foreground",
+        success: "bg-green-100 text-success-foreground",
+        error: "bg-destructive/15 text-red-500",
         warning: "bg-warning/15 text-warning-foreground",
       },
     },

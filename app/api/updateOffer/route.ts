@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, Prisma } from '@prisma/client';
+import { getUserFromRequest } from '@/app/lib/tokenManager';
+import bcrypt from "bcrypt";
 
 
 // Singleton pour Prisma
@@ -15,20 +17,50 @@ const getPrismaInstance = (() => {
 
 export async function PUT(req: NextRequest) {
     try {
-        const { id, data, offerType } = await req.json();
+        const { offerId, data, offerType, password } = await req.json();
+
+        const {id, entity,  accessToken, active} = await getUserFromRequest(req);
+
+        if (!id) {
+            return NextResponse.json({ error: 'Utilisateur non authentifié.' }, { status: 401 });
+        }
+        if (!active) {
+            return NextResponse.json({ error: 'Utilisateur non activé.' }, { status: 401 });  
+        }
+        
 
         // Log des données reçues
-        console.log("Received data:", { id, data, offerType });
+        console.log("Received data: ", { offerId, data, offerType } + " user id : ", id);
 
         const prisma = getPrismaInstance();
 
+        if (entity === 'user') {
+            const user = await prisma.user.findUnique({
+            where: { id: id },
+            });
+
+            if (!user || !(await bcrypt.compare(password, user.password))) {
+            return NextResponse.json({ error: 'Mot de passe incorrect.' }, { status: 401 });
+            }
+        }
+        
+        if (entity === 'company') {
+            const company = await prisma.company.findUnique({
+            where: { id: id },
+            });
+
+            if (!company || !(await bcrypt.compare(password, company.password))) {
+            return NextResponse.json({ error: 'Mot de passe incorrect.' }, { status: 401 });
+            }
+        }
+
         let updatedOffer;
-        console.log("id", id + "data", data + "offerType", offerType);
+        console.log("id", offerId + " price : ", data.price + " offerType ", offerType);
         
         // Vérifie le type d'offre et appelle le modèle approprié
         if (offerType === 'vehicle') {
             updatedOffer = await prisma.vehicleOffer.update({
-                where: { id: Number(id) },
+                where: { id: Number(offerId) },
                 data: {
                     title : data.title,
                     description : data.description,
@@ -54,7 +86,7 @@ export async function PUT(req: NextRequest) {
             });
         } else if (offerType === 'commercial') {
             updatedOffer = await prisma.commercialOffer.update({
-                where: { id: Number(id) },
+                where: { id: Number(offerId) },
                 data: {
                     title : data.title,
                     description : data.description,
@@ -72,7 +104,7 @@ export async function PUT(req: NextRequest) {
             });
         } else if (offerType === 'property') {
             updatedOffer = await prisma.realEstateOffer.update({
-                where: { id: Number(id) },
+                where: { id: Number(offerId) },
                 data: {
                     title : data.title,
                     description : data.description,
@@ -110,7 +142,16 @@ export async function PUT(req: NextRequest) {
             );
         }
 
-        return NextResponse.json(updatedOffer, { status: 200 });
+        const response = NextResponse.json(updatedOffer, { status: 200 });
+        response.cookies.set("access_token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 3600,
+            sameSite: "strict",
+            path: "/",
+          });
+      
+          return response;
     } catch (error: unknown) {
         console.error('Error:', error);
 

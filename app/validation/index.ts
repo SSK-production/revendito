@@ -575,40 +575,17 @@ export const commercialOfferSchema = Joi.object({
     }),
 });
 
-const ReporterTypeEnum = Joi.string().valid("user", "company").required();
+// app/validation/index.js
+
+
+
+// const ReporterTypeEnum = Joi.string().valid("user", "company").required();
 
 export const reportSchema = Joi.object({
-  reason: Joi.string().min(3).max(500).required().messages({
-    "string.min": "Reason must be at least 3 characters long.",
-    "string.max": "Reason must not exceed 500 characters.",
-    "any.required": "The 'reason' field is required.",
-  }),
-  createdAt: Joi.date().optional().messages({
-    "date.base": "CreatedAt must be a valid date.",
-  }),
-  status: Joi.string()
-    .valid("pending", "resolved", "rejected")
-    .default("pending")
-    .required()
-    .messages({
-      "string.valid":
-        "Status must be one of 'pending', 'resolved', or 'rejected'.",
-      "any.required": "The 'status' field is required.",
-    }),
-  vehicleOfferId: Joi.number().integer().optional().messages({
-    "number.base": "Vehicle offer ID must be a valid number.",
-  }),
-  realEstateOfferId: Joi.number().integer().optional().messages({
-    "number.base": "Real estate offer ID must be a valid number.",
-  }),
-  commercialOfferId: Joi.number().integer().optional().messages({
-    "number.base": "Commercial offer ID must be a valid number.",
-  }),
-  reporterId: Joi.string().uuid().required().messages({
-    "string.uuid": "Reporter ID must be a valid UUID.",
-    "any.required": "The 'reporterId' field is required.",
-  }),
-  reporterType: ReporterTypeEnum.messages({
-    "any.required": "The 'reporterType' field is required.",
-  }),
+  reason: Joi.string().required(),
+  offerId: Joi.number().required(),
+  offerType: Joi.string().valid('realEstate', 'vehicle', 'commercial').required(),
+  reporterId: Joi.string().uuid().required(),  // Validation UUID pour reporterId
+  reporterType: Joi.string().valid('USER', 'COMPANY').required(),
+  status: Joi.string().valid('pending', 'approved', 'rejected').default('pending'),
 });

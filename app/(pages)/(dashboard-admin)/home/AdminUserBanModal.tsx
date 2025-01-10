@@ -1,202 +1,231 @@
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import { formatDate } from "@/utils/functions/timeFunction/formatDate";
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
-// Définir les types des props
 interface ModalProps {
     isOpen: boolean;
     closeModal: () => void;
 }
 
 interface BannedUser {
-    id: number;
+    id: string;
+    username: string;
     firstName: string;
     lastName: string;
-    banReason: string[]; // `banReason` est maintenant un tableau de chaînes de caractères.
+    email: string;
+    role: string;
+    city: string;
+    country: string;
+    isBanned: boolean;
+    banReason: string[];
     banEndDate: string;
-    banCount: string;
-    bannTitle: string;
-    bannedByUsername: string;
+    banCount: number;
+    bannTitle: string[];
+    bannedByUsername: string[];
 }
 
-const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
-    const [expandedUser, setExpandedUser] = useState<number | null>(null); // Déclarer l'état pour les utilisateurs dépliés
-    const [isBanned, setIsBanned] = useState<BannedUser[]>([]);
+function useMediaQuery(query: string): boolean {
+    const [matches, setMatches] = useState(false);
 
-    // fetch des utilisateurs bannis uniquement lorsque la modal est ouverte
     useEffect(() => {
-        if (isOpen) {
-            const fetchBannedEntities = async () => {
-                try {
-                    const response = await fetch(`/api/searchUser?isBanned=true`);
-                    if (!response.ok) {
-                        throw new Error("Erreur lors de la requête");
-                    }
-                    const data: BannedUser[] = await response.json(); // Assurez-vous que les données ont le bon type
-                    console.log(data);
-                    if (data.length > 0) {
-                        setIsBanned(data); // Mettez à jour l'état des utilisateurs bannis
-                    } else {
-                        console.log("Aucune entité bannie trouvée.");
-                    }
-                } catch (error: any) {
-                    console.error("Erreur:", error.message);
-                }
-            };
-            fetchBannedEntities();
+        const media = window.matchMedia(query);
+        if (media.matches !== matches) {
+            setMatches(media.matches);
         }
-    }, [isOpen]); // Déclenche l'effet uniquement quand `isOpen` change
+        const listener = () => setMatches(media.matches);
+        window.addEventListener('resize', listener);
+        return () => window.removeEventListener('resize', listener);
+    }, [matches, query]);
 
-    if (!isOpen) return null; // Si la modal n'est pas ouverte, ne rien afficher.
+    return matches;
+}
 
-    const toggleUserExpand = (userId: number) => {
-        setExpandedUser(expandedUser === userId ? null : userId); // Déplie ou replie l'utilisateur
-    };
+function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const UserCard: React.FC<{
+    user: BannedUser;
+    isExpanded: boolean;
+    toggleExpand: () => void;
+    isDesktop: boolean;
+}> = ({ user, isExpanded, toggleExpand, isDesktop }) => {
+    // Assurez-vous que bannTitle est un tableau
+    let bannTitles: string[] = [];
+    try {
+        bannTitles = Array.isArray(user.bannTitle)
+            ? user.bannTitle
+            : JSON.parse(user.bannTitle || '[]');
+    } catch {
+        bannTitles = []; // Valeur par défaut en cas d'erreur de parsing
+    }
 
     return (
-        <div
-            className="fixed top-0 left-0 right-0 bottom-0 w-full h-full backdrop-blur-md bg-black bg-opacity-50 flex justify-center items-center z-50"
-            onClick={closeModal}
-        >
-            <div
-                className="bg-white p-6 w-full h-full text-center overflow-y-auto"
-                onClick={(e) => e.stopPropagation()} // Empêche la fermeture si on clique à l'intérieur de la modal
-            >
-                <div className="pb-3">
-                    <div className="flex justify-between pb-3">
-                        <div>
-                            <span className="text-orange-700 dark:text-orange-600 font-medium">Re</span>Ventures
-                        </div>
-                        <div>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4 border border-red-300">
+            <div className="flex justify-between items-center p-4 bg-gray-50">
+                <div className="flex items-center space-x-3">
+                    <Image
+                        src="/icons/mobil-dashboard/ban-user.svg"
+                        width={24}
+                        height={24}
+                        alt="Banned user"
+                    />
+                    <span className="font-semibold">{`${user.firstName} ${user.lastName}`}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">BANNED</span>
+                    {!isDesktop && (
+                        <button onClick={toggleExpand} aria-expanded={isExpanded} className="focus:outline-none">
                             <Image
-                                src="/icons/mobil-dashboard/cross.svg"
-                                width={25}
-                                height={25}
-                                alt="user-rouded.svg"
-                                onClick={closeModal}
+                                src="/icons/mobil-dashboard/userBan/arrow-narrow-down-move.svg"
+                                width={20}
+                                height={20}
+                                alt={isExpanded ? "Collapse details" : "Expand details"}
+                                className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                             />
+                        </button>
+                    )}
+                </div>
+            </div>
+            {(isExpanded || isDesktop) && (
+                <div className="p-4 space-y-4">
+                    <div className="flex flex-col md:flex-row md:space-x-4">
+                        <div className="flex-1 space-y-4">
+                            <p className="w-fit border border-b-gray-400">
+                                <strong className="font-semibold">General Informations</strong>
+                            </p>
+                            <div className="flex space-x-4">
+                                <div className="flex-1 bg-gray-300 p-3 rounded-lg text-center">
+                                    <Image
+                                        src="/icons/mobil-dashboard/userBan/stop-sign.svg"
+                                        width={24}
+                                        height={24}
+                                        alt="Ban count"
+                                        className="mx-auto mb-2"
+                                    />
+                                    <p className="text-sm font-semibold">Ban Count</p>
+                                    <p className="text-lg">{user.banCount}</p>
+                                </div>
+                                <div className="flex-1 bg-gray-300 p-3 rounded-lg text-center">
+                                    <Image
+                                        src="/icons/mobil-dashboard/userBan/clock.svg"
+                                        width={24}
+                                        height={24}
+                                        alt="Ban end date"
+                                        className="mx-auto mb-2"
+                                    />
+                                    <p className="text-sm font-semibold">End Ban</p>
+                                    <p className="text-lg">{formatDate(user.banEndDate)}</p>
+                                </div>
+                            </div>
+                            <button className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-full hover:bg-blue-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                                UnBan
+                            </button>
+                        </div>
+                        <div className="flex-1 mt-4 md:mt-0">
+                            <h3 className="text-lg font-semibold mb-2 border border-b-gray-400 w-fit">Ban Reasons</h3>
+                            <div className="space-y-2">
+                                {bannTitles.map((title, index) => (
+                                    <div key={index} className="bg-gray-300 p-3 rounded-lg">
+                                        <div className="flex items-center space-x-2 mb-1">
+                                            <Image
+                                                src="/icons/mobil-dashboard/userBan/warning.svg"
+                                                width={16}
+                                                height={16}
+                                                alt="Warning"
+                                            />
+                                            <h4 className="font-semibold">{title}</h4>
+                                        </div>
+                                        <p className="text-sm text-gray-600">{user.banReason[index] || "No reason provided"}</p>
+                                        <p className="text-xs text-right text-red-600 mt-1">
+                                            Banned by: {user.bannedByUsername[index] || "Unknown"}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <div className="flex justify-end">
-                        <form className="relative">
-                            <input
-                                type="text"
-                                name="searchUser"
-                                id="searchUser"
-                                placeholder="search by FirstName"
-                                className="border-2 rounded border-black w-36 pr-2 placeholder:text-xs"
-                            />
-                            <Image
-                                src="/icons/mobil-dashboard/search.svg"
-                                width={15}
-                                height={15}
-                                alt="search icon"
-                                className="absolute top-1/2 right-2 -translate-y-1/2 pointer-events-none"
-                            />
-                        </form>
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
+    const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+    const isDesktop = useMediaQuery('(min-width: 1024px)');
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchBannedUsers();
+        }
+    }, [isOpen]);
+
+    const fetchBannedUsers = async () => {
+        try {
+            const response = await fetch(`/api/searchUser?isBanned=true`);
+            if (!response.ok) throw new Error("Failed to fetch banned users");
+            const data: BannedUser[] = await response.json();
+            console.log(data);
+            setBannedUsers(data);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
+    const filteredUsers = bannedUsers.filter((user) =>
+        `${user.firstName} ${user.lastName}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+    );
+
+    const toggleExpand = (userId: string) => {
+        setExpandedUserId(expandedUserId === userId ? null : userId);
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay w-full h-full" onClick={closeModal}>
+            <div
+                className="modal-content w-full h-full flex flex-col"
+                ref={containerRef}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="modal-header flex justify-between items-center p-4 border-b">
+                    <h2 className="text-xl font-semibold">Banned Users</h2>
+                    <button onClick={closeModal} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6">
+                    <div className="relative mb-4">
+                        <input
+                            type="text"
+                            placeholder="Search by name"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
                     <div className="space-y-4">
-                        {/* Boucle pour afficher chaque utilisateur banni */}
-                        {isBanned.map((user) => (
-                            <div key={user.id}>
-                                {/* Accordion Item */}
-                                <div className="flex justify-between items-center bg-[#D9D9D9] pl-2 pr-2 pt-4 pb-4 mt-4 rounded-tl-lg rounded-tr-lg shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-                                    <div className="flex items-center gap-2">
-                                        <Image
-                                            src="/icons/mobil-dashboard/ban-user.svg"
-                                            width={30}
-                                            height={30}
-                                            alt="ban-user.svg"
-                                        />
-                                        <div className="flex gap-2">
-                                            <p>{user.firstName}</p>
-                                            <p>{user.lastName}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="bg-[#ED2B2B] rounded-xl pl-3 pr-3">
-                                            <p className="text-white text-bold text-center text-sm font-bold">BANNED</p>
-                                        </div>
-                                        <button onClick={() => toggleUserExpand(user.id)}>
-                                            <Image
-                                                src="/icons/mobil-dashboard/userBan/arrow-narrow-down-move.svg"
-                                                width={30}
-                                                height={30}
-                                                alt="arrow"
-                                                className={`transition-transform ${expandedUser === user.id ? "rotate-180" : ""}`}
-                                            />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Content qui se déploie lorsqu'un utilisateur est sélectionné */}
-                                {expandedUser === user.id && (
-                                    <div className="pt-4 pb-2 pl-4 pr-4 border bg-[#D9D9D9] shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-                                        <div className="flex">
-                                            <p>Banned By : {user.bannedByUsername}</p>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <div className="bg-white rounded-md ml-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1 shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-                                                <Image
-                                                    src="/icons/mobil-dashboard/userBan/stop-sign.svg"
-                                                    width={30}
-                                                    height={30}
-                                                    alt="stop-sign.svg"
-                                                />
-                                                <p>Ban Count</p>
-                                                <p>{user.banCount}</p>
-                                            </div>
-                                            <div className="bg-white rounded-md mr-2 pl-6 pr-6 flex flex-col items-center pt-2 pb-1 shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-                                                <Image
-                                                    src="/icons/mobil-dashboard/userBan/clock.svg"
-                                                    width={30}
-                                                    height={30}
-                                                    alt="clock"
-                                                />
-                                                <p>End Ban</p>
-                                                <p>{formatDate(user.banEndDate)}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Affichage des raisons du bannissement */}
-                                        <div className="flex flex-col mt-6">
-                                            <h2 className="flex justify-start">Ban Reasons</h2>
-                                            <div className="space-y-4 mt-4">
-                                                {user.banReason.map((reason, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex flex-col gap-2 bg-white rounded-md pt-2 pb-4 pl-2 pr-2 shadow-[0_4px_6px_rgba(0,0,0,0.4)]" 
-                                                    >
-                                                        {/* Affichage du bannTitle avec chaque raison */}
-                                                        <div className="flex items-center gap-2">
-                                                            <Image
-                                                                src="/icons/mobil-dashboard/userBan/warning.svg"
-                                                                width={20}
-                                                                height={20}
-                                                                alt="warning.svg"
-                                                            />
-                                                            <h2 className="text-lg font-semibold">{user.bannTitle}</h2>  {/* Ajout du bannTitle ici */}
-                                                        </div>
-
-                                                        {/* Affichage de la raison du bannissement */}
-                                                        <div className="flex justify-center gap-2">
-                                                            <h2 className="text-sm text-gray-700">{reason}</h2>
-                                                        </div>
-                                                        <div className="flex justify-end mr-2 text-[12px] text-red-800"> 
-                                                            <p>Banned by : {user.bannedByUsername}test</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <div>
-                                                <button className="bg-blue-400 pl-4 pr-4 mt-4 pt-2 pb-2 rounded-full font-bold text-white text-sm">
-                                                    UnBan
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                        {filteredUsers.map((user) => (
+                            <UserCard
+                                key={user.id}
+                                user={user}
+                                isExpanded={expandedUserId === user.id}
+                                toggleExpand={() => toggleExpand(user.id)}
+                                isDesktop={isDesktop}
+                            />
                         ))}
                     </div>
                 </div>

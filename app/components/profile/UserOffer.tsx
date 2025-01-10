@@ -67,7 +67,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
 
   const renderOffers = (offerList: Offers[], offerType: string) => {
     const filteredOffers = offerList.filter((offer) =>
-      currentUserId === userId ? !offer.validated : offer.validated
+      currentUserId === userId ? true : offer.validated
     );
     return (
       <section>
@@ -76,7 +76,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
             {filteredOffers.map((offer) => (
               <li
                 key={offer.id}
-                className="p-4 border border-gray-200 rounded-md hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                className="p-4 border border-gray-200 hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
               >
                 <div className="flex items-start space-x-4">
                   {offer.photos && offer.photos.length > 0 && (
@@ -84,8 +84,9 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
                       <Image
                         src={offer.photos[0]}
                         alt={offer.title}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
                   )}
@@ -110,27 +111,36 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-gray-500">No offers available.</p>
-        )}
+        ) : null}
       </section>
     );
   };
 
+  const allOffersEmpty =
+    vehicleOffers.length === 0 &&
+    realEstateOffers.length === 0 &&
+    commercialOffers.length === 0;
+
   return (
     <div className="space-y-8 p-4 sm:p-6 bg-white">
-      <h1 className="text-xl font-bold text-center md:text-left">
+      <h2 className="text-xl font-normal text-center md:text-left">
         {currentUserId === userId ? "Toutes vos offres" : "Offres disponibles"}
-      </h1>
+      </h2>
 
-      {/* Vehicle Offers */}
-      {renderOffers(vehicleOffers, "vehicle")}
+      {allOffersEmpty ? (
+        <p className="text-gray-500">No offers available.</p>
+      ) : (
+        <>
+          {/* Vehicle Offers */}
+          {renderOffers(vehicleOffers, "vehicle")}
 
-      {/* Real Estate Offers */}
-      {renderOffers(realEstateOffers, "property")}
+          {/* Real Estate Offers */}
+          {renderOffers(realEstateOffers, "property")}
 
-      {/* Commercial Offers */}
-      {renderOffers(commercialOffers, "commercial")}
+          {/* Commercial Offers */}
+          {renderOffers(commercialOffers, "commercial")}
+        </>
+      )}
 
       {/* Modal */}
       {isModalOpen && selectedOffer && selectedOfferType && (
