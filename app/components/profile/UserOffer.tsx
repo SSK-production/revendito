@@ -84,8 +84,9 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
                       <Image
                         src={offer.photos[0]}
                         alt={offer.title}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
                   )}

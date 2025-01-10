@@ -45,7 +45,8 @@ export default function Categories({ onLoad }: CategoriesProps) {
           alt={offer.title}
           width={300}
           height={200}
-          className="w-full h-40 object-cover rounded-t-sm group-hover:opacity-90"
+          className=" h-40 object-cover rounded-t-sm group-hover:opacity-90"
+          priority
         />
       ) : (
         <div className="w-full h-40 bg-gray-100 rounded-t-md flex items-center justify-center text-gray-400">

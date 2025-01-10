@@ -38,22 +38,38 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
     street?: string;
   }) => {
     try {
-      const response = await axios.put(`/api/profileUpdate`, updatedData);
-      console.log("Updated profile data:", response.data);
+      const response = await axios.put(`/api/profileUpdate`, updatedData, { withCredentials: true });
+      console.log("Updated profile data:", response.data.message);
       setIsModalOpenGeneralInfo(false); // Close the modal after saving
     } catch (error) {
       console.error("Error updating profile data:", error);
     }
   };
 
-  const handleSaveAccount = (updatedData: {
+  const handleSaveAccount = async (updatedData: {
     email: string;
   }) => {
+    try {
+      const response = await axios.put(`/api/updateAccountEmail`, updatedData, {
+        withCredentials: true, // Send cookies with the request
+      });
+      console.log("Updated profile data:", response.data.message);
+    } catch (error) {
+      console.error("Error updating profile data:", error);
+    }
     console.log("Updated profile data:", updatedData);
     setIsModalOpenAccount(false); // Close the modal after saving
   };
 
-  const handleSavePassword = (passwordData: { currentPassword: string; newPassword: string }) => {
+  const handleSavePassword = async (passwordData: { currentPassword: string; newPassword: string }) => {
+    try {
+      const response = await axios.put(`/api/changePassword`, passwordData, {
+        withCredentials: true, // Send cookies with the request
+      });
+      console.log("Updated profile data:", response.data.message);
+    } catch (error) {
+      console.error("Error updating profile data:", error);
+    }
     console.log("Password data:", passwordData);
     setIsModalOpenPassword(false); // Close the modal after saving
   };
@@ -157,7 +173,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
               <strong>Email:</strong> {data.email}
             </p>
             <p>
-              <strong>Email Verified:</strong> {data.active ? "Yes" : "No"}
+              <strong>Email Verified:</strong> {data.emailVerified ? "Yes" : "No"}
               {!data.active && (
                 <button
                   onClick={() => {
