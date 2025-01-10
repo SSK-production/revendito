@@ -21,8 +21,10 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
           <Image
             src={offer.photos[0]}
             alt={offer.title}
-            layout="fill"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             objectFit="cover"
+            style={{ objectFit: 'cover' }}
             className="rounded-t-lg lg:rounded-none"
           />
         ) : (

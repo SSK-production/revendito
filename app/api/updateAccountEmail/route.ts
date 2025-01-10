@@ -1,7 +1,8 @@
-import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { NextRequest, NextResponse } from "next/server";
+import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { verifyId } from "@/app/lib/function";
 
 const getPrismaInstance = (() => {
   let instance: PrismaClient;
@@ -13,31 +14,29 @@ const getPrismaInstance = (() => {
   };
 })();
 
-export async function PUT(req: NextRequest) {
+export async function PUT(request: NextRequest) {
   try {
-    const { id, entity, accessToken, active } = await getUserFromRequest(req);
-    if (!id) {
+    const data = await request.json();
+    console.log(data.type + " " + data.email + " " + data.password);
+    const { id, entity, accessToken, active } = await getUserFromRequest(
+      request
+    );
+    const prisma = getPrismaInstance();
+    verifyId(id, entity);
+
+    if (!data.email) {
+      return NextResponse.json({ message: "Email not found" }, { status: 401 });
+    }
+    if (!data.password) {
       return NextResponse.json(
-        { error: "User not authenticated." },
+        { message: "Password not found" },
         { status: 401 }
       );
     }
+
     if (!active) {
       return NextResponse.json({ error: "User not active." }, { status: 401 });
     }
-    if (!accessToken) {
-      return NextResponse.json(
-        { error: "Access token not found." },
-        { status: 401 }
-      );
-    }
-    if (!entity) {
-      return NextResponse.json({ error: "Entity not found." }, { status: 401 });
-    }
-
-    const prisma = getPrismaInstance();
-
-    const data = await req.json();
 
     if (entity === "user") {
       const user = await prisma.user.findUnique({
@@ -68,23 +67,21 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Invalid entity." }, { status: 400 });
     }
 
-    const username: string = data.username || data.companyName;
-
     const existingUser = await prisma.user.findUnique({
-      where: { username: username },
+      where: { email: data.email },
     });
     if (existingUser && existingUser.id !== id) {
       return NextResponse.json(
-        { error: "Username already taken." },
+        { error: "Email already taken." },
         { status: 400 }
       );
     }
     const existingCompany = await prisma.company.findUnique({
-      where: { companyName: username },
+      where: { email: data.email },
     });
     if (existingCompany && existingCompany.id !== id) {
       return NextResponse.json(
-        { error: "Company name already taken." },
+        { error: "email already taken." },
         { status: 400 }
       );
     }
@@ -93,12 +90,8 @@ export async function PUT(req: NextRequest) {
       await prisma.user.update({
         where: { id: id },
         data: {
-          username: data.username,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          birthDate: new Date(data.birthDate),
-          city: data.city,
-          country: data.country,
+          email: data.email,
+          emailVerified: false,
         },
       });
     }
@@ -106,31 +99,30 @@ export async function PUT(req: NextRequest) {
       await prisma.company.update({
         where: { id: id },
         data: {
-          companyName: data.companyName,
-          birthDate: new Date(data.birthDate),
-          companyNumber: data.companyNumber,
-          city: data.city,
-          country: data.country,
-          street: data.street,
+          email: data.email,
+          emailVerified: false,
         },
       });
     }
 
-    return NextResponse.json(
-      { message: "Profile updated successfully" },
+    // Process the data and update the account here
+    const response = NextResponse.json(
+      { message: "Account updated successfully" },
       { status: 200 }
     );
-  } catch (error) {
-    console.error(error);
+    response.cookies.set("access_token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600,
+      sameSite: "strict",
+      path: "/",
+    });
+
+    return response;
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Failed to update profile" },
+      { message: "Failed to update account", error: (error as Error).message },
       { status: 500 }
     );
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};

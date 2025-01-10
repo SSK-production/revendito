@@ -20,6 +20,22 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSave, onCance
             <h3 className="text-xl font-semibold text-gray-800">Change Password</h3>
             <div>
                 <label
+                    htmlFor="currentPassword"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Current Password
+                </label>
+                <input
+                    type="password"
+                    id="currentPassword"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                    className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+            </div>
+            <div>
+                <label
                     htmlFor="newPassword"
                     className="block text-sm font-medium text-gray-700"
                 >
@@ -46,22 +62,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSave, onCance
                     id="repeatNewPassword"
                     value={repeatNewPassword}
                     onChange={(e) => setRepeatNewPassword(e.target.value)}
-                    required
-                    className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-            </div>
-            <div>
-                <label
-                    htmlFor="currentPassword"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Current Password
-                </label>
-                <input
-                    type="password"
-                    id="currentPassword"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
                     required
                     className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />

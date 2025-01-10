@@ -25,7 +25,7 @@ const UpdateEmailForm: React.FC<UpdateEmailFormProps> = ({
     }
 
     setPasswordError(null);
-    handleSaveAccount({ email, password });
+    handleSaveAccount({ email ,password });
   };
 
   return (
