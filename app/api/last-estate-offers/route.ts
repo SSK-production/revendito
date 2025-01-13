@@ -8,8 +8,15 @@ export async function GET() {
     try {
         const offers = await prisma.realEstateOffer.findMany({
             where: {
-                validated: true,
-                active: true
+                AND: [
+                    { active: true }, // Offre active
+                    {
+                        OR: [
+                            { user: { active: true } }, // Utilisateur actif
+                            { company: { active: true } }, // Entreprise active
+                        ],
+                    },
+                ],
             },
             take: 3,
             orderBy: {

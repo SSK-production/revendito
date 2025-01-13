@@ -27,8 +27,20 @@ export async function GET(req: NextRequest) {
     skip: skip,
     take: limit,
     where: {
-      validated: true,
-      active: true,
+      AND: [
+        { validated: true },
+        { active: true },
+        {
+          OR: [
+            { user: { active: true } }, // Utilisateur actif
+            { company: { active: true } }, // Entreprise active
+          ],
+        },
+      ],
+    },
+    include: {
+      user: true, // Inclut les informations utilisateur
+      company: true, // Inclut les informations entreprise
     },
     orderBy: {
       createdAt: 'desc'
@@ -36,10 +48,18 @@ export async function GET(req: NextRequest) {
     });
   
     const totalOffers = await prisma.commercialOffer.count({
-    where: {
-      validated: true,
-      active: true,
-    },
+      where: {
+        AND: [
+          { validated: true },
+          { active: true },
+          {
+            OR: [
+              { user: { active: true } },
+              { company: { active: true } },
+            ],
+          },
+        ],
+      },
     });
   
     return NextResponse.json({

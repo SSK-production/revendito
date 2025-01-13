@@ -131,7 +131,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           <input
             type="date"
             name="birthDate"
-            value={formData.birthDate || ""}
+            value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ""}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
           />

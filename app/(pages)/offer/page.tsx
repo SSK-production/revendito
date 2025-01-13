@@ -73,15 +73,35 @@ const Page: React.FC = () => {
   }, [offerId, category]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+            <div className="loader ease-linear rounded-full border-8 border-t-8 border-blue-500 h-32 w-32 mb-4 mx-auto animate-spin"></div>
+          <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
+          <p className="text-gray-500">Please wait while we fetch the offer details.</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <p className="text-red-500 text-lg font-semibold">No data available for the given offer.</p>
+      </div>
+      </div>
+    );
   }
 
   if (!data) {
-    return <div>No data available for the given offer.</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-500 text-lg font-semibold">No data available for the given offer.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -104,8 +124,10 @@ const Page: React.FC = () => {
               <Image
                 src={photo}
                 alt={`Offer image ${index + 1}`}
-                layout="fill"
-                className="rounded-lg object-contain"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: 'cover' }}
+                className="rounded-lg"
                 priority
               />
             </div>

@@ -147,12 +147,33 @@ export default function ProfilePage() {
     setPage(newPage);
   };
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+          <div className="loader ease-linear rounded-full border-8 border-t-8 border-blue-500 h-32 w-32 mb-4 mx-auto animate-spin"></div>
+        <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
+        <p className="text-gray-500">Please wait while we fetch the offer details.</p>
+      </div>
+    </div>
+  );
+
   if (error)
-    return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-red-500">Account not found.</h2>
+      </div>
+      </div>
+    );
 
   if (data && !data.active && userId !== data.id)
-    return <div className="text-center mt-10 text-red-500">Account not found.</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-red-500">Account not found.</h2>
+      </div>
+      </div>
+    );
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6">

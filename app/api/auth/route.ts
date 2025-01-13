@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -38,7 +38,7 @@ type AuthenticatedEntity = {
   birthDate: Date | null;
 };
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { email, password }: AuthenticatedEntity = await req.json();
 
@@ -178,9 +178,8 @@ export async function POST(req: Request) {
 }
 
 // function for refresh token if user is login
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    // Retrieve cookies from the request
     const cookie = req.headers.get("cookie");
     const accessToken = cookie
       ?.split(";")
@@ -190,17 +189,13 @@ export async function GET(req: Request) {
       ?.split(";")
       .find((c) => c.trim().startsWith("refresh_token="))
       ?.split("=")[1];
-    console.log(accessToken);
-    console.log(refreshToken);
 
-    // Check authentication with the access token
     if (accessToken) {
       const user = verifyAccessToken(accessToken);
 
       if (user) {
-        // If the access token is valid, return a response with the user's email
-        return new NextResponse(
-          JSON.stringify({
+        const  response = NextResponse.json(
+          {
             message: "User authenticated",
             username: user.username,
             id: user.id,
@@ -209,19 +204,23 @@ export async function GET(req: Request) {
             role: user.role,
             active: user.active,
             isBanned: user.isBanned,
-          }),
+          },
           {
             status: 200,
             headers: { "Content-Type": "application/json" },
           }
         );
+        response.cookies.set('access_token', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 3600,
+        sameSite: 'strict',
+        path: '/',
+      });
+        return response
+      } else if (refreshToken) {
+        return refreshAccessToken(refreshToken); // Assurez-vous que cette fonction retourne une réponse !
       } else {
-        // If the access token is invalid or expired, try to refresh the token with the refresh token
-        if (refreshToken) {
-          return refreshAccessToken(refreshToken); // Use the existing function to refresh the token
-        }
-
-        // If no refresh token is available, return an error
         return new NextResponse(
           JSON.stringify({
             error: "Access token expired, and no refresh token available",
@@ -232,67 +231,64 @@ export async function GET(req: Request) {
           }
         );
       }
-    } else {
-      if (refreshToken) {
-        const newAccessToken = refreshAccessToken(refreshToken);
+    } else if (refreshToken) {
+      const newAccessToken = refreshAccessToken(refreshToken);
+      console.log(newAccessToken);
+      
+      if (newAccessToken) {
+        const user = verifyAccessToken(newAccessToken) as UserPayload | null;
 
-        if (newAccessToken) {
-          const user = verifyAccessToken(newAccessToken) as UserPayload | null;
-
-          if (!user) {
-            return new NextResponse(
-              JSON.stringify({ error: "Invalid access token" }),
-              {
-                status: 401,
-                headers: { "Content-Type": "application/json" },
-              }
-            );
-          }
-
-          // Créez la réponse avec les informations utilisateur
-          const response = new NextResponse(
-            JSON.stringify({
-              message: "Token successfully refreshed",
-              username: user.username,
-              id: user.id,
-              banEndDate: user.banEndDate || null, // Ajoutez une valeur par défaut
-            }),
-            {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-
-          // Ajoutez le nouveau token dans les cookies
-          response.cookies.set("access_token", newAccessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 3600, // 1 heure
-            sameSite: "strict",
-            path: "/",
-          });
-
-          return response;
-        } else {
+        if (!user) {
           return new NextResponse(
-            JSON.stringify({ error: "Invalid or expired refresh token" }),
+            JSON.stringify({ error: "Invalid access token" }),
             {
               status: 401,
               headers: { "Content-Type": "application/json" },
             }
           );
-        } // Use the existing function to refresh the token
-      }
-    }
+        }
 
-    // If no access token is found, return an error
-    return new NextResponse(
-      JSON.stringify({ message: "User not authenticated" }),
-      {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
+        const response = new NextResponse(
+          JSON.stringify({
+            message: "Token successfully refreshed",
+            username: user.username,
+            id: user.id,
+            banEndDate: user.banEndDate || null,
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        response.cookies.set("access_token", newAccessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 3600,
+          sameSite: "strict",
+          path: "/",
+        });
+
+
+        return response;
+      } else {
+        return new NextResponse(
+          JSON.stringify({ error: "Invalid or expired refresh token" }),
+          {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
       }
-    );
+    } else {
+      return new NextResponse(
+        JSON.stringify({ message: "User not authenticated" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   } catch (error) {
     console.error("Error during authentication check:", error);
     return new NextResponse(
@@ -304,3 +300,4 @@ export async function GET(req: Request) {
     );
   }
 }
+

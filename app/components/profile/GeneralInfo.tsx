@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UpdateEmailForm from "./UpdateEmailForm";
 import ChangePasswordForm from "./ChangePasswordForm";
 import axios from "axios";
+import StatusAccountForm from "./statusAccountForm";
 
 interface GeneralInfoProps {
   data: ProfileData;
@@ -19,13 +20,14 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
   data,
   currentUserId,
   userId,
-  entity
+  entity,
 }) => {
   const [isModalOpenGeneralInfo, setIsModalOpenGeneralInfo] = useState(false);
   const [isModalOpenAccount, setIsModalOpenAccount] = useState(false);
   const [isModalOpenPassword, setIsModalOpenPassword] = useState(false);
+  const [isModalStatusAccount, setIsModalStatusAccount] = useState(false);
   console.log(data);
-  
+
   const handleSave = async (updatedData: {
     username?: string | null;
     companyName?: string | null;
@@ -38,7 +40,9 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
     street?: string;
   }) => {
     try {
-      const response = await axios.put(`/api/profileUpdate`, updatedData, { withCredentials: true });
+      const response = await axios.put(`/api/profileUpdate`, updatedData, {
+        withCredentials: true,
+      });
       console.log("Updated profile data:", response.data.message);
       setIsModalOpenGeneralInfo(false); // Close the modal after saving
     } catch (error) {
@@ -46,9 +50,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
     }
   };
 
-  const handleSaveAccount = async (updatedData: {
-    email: string;
-  }) => {
+  const handleSaveAccount = async (updatedData: { email: string }) => {
     try {
       const response = await axios.put(`/api/updateAccountEmail`, updatedData, {
         withCredentials: true, // Send cookies with the request
@@ -61,7 +63,10 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
     setIsModalOpenAccount(false); // Close the modal after saving
   };
 
-  const handleSavePassword = async (passwordData: { currentPassword: string; newPassword: string }) => {
+  const handleSavePassword = async (passwordData: {
+    currentPassword: string;
+    newPassword: string;
+  }) => {
     try {
       const response = await axios.put(`/api/changePassword`, passwordData, {
         withCredentials: true, // Send cookies with the request
@@ -72,6 +77,26 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
     }
     console.log("Password data:", passwordData);
     setIsModalOpenPassword(false); // Close the modal after saving
+  };
+
+  const handleActivateAccount = async (statusAccountData: {
+    password: string;
+    active: boolean;
+  }) => {
+    console.log(statusAccountData.active);
+    try {
+      const response = await axios.put(
+        `/api/activateAccount`,
+        statusAccountData,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("Status account is changed", response.data.message);
+    } catch (error) {
+      console.error("Error updating status : ", error);
+    }
+    setIsModalStatusAccount(false);
   };
 
   return (
@@ -94,8 +119,8 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
         <div className="space-y-2 text-gray-600">
           {data.firstName && (
             <p>
-            <strong>Firstname:</strong> {data.firstName}
-          </p>
+              <strong>Firstname:</strong> {data.firstName}
+            </p>
           )}
           {data.lastName && (
             <p>
@@ -124,8 +149,6 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
               <strong>Street:</strong> {data.street}
             </p>
           )}
-
-          
 
           {/* Modal */}
           <Modal
@@ -173,7 +196,8 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
               <strong>Email:</strong> {data.email}
             </p>
             <p>
-              <strong>Email Verified:</strong> {data.emailVerified ? "Yes" : "No"}
+              <strong>Email Verified:</strong>{" "}
+              {data.emailVerified ? "Yes" : "No"}
               {!data.active && (
                 <button
                   onClick={() => {
@@ -197,18 +221,18 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
             <button
               onClick={() => {
                 // Add your deactivate account logic here
-                console.log("Deactivate account");
+                setIsModalStatusAccount(true);
               }}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
-              Deactivate Account
+              Desactivate Account
             </button>
           )}
           {!data.active && currentUserId === userId && (
             <button
               onClick={() => {
                 // Add your deactivate account logic here
-                console.log("Activate account");
+                setIsModalStatusAccount(true);
               }}
               className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
             >
@@ -217,6 +241,18 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
           )}
         </div>
       )}
+      <Modal
+        isOpen={isModalStatusAccount}
+        onClose={() => setIsModalStatusAccount(false)}
+        title="Update Account Information"
+      >
+        <StatusAccountForm
+          active={data.active}
+          onConfirm={handleActivateAccount}
+          onCancel={() => setIsModalStatusAccount(false)}
+        />
+      </Modal>
+
       <Modal
         isOpen={isModalOpenAccount}
         onClose={() => setIsModalOpenAccount(false)}

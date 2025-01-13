@@ -1,24 +1,35 @@
-import {PrismaClient} from "@prisma/client";
-import {NextResponse} from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
-export async function GET() {
 
+export async function GET() {
     try {
+        // Récupérer les offres avec des utilisateurs ou entreprises actives
         const offers = await prisma.vehicleOffer.findMany({
             where: {
-                validated: true,
-                active: true
+                AND: [
+                    { active: true }, // Offre active
+                    {
+                        OR: [
+                            { user: { active: true } }, // Utilisateur actif
+                            { company: { active: true } }, // Entreprise active
+                        ],
+                    },
+                ],
             },
-            take: 3,
+            include: {
+                user: true, // Inclut les informations utilisateur
+                company: true, // Inclut les informations entreprise
+            },
             orderBy: {
-                createdAt: 'desc'
-            }
-        })
+                createdAt: "desc",
+            },
+        });
 
-        return NextResponse.json(offers, {status: 200});
+        return NextResponse.json(offers, { status: 200 });
     } catch (error) {
-        console.error('Error getting last automotive offers:', error);
-        return NextResponse.json({error: 'Error getting last automotive offers'}, {status: 500});
+        console.error("Error fetching offers:", error);
+        return NextResponse.json({ error: "Error fetching offers" }, { status: 500 });
     }
 }
