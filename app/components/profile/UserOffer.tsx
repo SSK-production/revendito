@@ -3,6 +3,9 @@ import Image from "next/image";
 import { Offers } from "@/app/types";
 import UpdateOffer from "../shared/UpdateOffer"; // Import UpdateOffer
 import { useState } from "react";
+import Modal from "./Modal";
+import StatusOfferForm from "./statusOfferForm";
+import axios from "axios"
 
 interface UserOffersProps {
   offers: {
@@ -20,7 +23,8 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<number | null>(null);
   const [selectedOfferType, setSelectedOfferType] = useState<string>("");
-
+  const [isModalStatusOffer, setIsModalStatusOffer] = useState(false);
+  const [statusOffer,setStatusOffer] = useState<boolean | null>(null)
   const openModal = (offer: Offers, offerType: string) => {
     setSelectedOffer(offer.id);
     setSelectedOfferType(offerType);
@@ -33,7 +37,31 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
     setModalOpen(false);
   };
 
-  const handlePublish = (offer: Offers) => console.log(`Toggle publish for offer ${offer}`);
+  const handlePublish = async (offer: Offers, offerType : string) =>  {
+    setSelectedOffer(offer.id);
+    setSelectedOfferType(offerType);
+    setStatusOffer(offer.active);
+    setIsModalStatusOffer(true);
+  }
+  const changeOfferStatus = async () => {
+    try {
+        const response = await axios.put(
+          `/api/changeOfferStatus`,
+          {
+            active: statusOffer,
+            offerId: selectedOffer,
+            offerType: selectedOfferType
+          },
+          {
+            withCredentials: true,
+          }
+        );
+            console.log("Status account is changed", response.data.message);
+            setIsModalStatusOffer(false)
+    } catch (error) {
+      console.error("Error updating status : ", error);
+    }
+  }
   const handleDelete = (offer: Offers) => console.log(`Delete offer ${offer}`);
 
   const StatusBadge = ({ active }: { active: boolean }) => (
@@ -54,7 +82,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
         <FiEdit size={20} title="Update" />
       </button>
       <button
-        onClick={() => handlePublish(offer)}
+        onClick={() => handlePublish(offer, offerType)}
         className={`hover:text-green-700 text-green-500`}
       >
         {offer.active ? <FiEyeOff size={20} title="Visible" /> : <FiEye size={20} title="Mettre en ligne" />}
@@ -148,6 +176,14 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
           <UpdateOffer offerId={selectedOffer} offerType={selectedOfferType} onClose={closeModal} />
         </div>
       )}
+      <Modal 
+        isOpen={isModalStatusOffer}
+        onClose={() => setIsModalStatusOffer(false)}
+        title="change status offer" 
+       >
+        <StatusOfferForm selectedOffer={selectedOffer} offerType={selectedOfferType} active={statusOffer} onConfirm={changeOfferStatus} onCancel={() => setIsModalStatusOffer(false)}/>
+      </Modal>
+
     </div>
   );
 };

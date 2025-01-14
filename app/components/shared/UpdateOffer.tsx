@@ -23,7 +23,7 @@ const UpdateOffer: React.FC<UpdateOfferProps> = ({ offerId, offerType, onClose }
   useEffect(() => {
     const fetchOffer = async () => {
       try {
-        const response = await axios.get(`/api/offer?category=${offerType}&offerId=${offerId}`);
+        const response = await axios.get(`/api/updateOffer?category=${offerType}&offerId=${offerId}`);
         setOffer(response.data.data);
       } catch {
         setError("Failed to fetch offer. Please try again later.");
