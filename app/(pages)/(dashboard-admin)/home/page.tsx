@@ -112,7 +112,7 @@ export default function AdminHomePage() {
         </div>
 
         {/* Conteneur pour modales */}
-        <div className="lg:flex flex-1">
+        <div className="lg:flex flex-1 ">
           {/* Modales */}
           {openModal === "test" && (
             <TestAdminDeleteOfferModal
