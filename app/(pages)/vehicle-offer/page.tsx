@@ -116,8 +116,6 @@ const VehicleOfferForm = () => {
     <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Créer une offre de véhicule</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="text-red-500">{error}</div>}
-      {successMessage && <div className="text-green-500">{successMessage}</div>}
 
       {/* Title */}
       <label className="block">
@@ -242,6 +240,9 @@ const VehicleOfferForm = () => {
       <button type="submit" disabled={isSubmitting} className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:opacity-50">
         {isSubmitting ? "Envoi en cours..." : "Créer l'offre"}
       </button>
+      {error && <div className="text-red-500">{error}</div>}
+      {successMessage && <div className="text-green-500">{successMessage}</div>}
+
       </form>
     </div>
   );

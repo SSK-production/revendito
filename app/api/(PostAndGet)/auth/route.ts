@@ -189,11 +189,12 @@ export async function GET(req: NextRequest) {
       ?.split(";")
       .find((c) => c.trim().startsWith("refresh_token="))
       ?.split("=")[1];
-
+      console.log( "ligne : 192");
     if (accessToken) {
       const user = verifyAccessToken(accessToken);
-
-      if (user) {
+      console.log( "ligne : 195");
+      
+      if (user !== null) {
         const  response = NextResponse.json(
           {
             message: "User authenticated",
@@ -234,7 +235,7 @@ export async function GET(req: NextRequest) {
     } else if (refreshToken) {
       const newAccessToken = refreshAccessToken(refreshToken);
       console.log(newAccessToken);
-      
+      console.log( "ligne : 238");
       if (newAccessToken) {
         const user = verifyAccessToken(newAccessToken) as UserPayload | null;
 

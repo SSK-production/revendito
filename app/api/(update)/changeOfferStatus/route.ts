@@ -62,7 +62,17 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ message: "offer status updated" }, {status:200});
+    const response = NextResponse.json({ message: "offer status updated" }, {status:200});
+
+    response.cookies.set('access_token', user.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', 
+        maxAge: 3600,
+        sameSite: 'strict',
+        path: '/',
+      });
+  
+      return response; 
   } catch (error: unknown) {
     return NextResponse.json(
         { message: "An error occurred", error: (error as Error).message },

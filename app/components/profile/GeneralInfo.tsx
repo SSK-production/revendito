@@ -198,7 +198,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
             <p>
               <strong>Email Verified:</strong>{" "}
               {data.emailVerified ? "Yes" : "No"}
-              {!data.active && (
+              {!data.active || !data.emailVerified && (
                 <button
                   onClick={() => {
                     // Add your email verification logic here
