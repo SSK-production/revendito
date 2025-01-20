@@ -121,6 +121,8 @@ const CommercialOfferForm = () => {
       });
 
       const data = await response.json();
+      console.log(data);
+      
 
       if (response.ok) {
         setSuccessMessage("Offre créée avec succès!");
@@ -164,9 +166,7 @@ const CommercialOfferForm = () => {
         Créer une offre commerciale
       </h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <div className="text-red-600">{error}</div>}
-        {successMessage && <div className="text-green-600">{successMessage}</div>}
-
+        
         {/* Titre */}
         <label className="block text-gray-700">
           Titre:
@@ -376,7 +376,7 @@ const CommercialOfferForm = () => {
             className="mt-1 block w-full text-sm text-black file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-md file:bg-indigo-500 file:text-white hover:file:bg-indigo-600"
           />
         </label>
-
+        
         <button
           type="submit"
           disabled={isSubmitting}
@@ -384,6 +384,9 @@ const CommercialOfferForm = () => {
         >
           {isSubmitting ? "Envoi en cours..." : "Créer l'offre"}
         </button>
+        {error && <div className="text-red-600">{error}</div>}
+        {successMessage && <div className="text-green-600">{successMessage}</div>}
+
       </form>
     </div>
   );

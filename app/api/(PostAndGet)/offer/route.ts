@@ -21,18 +21,48 @@ export async function GET(req: NextRequest) {
       offer = await prisma.vehicleOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
+        },
+        include: {
+          user: true, // Inclut les détails de l'utilisateur
+          company: true, // Inclut les détails de l'entreprise
         },
       });
     } else if (page === "property") {
       offer = await prisma.realEstateOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
+        },
+        include: {
+          user: true,
+          company: true,
         },
       });
     } else if (page === "commercial") {
       offer = await prisma.commercialOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
+        },
+        include: {
+          user: true,
+          company: true,
         },
       });
     } else {
@@ -46,6 +76,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: `Offer not found for id: ${offerId}` },
         { status: 404 }
+      );
+    }
+
+    // Vérifiez si l'utilisateur ou l'entreprise est actif/active
+    const isUserActive = offer.user?.active || false;
+    const isCompanyActive = offer.company?.active || false;
+
+    if (!isUserActive && !isCompanyActive) {
+      return NextResponse.json(
+        { error: "The offer is associated with an inactive user or company." },
+        { status: 403 }
       );
     }
 

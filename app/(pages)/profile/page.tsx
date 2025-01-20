@@ -47,6 +47,15 @@ export default function ProfilePage() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(2);
+  const [isChange, setIsChange] = useState<boolean>(false);
+  const [offerIsChanged, setOfferIsChanged] = useState<boolean>(false)
+
+  const handleProfileUpdate = () => {
+    setIsChange((prev) => !prev); // Inverse la valeur pour déclencher le `useEffect`
+  };
+  const handleOfferUpdate = () => {
+    setOfferIsChanged((prev) => !prev); // Inverse la valeur pour déclencher le `useEffect`
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -104,23 +113,7 @@ export default function ProfilePage() {
     };
 
     fetchData();
-  }, [user, role]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get<{ user: ProfileData }>("/api/report", {});
-        console.log(response);
-      } catch {
-        setError("Account not found.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user, role]);
+  }, [user, role, isChange]);
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -141,18 +134,39 @@ export default function ProfilePage() {
     };
 
     fetchOffers();
-  }, [user, role, page, pageSize]);
+  }, [user, role, page, pageSize, offerIsChanged]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+          <div className="loader ease-linear rounded-full border-8 border-t-8 border-blue-500 h-32 w-32 mb-4 mx-auto animate-spin"></div>
+        <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
+        <p className="text-gray-500">Please wait while we fetch the offer details.</p>
+      </div>
+    </div>
+  );
+
   if (error)
-    return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-red-500">Account not found.</h2>
+      </div>
+      </div>
+    );
 
   if (data && !data.active && userId !== data.id)
-    return <div className="text-center mt-10 text-red-500">Account not found.</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h2 className="text-xl font-semibold text-red-500">Account not found.</h2>
+      </div>
+      </div>
+    );
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6">
@@ -168,8 +182,16 @@ export default function ProfilePage() {
         userId={data.id}
         role={userrole}
         entity={entity}
+        onProfilUpdate={handleProfileUpdate}
         />
-        <GeneralInfo data={data} currentUserId={userId} userId={data.id} entity={entity} />
+
+        <GeneralInfo 
+        data={data} 
+        currentUserId={userId} 
+        userId={data.id} 
+        entity={entity} 
+        onProfilUpdate={handleProfileUpdate} 
+        />
         {!data.isBanned && userOffers && (
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mt-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">User Offers</h2>
@@ -180,6 +202,7 @@ export default function ProfilePage() {
             offers={userOffers}
             currentUserId={userId}
             userId={data.id}
+            onProfilUpdate={handleOfferUpdate} 
           />
           )}
         </div>

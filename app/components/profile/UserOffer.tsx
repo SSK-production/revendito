@@ -3,6 +3,10 @@ import Image from "next/image";
 import { Offers } from "@/app/types";
 import UpdateOffer from "../shared/UpdateOffer"; // Import UpdateOffer
 import { useState } from "react";
+import Modal from "./Modal";
+import StatusOfferForm from "./statusOfferForm";
+import axios from "axios"
+import DeleteOfferForm from "./DeleteOfferForm";
 
 interface UserOffersProps {
   offers: {
@@ -12,14 +16,18 @@ interface UserOffersProps {
   };
   currentUserId: string | null;
   userId: string;
+  onProfilUpdate: () => void;
 }
 
-const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }) => {
+const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId, onProfilUpdate }) => {
   const { vehicleOffers, realEstateOffers, commercialOffers } = offers;
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<number | null>(null);
   const [selectedOfferType, setSelectedOfferType] = useState<string>("");
+  const [isModalStatusOffer, setIsModalStatusOffer] = useState(false);
+  const [statusOffer,setStatusOffer] = useState<boolean | null>(null);
+  const [isModalDeleteOffer, setIsModalDeleteOffer] = useState(false);
 
   const openModal = (offer: Offers, offerType: string) => {
     setSelectedOffer(offer.id);
@@ -31,10 +39,63 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
     setSelectedOffer(null);
     setSelectedOfferType("");
     setModalOpen(false);
+    onProfilUpdate();
   };
 
-  const handlePublish = (offer: Offers) => console.log(`Toggle publish for offer ${offer}`);
-  const handleDelete = (offer: Offers) => console.log(`Delete offer ${offer}`);
+  const handlePublish = async (offer: Offers, offerType : string) =>  {
+    setSelectedOffer(offer.id);
+    setSelectedOfferType(offerType);
+    setStatusOffer(offer.active);
+    setIsModalStatusOffer(true);
+  }
+  const changeOfferStatus = async () => {
+    try {
+        const response = await axios.put(
+          `/api/changeOfferStatus`,
+          {
+            active: statusOffer,
+            offerId: selectedOffer,
+            offerType: selectedOfferType
+          },
+          {
+            withCredentials: true,
+          }
+        );
+            console.log("Status account is changed", response.data.message);
+            setIsModalStatusOffer(false)
+            onProfilUpdate()
+    } catch (error) {
+      console.error("Error updating status : ", error);
+    }
+  }
+  const handleDelete = async (offer: Offers, offerType : string) =>  {
+    setSelectedOffer(offer.id);
+    setSelectedOfferType(offerType);
+    setStatusOffer(offer.active);
+    setIsModalDeleteOffer(true);
+  }
+
+  const deleteOffer = async (password : string) => {
+    try {
+      const response = await axios.delete(
+          "/api/deleteOffer",
+          {
+              data: {
+                  password: password,
+                  offerId: selectedOffer,
+                  offerType: selectedOfferType
+              },
+              withCredentials: true
+          }
+      );
+      console.log(response.data.message);
+      setIsModalDeleteOffer(false);
+      onProfilUpdate()
+  } catch (error) {
+      console.error("Error updating status :", error);
+  }
+    
+  }
 
   const StatusBadge = ({ active }: { active: boolean }) => (
     <span
@@ -54,12 +115,12 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
         <FiEdit size={20} title="Update" />
       </button>
       <button
-        onClick={() => handlePublish(offer)}
+        onClick={() => handlePublish(offer, offerType)}
         className={`hover:text-green-700 text-green-500`}
       >
         {offer.active ? <FiEyeOff size={20} title="Visible" /> : <FiEye size={20} title="Mettre en ligne" />}
       </button>
-      <button onClick={() => handleDelete(offer)} className="text-red-500 hover:text-red-700">
+      <button onClick={() => handleDelete(offer, offerType)} className="text-red-500 hover:text-red-700">
         <FiTrash2 size={20} title="Delete" />
       </button>
     </div>
@@ -148,6 +209,21 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
           <UpdateOffer offerId={selectedOffer} offerType={selectedOfferType} onClose={closeModal} />
         </div>
       )}
+      <Modal 
+        isOpen={isModalStatusOffer}
+        onClose={() => setIsModalStatusOffer(false)}
+        title="change status offer" 
+       >
+        <StatusOfferForm selectedOffer={selectedOffer} offerType={selectedOfferType} active={statusOffer} onConfirm={changeOfferStatus} onCancel={() => setIsModalStatusOffer(false)}/>
+      </Modal>
+
+      <Modal 
+        isOpen={isModalDeleteOffer}
+        onClose={() => setIsModalDeleteOffer(false)}
+        title="delete offer" 
+       >
+        <DeleteOfferForm selectedOffer={selectedOffer} offerType={selectedOfferType} onConfirm={deleteOffer} onCancel={() => setIsModalDeleteOffer(false)}/>
+      </Modal>
     </div>
   );
 };

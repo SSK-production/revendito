@@ -36,6 +36,10 @@ export default function Header() {
     };
 
     checkAuth();
+    const intervalId = setInterval(checkAuth, 59 * 60 * 1000);
+
+    // Nettoyer l'intervalle lors du démontage du composant
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleMenuOpen = (menu: string) => setActiveMenu(menu);

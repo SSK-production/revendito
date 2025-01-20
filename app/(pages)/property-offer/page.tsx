@@ -116,8 +116,6 @@ export default function RealEstateOfferPage() {
     <div className="max-w-3xl mx-auto mt-10 p-5 border rounded shadow-lg bg-white">
       <h1 className="text-2xl font-bold mb-5">Create Real Estate Offer</h1>
 
-      {message && <p className="mb-4 text-red-600">{message}</p>}
-
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div className="flex flex-col">
@@ -586,6 +584,7 @@ export default function RealEstateOfferPage() {
         >
           Create Offer
         </button>
+        {message && <p className="mb-4 text-red-600">{message}</p>}
       </form>
     </div>
   );

@@ -131,7 +131,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
           <input
             type="date"
             name="birthDate"
-            value={formData.birthDate || ""}
+            value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ""}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
           />
@@ -219,7 +219,7 @@ const UpdateProfileForm: React.FC<UpdateProfileFormProps> = ({
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Save
         </button>

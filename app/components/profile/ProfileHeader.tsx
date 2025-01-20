@@ -1,4 +1,3 @@
-// Fichier : ProfileHeader.tsx
 import React, { useState } from "react";
 import Image from "next/image";
 import axios from "axios";
@@ -20,6 +19,7 @@ interface ProfileHeaderProps {
   role: string | null;
   entity: string | null;
   setShowModal: (value: boolean) => void;
+  onProfilUpdate: () => void;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -30,10 +30,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   showModal,
   setShowModal,
   role,
-  entity
+  entity,
+  onProfilUpdate
 }) => {
   const [isModalOpenBanForm, setisModalOpenBanForm] = useState(false);
   const { NotificationsComponent, addNotification } = useNotifications();
+  const [bannedUser, setBannedUser] = useState<boolean | null>(false);
   return (
     <div className="flex flex-col md:flex-row items-center justify-between mb-6 space-y-4 md:space-y-0">
       <div className="flex flex-col md:flex-row items-center space-x-0 md:space-x-6 space-y-4 md:space-y-0">
@@ -76,17 +78,26 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           (role === "MODERATOR" || role === "ADMIN") &&
           (!data.isBanned ? (
             <button
-              onClick={() => setisModalOpenBanForm(true)}
+              onClick={() => {
+                setisModalOpenBanForm(true);
+                setBannedUser(false);
+              }}
               className="flex items-center justify-center space-x-2 text-white bg-red-500 hover:bg-red-700 p-2 rounded-full shadow-md transition duration-300"
             >
               <FontAwesomeIcon icon={faBan} />
               <span>Ban</span>
             </button>
           ) : (
-            <span className="flex items-center justify-center space-x-2 text-white bg-gray-500 p-2 rounded-full shadow-md">
+            <button
+              onClick={() => {
+                setisModalOpenBanForm(true);
+                setBannedUser(true);
+              }}
+              className="flex items-center justify-center space-x-2 text-white bg-red-500 hover:bg-red-700 p-2 rounded-full shadow-md transition duration-300"
+            >
               <FontAwesomeIcon icon={faBan} />
-              <span>Banned</span>
-            </span>
+              <span>Unban</span>
+            </button>
           ))}
       </div>
       {/* Modal */}
@@ -114,17 +125,19 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 bannTitle: [updatedData.bannTitle],
                 reason: [updatedData.reason],
                 duration: parseInt(updatedData.duration, 10), // Convertir en nombre (jours)
+                banned: bannedUser
               };
 
               const response = await axios.patch("/api/bans", payload);
               console.log("Response from server:", response.data);
 
               addNotification({
-                message: "user banned successfully",
+                message: response.data.message,
                 variant: "success",
                 duration: 7000,
               });
               setisModalOpenBanForm(false); // Fermer la modale après succès
+              onProfilUpdate();
             } catch (error) {
               console.error("Error while sending data:", error);
                 addNotification({

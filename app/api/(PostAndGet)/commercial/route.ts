@@ -27,8 +27,20 @@ export async function GET(req: NextRequest) {
     skip: skip,
     take: limit,
     where: {
-      validated: true,
-      active: true,
+      AND: [
+        { validated: true },
+        { active: true },
+        {
+          OR: [
+            { user: { active: true, isBanned: false } }, // Utilisateur actif
+            { company: { active: true, isBanned: false } }, // Entreprise active
+          ],
+        },
+      ],
+    },
+    include: {
+      user: true, // Inclut les informations utilisateur
+      company: true, // Inclut les informations entreprise
     },
     orderBy: {
       createdAt: 'desc'
@@ -36,10 +48,18 @@ export async function GET(req: NextRequest) {
     });
   
     const totalOffers = await prisma.commercialOffer.count({
-    where: {
-      validated: true,
-      active: true,
-    },
+      where: {
+        AND: [
+          { validated: true },
+          { active: true },
+          {
+            OR: [
+              { user: { active: true, isBanned: false } },
+              { company: { active: true, isBanned: false } },
+            ],
+          },
+        ],
+      },
     });
   
     return NextResponse.json({
@@ -71,25 +91,29 @@ export async function POST(req: NextRequest) {
   console.log('Début du traitement de la requête POST');
   try {
     // On récup le token
-    const { id, username, entity,isBanned, banReason, banEndDate, accessToken, active } = await getUserFromRequest(req);
-    if (isBanned && banEndDate && banEndDate > new Date()) {
+    const userData = await getUserFromRequest(req);
+    if (userData.isBanned && userData.banEndDate && userData.banEndDate > new Date()) {
       // Si l'utilisateur est banni et la date de fin de bannissement n'est pas dépassée
       return NextResponse.json({
         error: "Banned",
         message: `You are banned from using this service. Reason: ${
-          banReason || "No reason specified"
-        }. Ban will end on: ${banEndDate.toISOString()}.`,
-      })
+          userData.banReason || "No reason specified"
+        }. Ban will end on: ${userData.banEndDate.toISOString()}.`,
+      }, {status: 403});
     }
-
-    if (!active) {
-      return NextResponse.json({
-        error: "Inactive",
-        message: "Your account is inactive. Please contact the support team for more information.",
-      });
+    
+    
+    if (userData.active) {
+      return NextResponse.json(
+        {
+          error: "Your account is inactive. Please contact the support team for more information.",
+          message: "Your account is inactive. Please contact the support team for more information.",
+        },
+        { status: 403 } // Définit le statut HTTP à 403 Forbidden
+      );
     }
     // Vérification si l'entité existe
-    verifyId(id, entity);
+    verifyId(userData.id, userData.entity);
     
     const formData = await req.formData();
     const uploadDir = 'public/offer';
@@ -113,8 +137,8 @@ export async function POST(req: NextRequest) {
 
     console.log('Début de la création de l\'offre');
     console.log({data: {
-      vendor: username,
-      vendorType: entity,
+      vendor: userData.username,
+      vendorType: userData.entity,
       title: fields.title,
       description: fields.description,
       price: parseFloat(fields.price),
@@ -129,14 +153,14 @@ export async function POST(req: NextRequest) {
       contactNumber: fields.contactNumber,
       contactEmail: fields.contactEmail,
       photos,  
-      userId: entity === 'user' ? id : null,
-      companyId: entity === 'company' ? id : null,
+      userId: userData.entity === 'user' ? userData.id : null,
+      companyId: userData.entity === 'company' ? userData.id : null,
     }});
     
     const newCommercialOffer: CommercialOffer = await prisma.commercialOffer.create({
       data: {
-        vendor: username,
-        vendorType: entity,
+        vendor: userData.username,
+        vendorType: userData.entity,
         title: fields.title,
         description: fields.description,
         price: parseFloat(fields.price),
@@ -151,15 +175,15 @@ export async function POST(req: NextRequest) {
         contactNumber: fields.contactNumber,
         contactEmail: fields.contactEmail,
         photos,  
-        userId: entity === 'user' ? id : null,
-        companyId: entity === 'company' ? id : null,
+        userId: userData.entity === 'user' ? userData.id : null,
+        companyId: userData.entity === 'company' ? userData.id : null,
       }
     });
     console.log('Nouvelle offre créée:', newCommercialOffer);
 
     const response = NextResponse.json({ newCommercialOffer }, { status: 201 });
 
-    response.cookies.set('access_token', accessToken, {
+    response.cookies.set('access_token', userData.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', 
         maxAge: 3600,

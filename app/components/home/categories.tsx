@@ -66,7 +66,7 @@ export default function Categories({ onLoad }: CategoriesProps) {
   );
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
+    <section className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
       {/* Automotive */}
       <article className="bg-blue-50 rounded-lg shadow-md">
         <header className="flex items-center gap-2 bg-blue-100 rounded-t-lg text-blue-800 font-semibold pl-4 py-3">
