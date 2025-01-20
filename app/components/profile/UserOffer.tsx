@@ -16,9 +16,10 @@ interface UserOffersProps {
   };
   currentUserId: string | null;
   userId: string;
+  onProfilUpdate: () => void;
 }
 
-const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }) => {
+const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId, onProfilUpdate }) => {
   const { vehicleOffers, realEstateOffers, commercialOffers } = offers;
 
   const [isModalOpen, setModalOpen] = useState(false);
@@ -38,6 +39,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
     setSelectedOffer(null);
     setSelectedOfferType("");
     setModalOpen(false);
+    onProfilUpdate();
   };
 
   const handlePublish = async (offer: Offers, offerType : string) =>  {
@@ -61,6 +63,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
         );
             console.log("Status account is changed", response.data.message);
             setIsModalStatusOffer(false)
+            onProfilUpdate()
     } catch (error) {
       console.error("Error updating status : ", error);
     }
@@ -87,6 +90,7 @@ const UserOffers: React.FC<UserOffersProps> = ({ offers, currentUserId, userId }
       );
       console.log(response.data.message);
       setIsModalDeleteOffer(false);
+      onProfilUpdate()
   } catch (error) {
       console.error("Error updating status :", error);
   }

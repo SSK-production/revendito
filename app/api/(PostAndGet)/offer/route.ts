@@ -21,6 +21,12 @@ export async function GET(req: NextRequest) {
       offer = await prisma.vehicleOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
         },
         include: {
           user: true, // Inclut les détails de l'utilisateur
@@ -31,6 +37,12 @@ export async function GET(req: NextRequest) {
       offer = await prisma.realEstateOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
         },
         include: {
           user: true,
@@ -41,6 +53,12 @@ export async function GET(req: NextRequest) {
       offer = await prisma.commercialOffer.findUnique({
         where: {
           id: offerId,
+          user: {
+            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
+          },
+          company: {
+            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
+          },
         },
         include: {
           user: true,

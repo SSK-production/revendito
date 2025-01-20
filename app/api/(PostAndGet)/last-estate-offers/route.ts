@@ -12,8 +12,8 @@ export async function GET() {
                     { active: true }, // Offre active
                     {
                         OR: [
-                            { user: { active: true } }, // Utilisateur actif
-                            { company: { active: true } }, // Entreprise active
+                            { user: { active: true, isBanned: false } }, // Utilisateur actif
+                            { company: { active: true, isBanned: false } }, // Entreprise active
                         ],
                     },
                 ],

@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
           { active: true },
           {
             OR: [
-              { user: { active: true } }, // Utilisateur actif
-              { company: { active: true } }, // Entreprise active
+              { user: { active: true, isBanned: false } }, // Utilisateur actif
+              { company: { active: true, isBanned: false } }, // Entreprise active
             ],
           },
         ],
@@ -52,8 +52,8 @@ export async function GET(req: NextRequest) {
           { active: true },
           {
             OR: [
-              { user: { active: true } },
-              { company: { active: true } },
+              { user: { active: true, isBanned: false } },
+              { company: { active: true, isBanned: false } },
             ],
           },
         ],

@@ -47,6 +47,15 @@ export default function ProfilePage() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [pageSize] = useState<number>(2);
+  const [isChange, setIsChange] = useState<boolean>(false);
+  const [offerIsChanged, setOfferIsChanged] = useState<boolean>(false)
+
+  const handleProfileUpdate = () => {
+    setIsChange((prev) => !prev); // Inverse la valeur pour déclencher le `useEffect`
+  };
+  const handleOfferUpdate = () => {
+    setOfferIsChanged((prev) => !prev); // Inverse la valeur pour déclencher le `useEffect`
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -104,23 +113,7 @@ export default function ProfilePage() {
     };
 
     fetchData();
-  }, [user, role]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get<{ user: ProfileData }>("/api/report", {});
-        console.log(response);
-      } catch {
-        setError("Account not found.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user, role]);
+  }, [user, role, isChange]);
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -141,7 +134,7 @@ export default function ProfilePage() {
     };
 
     fetchOffers();
-  }, [user, role, page, pageSize]);
+  }, [user, role, page, pageSize, offerIsChanged]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -189,8 +182,16 @@ export default function ProfilePage() {
         userId={data.id}
         role={userrole}
         entity={entity}
+        onProfilUpdate={handleProfileUpdate}
         />
-        <GeneralInfo data={data} currentUserId={userId} userId={data.id} entity={entity} />
+
+        <GeneralInfo 
+        data={data} 
+        currentUserId={userId} 
+        userId={data.id} 
+        entity={entity} 
+        onProfilUpdate={handleProfileUpdate} 
+        />
         {!data.isBanned && userOffers && (
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mt-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">User Offers</h2>
@@ -201,6 +202,7 @@ export default function ProfilePage() {
             offers={userOffers}
             currentUserId={userId}
             userId={data.id}
+            onProfilUpdate={handleOfferUpdate} 
           />
           )}
         </div>

@@ -14,6 +14,7 @@ interface GeneralInfoProps {
   currentUserId: string | null;
   userId: string;
   entity: string | null;
+  onProfilUpdate: () => void;
 }
 
 const GeneralInfo: React.FC<GeneralInfoProps> = ({
@@ -21,6 +22,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
   currentUserId,
   userId,
   entity,
+  onProfilUpdate
 }) => {
   const [isModalOpenGeneralInfo, setIsModalOpenGeneralInfo] = useState(false);
   const [isModalOpenAccount, setIsModalOpenAccount] = useState(false);
@@ -45,6 +47,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
       });
       console.log("Updated profile data:", response.data.message);
       setIsModalOpenGeneralInfo(false); // Close the modal after saving
+      onProfilUpdate()
     } catch (error) {
       console.error("Error updating profile data:", error);
     }
@@ -56,6 +59,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
         withCredentials: true, // Send cookies with the request
       });
       console.log("Updated profile data:", response.data.message);
+      onProfilUpdate()
     } catch (error) {
       console.error("Error updating profile data:", error);
     }
@@ -72,6 +76,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
         withCredentials: true, // Send cookies with the request
       });
       console.log("Updated profile data:", response.data.message);
+      onProfilUpdate()
     } catch (error) {
       console.error("Error updating profile data:", error);
     }
@@ -93,6 +98,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
         }
       );
       console.log("Status account is changed", response.data.message);
+      onProfilUpdate()
     } catch (error) {
       console.error("Error updating status : ", error);
     }
