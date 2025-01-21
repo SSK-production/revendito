@@ -50,14 +50,13 @@ const UserCard: React.FC<{
     toggleExpand: () => void;
     isDesktop: boolean;
 }> = ({ user, isExpanded, toggleExpand, isDesktop }) => {
-    // Assurez-vous que bannTitle est un tableau
     let bannTitles: string[] = [];
     try {
         bannTitles = Array.isArray(user.bannTitle)
             ? user.bannTitle
             : JSON.parse(user.bannTitle || '[]');
     } catch {
-        bannTitles = []; // Valeur par défaut en cas d'erreur de parsing
+        bannTitles = [];
     }
 
     return (
@@ -74,17 +73,15 @@ const UserCard: React.FC<{
                 </div>
                 <div className="flex items-center space-x-2">
                     <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">BANNED</span>
-                    {!isDesktop && (
-                        <button onClick={toggleExpand} aria-expanded={isExpanded} className="focus:outline-none">
-                            <Image
-                                src="/icons/mobil-dashboard/userBan/arrow-narrow-down-move.svg"
-                                width={20}
-                                height={20}
-                                alt={isExpanded ? "Collapse details" : "Expand details"}
-                                className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
-                            />
-                        </button>
-                    )}
+                    <button onClick={toggleExpand} aria-expanded={isExpanded} className="focus:outline-none md:hidden">
+                        <Image
+                            src="/icons/mobil-dashboard/userBan/arrow-narrow-down-move.svg"
+                            width={20}
+                            height={20}
+                            alt={isExpanded ? "Collapse details" : "Expand details"}
+                            className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                    </button>
                 </div>
             </div>
             {(isExpanded || isDesktop) && (
@@ -151,12 +148,11 @@ const UserCard: React.FC<{
     );
 };
 
-
 const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
-    const isDesktop = useMediaQuery('(min-width: 1024px)');
+    const isDesktop = useMediaQuery('(min-width: 768px)');
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -190,9 +186,9 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay w-full h-full" onClick={closeModal}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div
-                className="modal-content w-full h-full flex flex-col"
+                className="bg-white w-full h-full md:h-auto md:max-h-[90vh] md:w-4/5 lg:w-3/4 xl:w-2/3 rounded-lg shadow-xl flex flex-col"
                 ref={containerRef}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -204,7 +200,7 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
                         </svg>
                     </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6">
                     <div className="relative mb-4">
                         <input
                             type="text"
@@ -235,3 +231,4 @@ const AdminUserBanModal: React.FC<ModalProps> = ({ isOpen, closeModal }) => {
 };
 
 export default AdminUserBanModal;
+
