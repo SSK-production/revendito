@@ -190,22 +190,22 @@ const VehicleOfferForm = () => {
 
       <label className="block">
         <span className="text-gray-700">Nombre de portes:</span>
-        <input type="number" name="numberOfDoors" value={formData.numberOfDoors} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        <input type="number" name="numberOfDoors" value={formData.numberOfDoors} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
       </label>
 
       <label className="block">
         <span className="text-gray-700">Taille du moteur (L):</span>
-        <input type="text" name="engineSize" value={formData.engineSize} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        <input type="text" name="engineSize" value={formData.engineSize} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
       </label>
 
       <label className="block">
         <span className="text-gray-700">Puissance (CV):</span>
-        <input type="text" name="power" value={formData.power} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        <input type="text" name="power" value={formData.power} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
       </label>
 
       <label className="block">
         <span className="text-gray-700">Classe d'émission:</span>
-        <input type="text" name="emissionClass" value={formData.emissionClass} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+        <input type="text" name="emissionClass" value={formData.emissionClass} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
       </label>
 
       <label className="block">

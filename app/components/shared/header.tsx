@@ -10,6 +10,7 @@ export default function Header() {
   const [entity, setEntity] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -40,7 +41,7 @@ export default function Header() {
 
     // Nettoyer l'intervalle lors du démontage du composant
     return () => clearInterval(intervalId);
-  }, []);
+  }, [isLogin]);
 
   const handleMenuOpen = (menu: string) => setActiveMenu(menu);
   const handleMenuClose = () => setActiveMenu(null);

@@ -3,6 +3,8 @@ import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { PrismaClient } from "@prisma/client";
 import { verifyId } from "@/app/lib/function";
 import bcrypt from "bcrypt";
+import fs from "fs";
+import path from "path";
 
 const getPrismaInstance = (() => {
   let instance: PrismaClient;
@@ -83,29 +85,43 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (
-        !offer ||
-        (userData.entity === "user" && offer.userId !== userData.id) ||
-        (userData.entity === "company" && offer.companyId !== userData.id)
-      ) {
-        // On arrête immédiatement l'exécution si non autorisé
-        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-      }
-      
-      // Si l'exécution atteint ici, l'utilisateur est autorisé, on peut supprimer l'offre
-      if (offerType === "vehicle") {
-        await prisma.vehicleOffer.delete({
-          where: { id: Number(offerId) },
-        });
-      } else if (offerType === "property") {
-        await prisma.realEstateOffer.delete({
-          where: { id: Number(offerId) },
-        });
-      } else if (offerType === "commercial") {
-        await prisma.commercialOffer.delete({
-          where: { id: Number(offerId) },
-        });
-      }
-      
+      !offer ||
+      (userData.entity === "user" && offer.userId !== userData.id) ||
+      (userData.entity === "company" && offer.companyId !== userData.id)
+    ) {
+      // On arrête immédiatement l'exécution si non autorisé
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Supprimer les fichiers associés à l'offre
+    const offerImagesPath = path.join(
+      process.cwd(),
+      "public",
+      "offer",
+      offerType,
+      String(offerId)
+    );
+
+    try {
+      await fs.promises.rm(offerImagesPath, { recursive: true, force: true });
+    } catch (fsError) {
+      console.error("Failed to delete offer images:", fsError);
+    }
+
+    // Si l'exécution atteint ici, l'utilisateur est autorisé, on peut supprimer l'offre
+    if (offerType === "vehicle") {
+      await prisma.vehicleOffer.delete({
+        where: { id: Number(offerId) },
+      });
+    } else if (offerType === "property") {
+      await prisma.realEstateOffer.delete({
+        where: { id: Number(offerId) },
+      });
+    } else if (offerType === "commercial") {
+      await prisma.commercialOffer.delete({
+        where: { id: Number(offerId) },
+      });
+    }
 
     const response = NextResponse.json(
       { message: "offer deleted with success" },

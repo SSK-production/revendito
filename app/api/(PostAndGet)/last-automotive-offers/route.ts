@@ -9,7 +9,7 @@ export async function GET() {
         const offers = await prisma.vehicleOffer.findMany({
             where: {
                 AND: [
-                    { active: true }, // Offre active
+                    { active: true, validated: true }, // Offre active
                     {
                         OR: [
                             { user: { active: true, isBanned: false } }, // Utilisateur actif

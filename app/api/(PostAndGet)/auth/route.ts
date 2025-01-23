@@ -218,6 +218,8 @@ export async function GET(req: NextRequest) {
         sameSite: 'strict',
         path: '/',
       });
+      console.log("ligne : 221");
+      
         return response
       } else if (refreshToken) {
         return refreshAccessToken(refreshToken); // Assurez-vous que cette fonction retourne une réponse !

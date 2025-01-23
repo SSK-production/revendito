@@ -17,7 +17,7 @@ return (
     <html lang="en">
         <body className="antialiased min-h-screen flex flex-col bg-slate-50">
             <Header />
-            <main className="flex-1 w-full md:w-4/5 self-center pt-8 mt-2 px-4 py-2">
+            <main className="flex-1 w-full md:w-4/5 self-center pt-12 mt-2 px-4 py-2">
                 {children}
             </main>
             <Footer />

@@ -21,12 +21,7 @@ export async function GET(req: NextRequest) {
       offer = await prisma.vehicleOffer.findUnique({
         where: {
           id: offerId,
-          user: {
-            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
-          },
-          company: {
-            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
-          },
+          validated: true,
         },
         include: {
           user: true, // Inclut les détails de l'utilisateur
@@ -37,12 +32,7 @@ export async function GET(req: NextRequest) {
       offer = await prisma.realEstateOffer.findUnique({
         where: {
           id: offerId,
-          user: {
-            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
-          },
-          company: {
-            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
-          },
+          validated: true,
         },
         include: {
           user: true,
@@ -53,12 +43,7 @@ export async function GET(req: NextRequest) {
       offer = await prisma.commercialOffer.findUnique({
         where: {
           id: offerId,
-          user: {
-            isBanned: false, // Vérifie que l'utilisateur n'est pas banni
-          },
-          company: {
-            isBanned: false, // Vérifie que l'entreprise n'est pas bannie
-          },
+          validated: true,
         },
         include: {
           user: true,
@@ -86,6 +71,27 @@ export async function GET(req: NextRequest) {
     if (!isUserActive && !isCompanyActive) {
       return NextResponse.json(
         { error: "The offer is associated with an inactive user or company." },
+        { status: 403 }
+      );
+    }
+    // // verifier si l'offre est accepté
+    // const isUserValidated = offer?.validated || false;
+    // const isCompanyValidated = offer?.validated || false;
+
+    // if (!isUserActive && !isCompanyActive) {
+    //   return NextResponse.json(
+    //     { error: "The offer is associated with an inactive user or company." },
+    //     { status: 403 }
+    //   );
+    // }
+
+    const isUserBanned = offer.user?.isBanned || false;
+    const isCompanyBanned = offer.company?.isBanned || false;
+    console.log("isUserBanned", offer.user?.isBanned);
+    
+    if (isUserBanned || isCompanyBanned) {
+      return NextResponse.json(
+        { error: "The offer is associated with a banned user and company." },
         { status: 403 }
       );
     }
