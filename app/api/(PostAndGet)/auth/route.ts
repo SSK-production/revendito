@@ -153,7 +153,17 @@ export async function POST(req: NextRequest) {
 
     // Respond with cookies and a success message
     return new Response(
-      JSON.stringify({ message: "Login successful " + accessCookie }),
+      JSON.stringify({ message: "Login successful ", user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        entity: isCompany ? "company" : "user",
+        isBanned: user.isBanned,
+        banReason: user.banReason,
+        banEndDate: user.banEndDate,
+        active: user.active,
+      },  accessCookie }),
       {
         status: 200,
         headers: {
