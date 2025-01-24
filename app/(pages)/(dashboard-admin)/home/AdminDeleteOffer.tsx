@@ -153,15 +153,15 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
     };
 
     return (
-        <div className="modal-overlay w-full h-full" onClick={closeModal}>
+        <div className=" modal-overlay  lg:w-full lg:h-full lg:bg-red-950" onClick={closeModal}>
             <div
-                className="modal-content w-full h-full flex flex-col"
+                className="modal-content lg:w-full lg:h-full lg:flex lg:flex-col" 
                 ref={container}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="modal-header flex justify-between items-center p-4 border-b">
                     <div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex flex-col items-center gap-4">
                             {/* Formulaire de recherche */}
                             <form onSubmit={handleSubmit} className="flex gap-4">
                                 <div>
@@ -213,6 +213,7 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
                             </div>
 
                             {/* Boutons pour filtrer par type d'offre */}
+                            <div className="flex gap-6">
                             <Image
                                 src="/icons/mobil-dashboard/car-rental.svg"
                                 alt="Vehicle Offer"
@@ -246,18 +247,23 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
                                 className="cursor-pointer"
                                 onClick={() => setSelectedType("")} // Réinitialiser le filtre
                             />
+                            </div>
+                            
                         </div>
                     </div>
 
                     {/* Bouton de fermeture */}
-                    <Image
-                        src="/icons/mobil-dashboard/cross.svg"
-                        width={25}
-                        height={25}
-                        alt="close-modal"
-                        className="cursor-pointer"
-                        onClick={closeModal}
-                    />
+                    <div>
+                        <Image
+                            src="/icons/mobil-dashboard/cross.svg"
+                            width={25}
+                            height={25}
+                            alt="close-modal"
+                            className=" absolute cursor-pointer"
+                            onClick={closeModal}
+                        />
+                    </div>
+                    
                 </div>
                 <div className="modal-body flex-1 overflow-y-auto p-4">
                     <div className="grid gap-4">

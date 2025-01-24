@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export default function Header() {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
-  const [username, setUsername] = useState<string | null>(null);
-  const [entity, setEntity] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const { isLogin, setIsLogin, username, setUsername, entity, setEntity, role, setRole } = useAuth();
+  // const [isLogin, setIsLogin] = useState<boolean>(false);
+  // const [username, setUsername] = useState<string | null>(null);
+  // const [entity, setEntity] = useState<string | null>(null);
+  // const [role, setRole] = useState<string | null>(null);
+
+  
+  
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,9 +41,14 @@ export default function Header() {
     };
 
     checkAuth();
-    const intervalId = setInterval(checkAuth, 59 * 60 * 1000);
 
-    // Nettoyer l'intervalle lors du démontage du composant
+    // Configurer un intervalle pour vérifier régulièrement l'authentification
+    const intervalId = setInterval(() => {
+      console.log("Periodic auth check...");
+      checkAuth();
+    }, 59 * 60 * 1000); // Tous les 59 minutes
+  
+    // Nettoyer l'intervalle au démontage
     return () => clearInterval(intervalId);
   }, []);
 
@@ -54,6 +64,26 @@ export default function Header() {
       handleMenuClose();
     }
   };
+
+  const logout = async () => {
+    try {
+      const response = await axios.get('/api/logout');
+  
+      if (response.status === 200) {
+        console.log(response.data.message); // Message de confirmation
+        // Réinitialiser l'état local
+        setIsLogin(false);
+        setUsername(null);
+        setEntity(null);
+        setRole(null);
+        window.location.href = '/login'; // Remplacez '/login' par l'URL de votre choix
+      } else {
+        console.error('Erreur lors du logout', response.data);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la requête :', error);
+    }
+  }
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full bg-gray-50 shadow-md border-b">
@@ -224,6 +254,7 @@ export default function Header() {
                         onClick={() => {
                           setIsLogin(false);
                           setUsername(null);
+                          logout();
                         }}
                         className="block px-4 py-2 hover:bg-red-100 text-red-500"
                       >

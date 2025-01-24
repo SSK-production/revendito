@@ -4,6 +4,8 @@ import { vehicleSchema } from "@/app/validation";
 import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { processFormData } from "@/app/lib/processFormData";
 import { verifyId } from "@/app/lib/function";
+import fs from "fs";
+import path from "path";
 
 const prisma = new PrismaClient();
 
@@ -94,21 +96,30 @@ export async function POST(req: NextRequest) {
   try {
     // On récup le token
     const userData = await getUserFromRequest(req);
-    if (userData.isBanned && userData.banEndDate && userData.banEndDate > new Date()) {
+    if (
+      userData.isBanned &&
+      userData.banEndDate &&
+      userData.banEndDate > new Date()
+    ) {
       // Si l'utilisateur est banni et la date de fin de bannissement n'est pas dépassée
-      return NextResponse.json({
-        error: "Banned",
-        message: `You are banned from using this service. Reason: ${
-          userData.banReason || "No reason specified"
-        }. Ban will end on: ${userData.banEndDate.toISOString()}.`,
-      }, {status: 403});
+      return NextResponse.json(
+        {
+          error: "Banned",
+          message: `You are banned from using this service. Reason: ${
+            userData.banReason || "No reason specified"
+          }. Ban will end on: ${userData.banEndDate.toISOString()}.`,
+        },
+        { status: 403 }
+      );
     }
 
     if (!userData.active) {
       return NextResponse.json(
         {
-          error: "Your account is inactive. Please contact the support team for more information.",
-          message: "Your account is inactive. Please contact the support team for more information.",
+          error:
+            "Your account is inactive. Please contact the support team for more information.",
+          message:
+            "Your account is inactive. Please contact the support team for more information.",
         },
         { status: 403 } // Définit le statut HTTP à 403 Forbidden
       );
@@ -117,7 +128,7 @@ export async function POST(req: NextRequest) {
     verifyId(userData.id, userData.entity);
 
     const formData = await req.formData();
-    const uploadDir = "public/offer";
+    const uploadDir = "public/offer/vehicle";
 
     // Traitement des données de formulaire et des fichiers
     const { fields, photos } = await processFormData(formData, uploadDir);
@@ -167,6 +178,35 @@ export async function POST(req: NextRequest) {
         companyId: userData.entity === "company" ? userData.id : null,
       },
     });
+
+    const uniqueDir = path.join(
+      "public",
+      "offer",
+      "vehicle",
+      newVehicleOffer.id.toString()
+    );
+
+    // Créez le dossier si nécessaire
+    if (!fs.existsSync(uniqueDir)) {
+      fs.mkdirSync(uniqueDir, { recursive: true });
+    }
+
+    // Déplacez les fichiers du dossier temporaire vers le dossier unique
+    const finalPhotoPaths: string[] = [];
+        photos.forEach((photo) => {
+          const tempPath = path.join(uploadDir, photo);
+          const newPath = path.join(uniqueDir, photo);
+          fs.renameSync(tempPath, newPath);
+          finalPhotoPaths.push(`/offer/vehicle/${newVehicleOffer.id}${photo}`);
+        });
+    
+        // Mettez à jour l'offre avec les chemins des photos
+        await prisma.vehicleOffer.update({
+          where: { id: newVehicleOffer.id },
+          data: {
+            photos: finalPhotoPaths, // Enregistrement des chemins dans la base de données
+          },
+        });
     console.log("Nouvelle offre créée:", newVehicleOffer);
 
     const response = NextResponse.json({ newVehicleOffer }, { status: 201 });

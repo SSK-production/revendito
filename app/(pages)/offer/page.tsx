@@ -14,6 +14,8 @@ import VehicleDetails from "@/app/components/offers/VehicleDetails";
 import PropertyDetails from "@/app/components/offers/PropertyDetails";
 import CommercialDetails from "@/app/components/offers/CommercialDetails";
 import MessageModal from "@/app/components/Messages/MessageModal";
+import Modal from "@/app/components/profile/Modal";
+import ReportForm from "@/app/components/shared/ReportForm";
 
 interface BaseOffer {
   id: number;
@@ -43,7 +45,7 @@ const Page: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
   useEffect(() => {
     if (!offerId || !category) {
       setError("Missing required parameters: 'category' or 'offerId'.");
@@ -76,9 +78,11 @@ const Page: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-            <div className="loader ease-linear rounded-full border-8 border-t-8 border-blue-500 h-32 w-32 mb-4 mx-auto animate-spin"></div>
+          <div className="loader ease-linear rounded-full border-8 border-t-8 border-blue-500 h-32 w-32 mb-4 mx-auto animate-spin"></div>
           <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
-          <p className="text-gray-500">Please wait while we fetch the offer details.</p>
+          <p className="text-gray-500">
+            Please wait while we fetch the offer details.
+          </p>
         </div>
       </div>
     );
@@ -87,9 +91,11 @@ const Page: React.FC = () => {
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <p className="text-red-500 text-lg font-semibold">No data available for the given offer.</p>
-      </div>
+        <div className="text-center">
+          <p className="text-red-500 text-lg font-semibold">
+            No data available for the given offer.
+          </p>
+        </div>
       </div>
     );
   }
@@ -98,7 +104,9 @@ const Page: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-red-500 text-lg font-semibold">No data available for the given offer.</p>
+          <p className="text-red-500 text-lg font-semibold">
+            No data available for the given offer.
+          </p>
         </div>
       </div>
     );
@@ -113,20 +121,20 @@ const Page: React.FC = () => {
         navigation
         pagination={{ clickable: true }}
         modules={[Navigation, Pagination]}
-        className="w-full h-[75vh]"
+        className="w-full h-auto"
       >
         {data.photos.map((photo, index) => (
           <SwiperSlide
             key={index}
             className="w-full h-full flex justify-center items-center"
           >
-            <div className="relative w-full h-full">
+            <div className="relative w-full aspect-video">
               <Image
                 src={photo}
                 alt={`Offer image ${index + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: "cover" }}
                 className="rounded-lg"
                 priority
               />
@@ -135,33 +143,70 @@ const Page: React.FC = () => {
         ))}
       </Swiper>
 
-      {/* Titre et prix */}
-      <div className="w-full max-w-4xl flex items-center justify-between mt-6">
-        <h1 className="text-3xl font-bold text-gray-800 text-center flex-1">
+      {/* Title and Price */}
+      <div className="w-full max-w-4xl flex flex-col sm:flex-row items-center justify-between mt-6">
+        <h1 className="text-3xl font-bold text-gray-800 text-center sm:text-left flex-1">
           {data.title}
         </h1>
-        <p className="text-2xl font-semibold text-green-600 ml-auto">
+        <p className="text-2xl font-semibold text-green-600 mt-4 sm:mt-0 sm:ml-auto">
           {data.price}€
         </p>
       </div>
 
-      {/* Bouton pour ouvrir la modal */}
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-      >
-        Contacter le vendeur
-      </button>
+      {/* Action Buttons */}
+      <div className="flex gap-4 mt-4 ml-auto">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300"
+        >
+          Contact the Vendor
+        </button>
+        <button
+          onClick={() => setShowReportModal(true)}
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
+        >
+          Report
+        </button>
+      </div>
 
-      {/* Modal */}
+      {/* Message Modal */}
       <MessageModal
         show={showModal}
         handleClose={() => setShowModal(false)}
-        receiverId={data.vendorType === "user" ? data.userId : data.vendorType === "company" ?  data.companyId : null} // Passe l'ID du vendeur
-        offerId={data.id} // Passe l'ID de l'offre
-        offerType={category || ""} // Passe le type de l'offre
+        receiverId={
+          data.vendorType === "user"
+        ? data.userId
+        : data.vendorType === "company"
+        ? data.companyId
+        : null
+        }
+        offerId={data.id}
+        offerType={category || ""}
         otherPersonName={data.vendor}
       />
+
+      {/* Report Modal */}
+      <Modal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        title="Report this Offer"
+      >
+        <ReportForm
+          offerId={data.id}
+          offerType={category || ""}
+          vendorId={
+        data.vendorType === "user"
+          ? data.userId
+          : data.vendorType === "company"
+          ? data.companyId
+          : null
+          }
+          reporterType={data.vendorType}
+          onClose={() => setShowReportModal(false)}
+        />
+      </Modal>
+
+      
 
       {/* Détails de l'offre */}
       <div className="w-full text-center max-w-4xl p-6">

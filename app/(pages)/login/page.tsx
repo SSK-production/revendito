@@ -2,8 +2,10 @@
 
 import {FormEvent, useState} from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/hooks/useAuth';
 
 export default function LoginPage() {
+  const { setIsLogin, setUsername, setEntity, setRole } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -26,10 +28,15 @@ export default function LoginPage() {
         setError(error || 'An error occurred');
         return;
       }
-
+      const data = await res.json();
       setError(null);
+      setIsLogin(true);
+      setUsername(data.user.name);
+      setRole(data.user.role);
+      setEntity(data.user.entity);      
+      
       // on changera la route plus tard c'est juste pour tester
-      router.push('/check-login');
+      router.push('/');
     } catch (err) {
       setError('Failed to log in. Please try again.');
       console.error(err);

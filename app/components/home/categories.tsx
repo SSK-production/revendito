@@ -40,27 +40,29 @@ export default function Categories({ onLoad }: CategoriesProps) {
       className="group block bg-white rounded-sm shadow hover:shadow-lg transition-all border border-gray-200"
     >
       {offer.photos.length > 0 ? (
+      <div className="relative w-full h-40">
         <Image
-          src={offer.photos[0]}
-          alt={offer.title}
-          width={300}
-          height={200}
-          className=" h-40 object-cover rounded-t-sm group-hover:opacity-90"
-          priority
+        src={`${offer.photos[0]}`}
+        alt={offer.title}
+        layout="fill"
+        objectFit="cover"
+        className="rounded-t-sm group-hover:opacity-90"
+        priority
         />
+      </div>
       ) : (
-        <div className="w-full h-40 bg-gray-100 rounded-t-md flex items-center justify-center text-gray-400">
-          No Image
-        </div>
+      <div className="w-full h-40 bg-gray-100 rounded-t-md flex items-center justify-center text-gray-400">
+        No Image
+      </div>
       )}
       <div className="mt-0 p-4">
-        <h3 className="font-semibold text-gray-800 text-sm group-hover:underline">{offer.title}</h3>
-        <p className="text-gray-600 text-xs mt-1">
-          {offer.description.length > 50
-            ? offer.description.slice(0, 50) + "..."
-            : offer.description}
-        </p>
-        <p className="text-gray-700 text-sm font-bold mt-2">€ {offer.price}</p>
+      <h3 className="font-semibold text-gray-800 text-sm group-hover:underline">{offer.title}</h3>
+      <p className="text-gray-600 text-xs mt-1">
+        {offer.description.length > 50
+        ? offer.description.slice(0, 50) + "..."
+        : offer.description}
+      </p>
+      <p className="text-gray-700 text-sm font-bold mt-2">€ {offer.price}</p>
       </div>
     </Link>
   );
