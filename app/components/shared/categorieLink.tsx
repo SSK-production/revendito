@@ -1,53 +1,39 @@
-"use client";
+"use client"
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faBusinessTime, faCar } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { Car, Building, Briefcase } from "lucide-react"
+
+const categories = [
+  { name: "Vehicle", icon: Car, href: "/offers/vehicle", color: "blue" },
+  { name: "Property", icon: Building, href: "/offers/property", color: "green" },
+  { name: "Commercial", icon: Briefcase, href: "/offers/commercial", color: "orange" },
+]
 
 export default function CategorieLink() {
-  const { category } = useParams(); // Récupère la catégorie depuis l'URL
+  const { category } = useParams()
 
   return (
-    <section className="flex flex-wrap justify-center gap-4 pt-16 fixed w-full top-0 left-0 bg-gray-50 z-40">
-      <Link href="/offers/vehicle">
-        <header
-          className={`group flex flex-col items-center gap-2 bg-blue-100 rounded-lg text-blue-800 font-medium shadow transition-transform hover:scale-105 hover:shadow-lg ${
-            category === "vehicle" ? "border-2 border-blue-500" : ""
-          } w-24 sm:w-32 md:w-40 lg:w-48 p-3 sm:p-4 md:p-5`}
-        >
-          <div className="flex items-center justify-center rounded-full bg-white w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16">
-            <FontAwesomeIcon icon={faCar} className="text-base sm:text-lg md:text-xl lg:text-2xl" />
-          </div>
-          <span className="text-xs sm:text-sm md:text-base lg:text-lg">Vehicle</span>
-        </header>
-      </Link>
-
-      <Link href="/offers/property">
-        <header
-          className={`group flex flex-col items-center gap-2 bg-green-100 rounded-lg text-green-800 font-medium shadow transition-transform hover:scale-105 hover:shadow-lg ${
-            category === "property" ? "border-2 border-green-500" : ""
-          } w-24 sm:w-32 md:w-40 lg:w-48 p-3 sm:p-4 md:p-5`}
-        >
-          <div className="flex items-center justify-center rounded-full bg-white w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16">
-            <FontAwesomeIcon icon={faBuilding} className="text-base sm:text-lg md:text-xl lg:text-2xl" />
-          </div>
-          <span className="text-xs sm:text-sm md:text-base lg:text-lg">Property</span>
-        </header>
-      </Link>
-
-      <Link href="/offers/commercial">
-        <header
-          className={`group flex flex-col items-center gap-2 bg-orange-100 rounded-lg text-orange-800 font-medium shadow transition-transform hover:scale-105 hover:shadow-lg ${
-            category === "commercial" ? "border-2 border-orange-500" : ""
-          } w-24 sm:w-32 md:w-40 lg:w-48 p-3 sm:p-4 md:p-5`}
-        >
-          <div className="flex items-center justify-center rounded-full bg-white w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16">
-            <FontAwesomeIcon icon={faBusinessTime} className="text-base sm:text-lg md:text-xl lg:text-2xl" />
-          </div>
-          <span className="text-xs sm:text-sm md:text-base lg:text-lg">Commercial</span>
-        </header>
-      </Link>
+    <section className="fixed top-12  z-40  bg-gray-50 ">
+      <div className="max-w-3xl mx-auto px-4 py-2">
+        <div className="flex justify-center gap-2">
+          {categories.map((item) => (
+            <Link key={item.name} href={item.href} className="flex-1">
+              <div
+                className={`
+                  flex items-center gap-2 px-4 py-1 rounded-md transition-all duration-200
+                  hover:bg-gray-100
+                  ${category === item.name.toLowerCase() ? `bg-${item.color}-50 text-${item.color}-600` : "text-gray-600"}
+                `}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="text-s font-medium">{item.name}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </section>
-  );
+  )
 }
+

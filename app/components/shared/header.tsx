@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/app/hooks/useAuth";
 
+
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isLogin, setIsLogin, username, setUsername, entity, setEntity, role, setRole } = useAuth();
@@ -94,10 +95,12 @@ export default function Header() {
             <span className="text-orange-700">Re</span>Ventures
           </Link>
         </h1>
-
+       
         {/* Navigation */}
         <nav className="text-sm">
+        
           <ul className="flex space-x-6 items-center">
+          
             {!isLogin ? (
               <>
                 {/* Sign up */}

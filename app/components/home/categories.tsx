@@ -1,136 +1,141 @@
-'use client';
+"use client"
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faBusinessTime, faCar } from "@fortawesome/free-solid-svg-icons";
-import { useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import useLastOffers from "@/app/hooks/useLastOffers";
+import { useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Car, Building2, Briefcase, ChevronRight } from "lucide-react"
+import useLastOffers from "@/app/hooks/useLastOffers"
 
 interface Offer {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  photos: string[];
+  id: string
+  title: string
+  description: string
+  price: number
+  photos: string[]
 }
 
 interface CategoriesProps {
-  onLoad?: () => void;
+  onLoad?: () => void
 }
 
 export default function Categories({ onLoad }: CategoriesProps) {
   useEffect(() => {
     if (onLoad) {
       const timeout = setTimeout(() => {
-        onLoad();
-      }, 1000);
-      return () => clearTimeout(timeout);
+        onLoad()
+      }, 1000)
+      return () => clearTimeout(timeout)
     }
-  }, [onLoad]);
+  }, [onLoad])
 
-  const lastAutomotiveOffers: Offer[] = useLastOffers("automotive").offers;
-  const lastEstateOffers: Offer[] = useLastOffers("estate").offers;
-  const lastServicesOffers: Offer[] = useLastOffers("commercial").offers;
+  const lastAutomotiveOffers: Offer[] = useLastOffers("automotive").offers
+  const lastEstateOffers: Offer[] = useLastOffers("estate").offers
+  const lastServicesOffers: Offer[] = useLastOffers("commercial").offers
 
   const renderOfferCard = (offer: Offer, category: string) => (
-    <Link
-      href={`/offer?category=${category}&offerId=${offer.id}`}
+    <div
       key={offer.id}
-      className="group block bg-white rounded-sm shadow hover:shadow-lg transition-all border border-gray-200"
+      className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-[400px]" // Taille fixe
     >
-      {offer.photos.length > 0 ? (
-      <div className="relative w-full h-40">
-        <Image
-        src={`${offer.photos[0]}`}
-        alt={offer.title}
-        layout="fill"
-        objectFit="cover"
-        className="rounded-t-sm group-hover:opacity-90"
-        priority
-        />
+      {/* Image avec hauteur fixe */}
+      <div className="relative w-full h-48">
+        {offer.photos.length > 0 ? (
+          <Image
+            src={offer.photos[0] || "/placeholder.svg"}
+            alt={offer.title}
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+            No Image
+          </div>
+        )}
       </div>
-      ) : (
-      <div className="w-full h-40 bg-gray-100 rounded-t-md flex items-center justify-center text-gray-400">
-        No Image
+  
+      {/* Contenu avec gestion de la hauteur */}
+      <div className="p-4 flex-grow flex flex-col">
+        <h3 className="text-lg font-semibold mb-2 line-clamp-1">{offer.title}</h3>
+        <p className="text-sm text-gray-600 mb-2 line-clamp-3">{offer.description}</p>
+        <p className="text-lg font-bold text-blue-600 mt-auto">€ {offer.price.toLocaleString()}</p>
       </div>
-      )}
-      <div className="mt-0 p-4">
-      <h3 className="font-semibold text-gray-800 text-sm group-hover:underline">{offer.title}</h3>
-      <p className="text-gray-600 text-xs mt-1">
-        {offer.description.length > 50
-        ? offer.description.slice(0, 50) + "..."
-        : offer.description}
-      </p>
-      <p className="text-gray-700 text-sm font-bold mt-2">€ {offer.price}</p>
+  
+      {/* Bouton d'action */}
+      <div className="p-4 pt-0">
+        <Link
+          href={`/offer?category=${category}&offerId=${offer.id}`}
+          className={`block w-full text-center bg-gray-50 text-black font-bold py-2 px-4 rounded shadow transition duration-300 ${
+            category === "vehicle"
+              ? "group-hover:bg-green-600 group-hover:text-white"
+              : category === "property"
+              ? "group-hover:bg-blue-600 group-hover:text-white"
+              : "group-hover:bg-orange-600 group-hover:text-white"
+          }`}
+        >
+          Voir l'annonce
+        </Link>
       </div>
-    </Link>
+    </div>
   );
+  
+  
+  
+
+  const renderCategorySection = (
+    title: string,
+    icon: React.ReactNode,
+    offers: Offer[],
+    category: string,
+    colorClass: string,
+  ) => (
+    <div className={`space-y-6 ${colorClass} rounded-lg p-6`}>
+      <div className="flex items-center justify-between">
+        <Link
+          href={`/offers/${category}`}
+          className={`flex items-center gap-2 text-2xl font-bold hover:underline ${
+            category === "vehicle"
+              ? "text-green-600"
+              : category === "property"
+              ? "text-blue-600"
+              : "text-orange-600"
+          }`}
+        >
+          {icon}
+          <h2>{title}</h2>
+        </Link>
+        <Link href={`/offers/${category}`} className="text-blue-600 hover:underline flex items-center">
+          Voir plus <ChevronRight className="ml-2 h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid gap-6">
+        {offers.length ? (
+          offers.map((offer) => renderOfferCard(offer, category))
+        ) : (
+          <p className="text-gray-500 italic text-center">No offers available</p>
+        )}
+      </div>
+    </div>
+  )
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      {/* Automotive */}
-      <article className="bg-blue-50 rounded-lg shadow-md">
-        <header className="flex items-center gap-2 bg-blue-100 rounded-t-lg text-blue-800 font-semibold pl-4 py-3">
-          <Link href="/offers/vehicle" className="flex items-center gap-2 hover:text-blue-600">
-            <FontAwesomeIcon icon={faCar} />
-            Vehicle
-          </Link>
-        </header>
-        <div className="p-4 space-y-4">
-          {lastAutomotiveOffers.length
-            ? lastAutomotiveOffers.map((offer) => renderOfferCard(offer, "vehicle"))
-            : <p className="text-gray-500 italic text-center">No offers available</p>}
-          <Link
-            href="/offers/vehicle"
-            className="text-blue-600 text-sm font-semibold hover:underline flex justify-end"
-          >
-            Voir plus →
-          </Link>
-        </div>
-      </article>
-
-      {/* Estate */}
-      <article className="bg-green-50 rounded-lg shadow-md">
-        <header className="flex items-center gap-2 bg-green-100 rounded-t-lg text-green-800 font-semibold pl-4 py-3">
-          <Link href="/offers/property" className="flex items-center gap-2 hover:text-green-600">
-            <FontAwesomeIcon icon={faBuilding} />
-            Property
-          </Link>
-        </header>
-        <div className="p-4 space-y-4">
-          {lastEstateOffers.length
-            ? lastEstateOffers.map((offer) => renderOfferCard(offer, "property"))
-            : <p className="text-gray-500 italic text-center">No offers available</p>}
-          <Link
-            href="/offers/property"
-            className="text-green-600 text-sm font-semibold hover:underline flex justify-end"
-          >
-            Voir plus →
-          </Link>
-        </div>
-      </article>
-
-      {/* Commercial */}
-      <article className="bg-orange-50 rounded-lg shadow-md">
-        <header className="flex items-center gap-2 bg-orange-100 rounded-t-lg text-orange-800 font-semibold pl-4 py-3">
-          <Link href="/offers/commercial" className="flex items-center gap-2 hover:text-orange-600">
-            <FontAwesomeIcon icon={faBusinessTime} />
-            Commercial
-          </Link>
-        </header>
-        <div className="p-4 space-y-4">
-          {lastServicesOffers.length
-            ? lastServicesOffers.map((offer) => renderOfferCard(offer, "commercial"))
-            : <p className="text-gray-500 italic text-center">No offers available</p>}
-          <Link
-            href="/offers/commercial"
-            className="text-orange-600 text-sm font-semibold hover:underline flex justify-end"
-          >
-            Voir plus →
-          </Link>
-        </div>
-      </article>
+    <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+      {renderCategorySection("Vehicle", <Car className="h-8 w-8" />, lastAutomotiveOffers, "vehicle", "bg-white-50")}
+      {renderCategorySection(
+        "Property",
+        <Building2 className="h-8 w-8" />,
+        lastEstateOffers,
+        "property",
+        "bg-white-50",
+      )}
+      {renderCategorySection(
+        "Commercial",
+        <Briefcase className="h-8 w-8" />,
+        lastServicesOffers,
+        "commercial",
+        "bg-white-50",
+      )}
     </section>
-  );
+  )
 }
+

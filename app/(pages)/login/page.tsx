@@ -88,6 +88,11 @@ export default function LoginPage() {
             Login
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <a href="/forgot-password" className="text-blue-500 hover:underline">
+            Forgot your password?
+          </a>
+        </div>
       </div>
     </div>
   );
