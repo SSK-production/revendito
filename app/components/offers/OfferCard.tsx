@@ -1,9 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { FaMapMarkerAlt, FaCalendarAlt, FaTag } from "react-icons/fa";
+import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 import { Offers } from "@/app/types";
-
-
 
 interface OfferCardProps {
   offer: Offers;
@@ -11,70 +9,58 @@ interface OfferCardProps {
 
 const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   return (
-    <div
-      key={offer.id}
-      className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col lg:flex-row transition-transform hover:scale-105 hover:shadow-lg cursor-pointer w-full mb-6"
-    >
-      {/* Image Section */}
-      <div className="relative w-full h-40 lg:w-1/3 lg:h-64 bg-gray-200">
+    <div className="group relative bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 w-full max-w-lg mx-auto mb-10">
+      {/* Image Container */}
+      <div className="relative w-full h-64 bg-gray-100">
         {offer.photos.length > 0 ? (
           <Image
-            src={offer.photos[0]}
-            alt={offer.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            objectFit="cover"
-            style={{ objectFit: 'cover' }}
-            className="rounded-t-lg lg:rounded-none"
+        src={offer.photos[0] || "/placeholder.svg"}
+        alt={offer.title}
+        fill
+        sizes="100vw"
+        className="transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500 text-base">
-            No Image Available
+          <div className="flex items-center justify-center h-full text-gray-400">
+        <span className="text-sm">No Image Available</span>
           </div>
         )}
       </div>
 
-      {/* Info Section */}
-      <div className="flex flex-col flex-grow p-4 lg:p-6">
-        {/* Title and Price */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg lg:text-2xl font-semibold text-gray-800 truncate">
-            {offer.title}
-          </h2>
-          <span className="text-sm lg:text-xl font-bold text-green-500 flex items-center">
-            <FaTag className="mr-2" />
-            {offer.price} $
-          </span>
+      {/* Content */}
+      <div className="p-6">
+      {/* Title and Price */}
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-gray-900 mb-2 line-clamp-1">
+          {offer.title}
+        </h3>
+        <div className="flex justify-end">
+          <span className="text-2xl font-bold text-green-500">{offer.price} €</span>
         </div>
+      </div>
 
-        {/* Location */}
-        <div className="flex items-center text-gray-600 mb-3">
-          <FaMapMarkerAlt className="mr-2 text-red-500" />
-          <span className="text-sm lg:text-lg">
-            {offer.city}, {offer.country}
-          </span>
-        </div>
+      {/* Location */}
+      <div className="flex items-center text-sm text-gray-500 mb-3">
+        <FaMapMarkerAlt className="w-5 h-5 mr-2 flex-shrink-0 text-red-400" />
+        <span className="truncate">
+        {offer.city}, {offer.country}
+        </span>
+      </div>
 
-        {/* Description */}
-        <div className="text-gray-700 text-sm lg:text-base mb-4 max-w-md line-clamp-3">
-          {offer.description}
-        </div>
+      {/* Description */}
+      <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+        {offer.description}
+      </p>
 
-        {/* Dates */}
-        <div className="flex justify-between items-end mt-auto text-gray-500 text-xs lg:text-sm">
-          <div className="flex items-center">
-            <FaCalendarAlt className="mr-2" />
-            <p>
-              Publié le: {new Date(offer.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          <div className="flex items-center">
-            <FaCalendarAlt className="mr-2" />
-            <p>
-              Mis à jour: {new Date(offer.updatedAt).toLocaleDateString()}
-            </p>
-          </div>
+      {/* Footer */}
+      <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
+        <div className="flex items-center">
+        <FaCalendarAlt className="w-4 h-4 mr-2" />
+        <time dateTime={offer.createdAt}>
+          {new Date(offer.createdAt).toLocaleDateString()}
+        </time>
         </div>
+      </div>
       </div>
     </div>
   );
