@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 
-const ResetPasswordPage = () => {
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [message, setMessage] = useState("");
+const ResetPasswordPage: React.FC = () => {
+    const [password, setPassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [message, setMessage] = useState<string>("");
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
     const router = useRouter();
     console.log("token : ", token);
-    const handleSubmit = async (e) => {
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             setMessage("Passwords do not match");
             return;
         }
-        
-        
+
         try {
             const response = await axios.post("/api/reset-password", {
                 token,
@@ -29,7 +29,7 @@ const ResetPasswordPage = () => {
             setTimeout(() => {
                 router.push("/login");
             }, 2000);
-        } catch (error) {
+        } catch {
             setMessage("Error resetting password");
         }
     };
