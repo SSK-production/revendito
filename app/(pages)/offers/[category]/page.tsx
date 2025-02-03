@@ -1,10 +1,10 @@
 "use client";
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import OfferCard from '@/app/components/offers/OfferCard';
-import OfferCardListSkeleton from '@/app/components/skeletons/offerCardListSkeleton';
-import CategorieLink from '@/app/components/shared/categorieLink';
+import OfferCard from "@/app/components/offers/OfferCard";
+import OfferCardListSkeleton from "@/app/components/skeletons/offerCardListSkeleton";
+import CategorieLink from "@/app/components/shared/categorieLink";
 
 interface ApiResponse {
   data: Offers[];
@@ -40,7 +40,7 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   console.log(category);
   const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = 5;
+  const limit = 12;
 
   const changePage = (newPage: number) => {
     router.push(`?category=${category}&page=${newPage}`);
@@ -75,28 +75,30 @@ const Page: React.FC = () => {
   return (
     <>
       <div className="flex flex-col min-h-screen mt-36 p-4 font-medium bg-gray-50 box-border items-center">
-        <CategorieLink />
+        <CategorieLink/>
         <div className="flex-1 w-full p-5">
           <main className="flex flex-col min-h-f4/5">
             <div className="flex-1 mb-4">
               {error && (
-                <div className="text-center text-red-500 mb-4">
-                  {error}
-                </div>
+                <div className="text-center text-red-500 mb-4">{error}</div>
               )}
               {isLoading ? (
-                <div className='space-y-8 gap-8'>
+                <div className="space-y-8 gap-8">
                   <OfferCardListSkeleton />
                   <OfferCardListSkeleton />
                   <OfferCardListSkeleton />
                   <OfferCardListSkeleton />
                 </div>
               ) : data && data.data.length > 0 ? (
-                <div className="space-y-8 grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {data.data.map((offer: Offers) => (
-                    <a key={offer.id} href={`http://localhost:3000/offer?category=${category}&offerId=${offer.id}`}>
-                      <OfferCard offer={offer} />
-                    </a>
+                  <a
+                    key={offer.id}
+                    href={`http://localhost:3000/offer?category=${category}&offerId=${offer.id}`}
+                    className="group block transform transition-transform hover:scale-105"
+                  >
+                    <OfferCard offer={offer} />
+                  </a>
                   ))}
                 </div>
               ) : (
@@ -105,7 +107,7 @@ const Page: React.FC = () => {
                     Aucune offre trouvée dans cette catégorie.
                   </p>
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push("/")}
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
                     Retour à l'accueil
@@ -129,7 +131,10 @@ const Page: React.FC = () => {
 
               {/* Indicateur de page */}
               <p className="md:text-lg lg:text-l xl:text-l text-gray-600">
-                Page <span className='text-orange-700'>{page}</span> sur <span className='text-orange-700'>{data?.meta?.totalPages || 1}</span>
+                Page <span className="text-orange-700">{page}</span> sur{" "}
+                <span className="text-orange-700">
+                  {data?.meta?.totalPages || 1}
+                </span>
               </p>
 
               {/* Bouton "Suivant" */}

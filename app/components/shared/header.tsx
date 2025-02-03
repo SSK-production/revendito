@@ -5,16 +5,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/app/hooks/useAuth";
 
+
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isLogin, setIsLogin, username, setUsername, entity, setEntity, role, setRole } = useAuth();
-  // const [isLogin, setIsLogin] = useState<boolean>(false);
-  // const [username, setUsername] = useState<string | null>(null);
-  // const [entity, setEntity] = useState<string | null>(null);
-  // const [role, setRole] = useState<string | null>(null);
 
-  
-  
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -35,7 +30,7 @@ export default function Header() {
           setIsLogin(false);
         }
       } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.log("Error checking authentication:", error);
         setIsLogin(false);
       }
     };
@@ -94,10 +89,12 @@ export default function Header() {
             <span className="text-orange-700">Re</span>Ventures
           </Link>
         </h1>
-
+       
         {/* Navigation */}
         <nav className="text-sm">
+        
           <ul className="flex space-x-6 items-center">
+          
             {!isLogin ? (
               <>
                 {/* Sign up */}
