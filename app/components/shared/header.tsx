@@ -9,13 +9,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 export default function Header() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isLogin, setIsLogin, username, setUsername, entity, setEntity, role, setRole } = useAuth();
-  // const [isLogin, setIsLogin] = useState<boolean>(false);
-  // const [username, setUsername] = useState<string | null>(null);
-  // const [entity, setEntity] = useState<string | null>(null);
-  // const [role, setRole] = useState<string | null>(null);
 
-  
-  
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,7 +30,7 @@ export default function Header() {
           setIsLogin(false);
         }
       } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.log("Error checking authentication:", error);
         setIsLogin(false);
       }
     };
