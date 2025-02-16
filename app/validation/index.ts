@@ -173,7 +173,7 @@ export const vehicleSchema = Joi.object({
       "any.only": "The 'country' field must be a valid ISO country code.",
     }),
   vehicleType: Joi.string()
-    .valid("Car", "Truck", "Motorcycle", "Van", "Bicycle", "Boat")
+    .valid("Car", "Truck", "Motorcycle", "Van", "Bicycle")
     .required()
     .messages({
       "string.valid":
@@ -202,11 +202,11 @@ export const vehicleSchema = Joi.object({
     "any.required": "The 'mileage' field is required.",
   }),
   fuelType: Joi.string()
-    .valid("Petrol", "Diesel", "Electric", "Hybrid")
+    .valid("Diesel", "Electric", "Hybrid", "None")
     .required()
     .messages({
       "string.valid":
-        "Fuel type must be one of 'Petrol', 'Diesel', 'Electric', or 'Hybrid'.",
+        "Fuel type must be one of 'None', 'Diesel', 'Electric', or 'Hybrid'.",
       "any.required": "The 'fuelType' field is required.",
     }),
   color: Joi.string().min(3).max(30).required().messages({
@@ -305,7 +305,7 @@ export const propertySchema = Joi.object({
         "Property condition must be one of 'New', 'Renovated', 'Good', or 'Needs Renovation'.",
     }),
   propertyType: Joi.string()
-    .valid("Apartment", "House", "Studio", "Villa", "Commercial")
+    .valid("Apartment", "House", "Studio", "Villa", "Duplex", "Penthouse", "Commercial")
     .required()
     .messages({
       "string.valid":
