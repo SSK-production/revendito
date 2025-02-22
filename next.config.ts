@@ -1,8 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  productionBrowserSourceMaps: false,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.externals = [...(config.externals || []), 'bcrypt'];
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -1,8 +1,10 @@
+'use server';
+
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { PrismaClient } from "@prisma/client";
 import { verifyId } from "@/app/lib/function";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
 

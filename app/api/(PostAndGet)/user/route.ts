@@ -1,6 +1,8 @@
+'use server';
+
 import { NextResponse } from "next/server";
 import { PrismaClient, User } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { createUserSchema } from '@/app/validation';
 import { capitalizeFirstLetter } from "@/app/lib/function";
 const prisma = new PrismaClient();

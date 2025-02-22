@@ -1,7 +1,8 @@
+'use server';
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { verifyId } from "@/app/lib/function";
 
 const getPrismaInstance = (() => {
