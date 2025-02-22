@@ -1,5 +1,7 @@
+'use server';
+
 import { PrismaClient, Company } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { createCompanySchema } from "@/app/validation";
 const prisma = new PrismaClient();
 

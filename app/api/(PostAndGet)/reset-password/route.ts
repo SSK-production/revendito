@@ -1,6 +1,8 @@
+'use server';
+
 import { NextResponse } from "next/server";
 import { PrismaClient, User, Company } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();

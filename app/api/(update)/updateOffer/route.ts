@@ -1,7 +1,8 @@
+'use server';
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getUserFromRequest } from '@/app/lib/tokenManager';
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 
 // Singleton pour Prisma

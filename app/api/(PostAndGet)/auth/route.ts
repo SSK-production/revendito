@@ -1,6 +1,8 @@
+'use server';
+
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { verifyAccessToken, refreshAccessToken } from "@/app/lib/tokenManager";
