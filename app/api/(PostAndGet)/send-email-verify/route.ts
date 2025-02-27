@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "E-mail envoyé avec succès !",
+      message: "Un e-mail de validation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour valider votre compte.",
     });
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'e-mail :", error);
