@@ -8,6 +8,7 @@ import UpdateEmailForm from "./UpdateEmailForm";
 import ChangePasswordForm from "./ChangePasswordForm";
 import axios from "axios";
 import StatusAccountForm from "./statusAccountForm";
+import { useNotifications } from "@/components/notifications";
 
 interface GeneralInfoProps {
   data: ProfileData;
@@ -28,6 +29,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
   const [isModalOpenAccount, setIsModalOpenAccount] = useState(false);
   const [isModalOpenPassword, setIsModalOpenPassword] = useState(false);
   const [isModalStatusAccount, setIsModalStatusAccount] = useState(false);
+  const { NotificationsComponent, addNotification } = useNotifications();
   console.log(data);
 
   const handleSave = async (updatedData: {
@@ -45,11 +47,19 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
       const response = await axios.put(`/api/profileUpdate`, updatedData, {
         withCredentials: true,
       });
-      console.log("Updated profile data:", response.data.message);
+      addNotification({
+        message: `Updated profile data: ${response.data.message}`,
+        variant: "success",
+        duration: 7000,
+      });
       setIsModalOpenGeneralInfo(false); // Close the modal after saving
       onProfilUpdate()
     } catch (error) {
-      console.error("Error updating profile data:", error);
+      addNotification({
+        message: `Error updating profile data : ${error}`,
+        variant: "error",
+        duration: 7000,
+        });
     }
   };
 
@@ -58,12 +68,19 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
       const response = await axios.put(`/api/updateAccountEmail`, updatedData, {
         withCredentials: true, // Send cookies with the request
       });
-      console.log("Updated profile data:", response.data.message);
+      addNotification({
+        message: `Updated profile data: ${response.data.message}`,
+        variant: "success",
+        duration: 7000,
+      });
       onProfilUpdate()
     } catch (error) {
-      console.error("Error updating profile data:", error);
+      addNotification({
+        message: `Error updating profile data : ${error}`,
+        variant: "error",
+        duration: 7000,
+        });
     }
-    console.log("Updated profile data:", updatedData);
     setIsModalOpenAccount(false); // Close the modal after saving
   };
 
@@ -75,20 +92,46 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
       const response = await axios.put(`/api/changePassword`, passwordData, {
         withCredentials: true, // Send cookies with the request
       });
-      console.log("Updated profile data:", response.data.message);
+      addNotification({
+        message: `Updated profile data: ${response.data.message}`,
+        variant: "success",
+        duration: 7000,
+      });
       onProfilUpdate()
     } catch (error) {
-      console.error("Error updating profile data:", error);
+      addNotification({
+        message: `Error updating profile data : ${error}`,
+        variant: "error",
+        duration: 7000,
+        });
     }
-    console.log("Password data:", passwordData);
     setIsModalOpenPassword(false); // Close the modal after saving
+  };
+
+  const handleVerifyEmail = async (emailData: { email: string }) => {
+    try {
+      const response = await axios.post(`/api/send-email-verify`, emailData, {
+        withCredentials: true,
+      });
+      addNotification({
+        message: response.data.message,
+        variant: "success",
+        duration: 7000,
+      });
+      
+    } catch (error) {
+      addNotification({
+        message: `Error verifying email : ${error}`,
+        variant: "error",
+        duration: 7000,
+        });
+    }
   };
 
   const handleActivateAccount = async (statusAccountData: {
     password: string;
     active: boolean;
   }) => {
-    console.log(statusAccountData.active);
     try {
       const response = await axios.put(
         `/api/activateAccount`,
@@ -97,10 +140,18 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
           withCredentials: true,
         }
       );
-      console.log("Status account is changed", response.data.message);
+      addNotification({
+        message: response.data.message,
+        variant: "success",
+        duration: 7000,
+      });
       onProfilUpdate()
     } catch (error) {
-      console.error("Error updating status : ", error);
+      addNotification({
+        message: `Error updating status : ${error}`,
+        variant: "error",
+        duration: 7000,
+        });
     }
     setIsModalStatusAccount(false);
   };
@@ -180,6 +231,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
             />
           </Modal>
         </div>
+        
       </div>
 
       {/* Account Information */}
@@ -208,7 +260,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
                 <button
                   onClick={() => {
                     // Add your email verification logic here
-                    console.log("Send verification email");
+                    handleVerifyEmail({ email: data.email });
                   }}
                   className="ml-2 text-blue-500 hover:underline focus:outline-none"
                 >
@@ -285,6 +337,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({
           onCancel={() => setIsModalOpenPassword(false)} // Close the modal if canceled
         />
       </Modal>
+      <NotificationsComponent />
     </>
   );
 };
