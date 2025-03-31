@@ -237,7 +237,7 @@ export default function Header() {
                         <li>
                           <hr className="border-orange-200" />
                           <Link
-                            href="/home"
+                            href="/admin"
                             className="block px-4 py-2 hover:bg-yellow-100"
                           >
                             Administration

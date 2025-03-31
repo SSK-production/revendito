@@ -58,8 +58,12 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
                     }
                     const data: BannedOffer[] = await response.json();
                     setIsBanned(data);
-                } catch (error: any) {
-                    console.error("Erreur:", error.message);
+                } catch (error: unknown) {
+                    if (error instanceof Error) {
+                        console.error("Erreur:", error.message);
+                    } else {
+                        console.error("Erreur inconnue:", error);
+                    }
                 }
             };
             fetchBannedEntities();
@@ -138,8 +142,12 @@ const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, conta
                     }
                     const data: BannedOffer[] = await response.json();
                     setIsBanned(data);
-                } catch (error: any) {
-                    console.error("Erreur:", error.message);
+                } catch (error) {
+                    if (error instanceof Error) {
+                        console.error("Erreur:", error.message);
+                    } else {
+                        console.error("Erreur inconnue:", error);
+                    }
                 }
             };
             fetchBannedEntities();

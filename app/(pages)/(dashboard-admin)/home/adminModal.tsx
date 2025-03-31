@@ -6,7 +6,7 @@ import { useEffect } from "react";
 interface ModalProps {
     isOpen: boolean;
     closeModal: () => void;
-    container?: HTMLDivElement | null; // Ajout de la prop container
+    container: React.RefObject<HTMLDivElement>; // Ajout de la prop container
 }
 
 //Faire le fetch des données utilisateur en fonction du Name => lorsqu'on clique sur enter ou sur la loupe, envoi la requête. 
