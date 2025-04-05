@@ -100,7 +100,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     });
 
     // Transformation des résultats pour convertir bannTitle en chaîne JSON
-    const results: SearchResult[] = [
+    const results = [
       ...users.map((user) => ({
         type: 'user' as const,
         ...user,

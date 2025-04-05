@@ -24,7 +24,7 @@ export function useNotifications() {
 
   const NotificationsComponent: React.FC = useCallback(
     () => (
-      <div className="fixed top-15 right-4 flex flex-col gap-2 w-full max-w-sm">
+      <div className="fixed bg-white top-15 right-4 flex flex-col gap-2 w-full max-w-sm z-1000">
         {notifications.map((notification, index) => (
           <NotificationItem
             key={notification.id}

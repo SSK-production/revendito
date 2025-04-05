@@ -33,6 +33,8 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     const body = await req.json();
     const { id, bannTitle, reason, duration, type, banned } = body;
     let message = '';
+    console.log('body', body);
+    
     if (!banned) {
       if (!id || !bannTitle || !reason || typeof duration !== 'number' || duration <= 0 || !type) {
         return NextResponse.json(
@@ -43,7 +45,10 @@ export async function PATCH(req: NextRequest): Promise<Response> {
   
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + duration);
-  
+      if (type === 'admin' || type === 'moderator') {
+        return NextResponse.json({ error: 'You do not have the right to ban an administrator or a moderator.' }, { status: 403 });
+        
+      }
       if (type === 'user') {
         // Récupérer les données existantes pour l'utilisateur
         const existingUser = await prisma.user.findUnique({

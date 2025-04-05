@@ -4,6 +4,7 @@ import Image from 'next/image';
 interface ModalProps {
     isOpen: boolean;
     closeModal: () => void;
+    container: React.RefObject<HTMLDivElement>;
 }
 
 interface BannedUser {
