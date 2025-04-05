@@ -114,6 +114,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             bannTitle: "",
             reason: "",
             duration: "",
+            isBanned: data.isBanned || false,
           }}
           onSave={async (updatedData) => {
             try {
@@ -136,8 +137,10 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 variant: "success",
                 duration: 7000,
               });
-              setisModalOpenBanForm(false); // Fermer la modale après succès
-              onProfilUpdate();
+              setTimeout(() => {
+                setisModalOpenBanForm(false);
+                onProfilUpdate();
+              }, 7000)
             } catch (error) {
               console.error("Error while sending data:", error);
                 addNotification({
@@ -148,6 +151,37 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             }
           }}
           onCancel={() => setisModalOpenBanForm(false)} // Ferme la modale en cas d'annulation
+          onUnban={ async () => {
+            try {
+              const payload = {
+              id: data.id,
+              username: currentUsername,
+              type: "user",
+              banned: bannedUser,
+              };
+
+              const response = await axios.patch("/api/bans", payload);
+              console.log("Response from server:", response.data);
+
+              addNotification({
+              message: response.data.message,
+              variant: "success",
+              duration: 3000,
+              });
+               // Close the modal after success
+              setTimeout(() => {
+                setisModalOpenBanForm(false);
+                onProfilUpdate();
+              }, 7000)
+            } catch (error) {
+              console.error("Error while unbanning the user:", error);
+              addNotification({
+              message: "An error occurred while unbanning the user. Please try again.",
+              variant: "error",
+              duration: 3000,
+              });
+            }
+          }} // Ferme la modale et met à jour le profil après unban
         />
       </Modal>
       <MessageModal

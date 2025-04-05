@@ -19,18 +19,18 @@ const prisma = new PrismaClient();
 //   profilePicture?: string;  // Photo de profil
 // }
 
-export async function GET() {
-  try {
-    const users = await prisma.user.findMany();
-    return new Response(JSON.stringify(users), { status: 200 });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error(error);
-      return new Response('Error fetching users: ' + error.message, { status: 500 });
-    }
-    return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
-  }
-}
+// export async function GET() {
+//   try {
+//     const users = await prisma.user.findMany();
+//     return new Response(JSON.stringify(users), { status: 200 });
+//   } catch (error: unknown) {
+//     if (error instanceof Error) {
+//       console.error(error);
+//       return new Response('Error fetching users: ' + error.message, { status: 500 });
+//     }
+//     return new Response(JSON.stringify({ error: `Erreur serveur ${error}` }), { status: 500 });
+//   }
+// }
 
 export async function POST(req: Request) {
   try {
@@ -84,5 +84,106 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const skip = (page - 1) * limit;
+    const nameFilter = searchParams.get('name') || '';
+
+    const usersWithDetails = await prisma.user.findMany({
+      skip,
+      take: limit,
+      where: {
+        OR: [
+          { username: { contains: nameFilter, mode: 'insensitive' } },
+          { firstName: { contains: nameFilter, mode: 'insensitive' } },
+          { lastName: { contains: nameFilter, mode: 'insensitive' } },
+        ],
+      },
+      include: {
+        bannedCompanies: true,
+        vehicleOffers: true,
+        realEstateOffers: true,
+        commercialOffers: true,
+      },
+    });
+
+    const companies = await prisma.company.findMany({
+      where: {
+      companyName: { contains: nameFilter, mode: 'insensitive' },
+      },
+      include: {
+        bannedByUser: true,
+        vehicleOffers: true,
+        realEstateOffers: true,
+        commercialOffers: true,
+      },
+      skip,
+      take: limit,
+    });
+
+    const usersWithOfferCounts = usersWithDetails.map((user) => ({
+      ...user,
+      vehicleOfferCount: user.vehicleOffers.length,
+      realEstateOfferCount: user.realEstateOffers.length,
+      commercialOfferCount: user.commercialOffers.length,
+    }));
+
+    const companiesWithOfferCounts = companies.map((company) => ({
+      ...company,
+      vehicleOfferCount: company.vehicleOffers.length,
+      realEstateOfferCount: company.realEstateOffers.length,
+      commercialOfferCount: company.commercialOffers.length,
+    }));
+
+    const entities = [...usersWithOfferCounts, ...companiesWithOfferCounts];
+
+
+
+    const totalUsers = await prisma.user.count({
+      where: {
+        OR: [
+          { username: { contains: nameFilter, mode: 'insensitive' } },
+          { firstName: { contains: nameFilter, mode: 'insensitive' } },
+          { lastName: { contains: nameFilter, mode: 'insensitive' } },
+        ],
+      },
+    });
+
+    const totalCompanies = await prisma.company.count({
+      where: {
+        companyName: { contains: nameFilter, mode: 'insensitive' },
+      },
+    });
+
+    const totalEntities = totalUsers + totalCompanies;
+
+    const totalPages = Math.ceil(totalEntities / limit);
+
+    return NextResponse.json(
+      {
+        users: entities,
+        companies,
+        pagination: {
+          totalUsers,
+          totalCompanies,
+          totalEntities,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(error);
+      return new Response('Error fetching users and companies: ' + error.message, { status: 500 });
+    }
+    return new Response(JSON.stringify({ error: `Server error: ${error}` }), { status: 500 });
   }
 }
