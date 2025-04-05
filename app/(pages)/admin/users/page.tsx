@@ -2,7 +2,10 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Search, Users, AlertCircle, Loader2 } from "lucide-react"
-
+import Modal from "@/app/components/profile/Modal"
+import BanUserForm from "@/app/components/shared/BanUserForm"
+import axios from "axios"
+import { useNotifications } from "@/components/notifications"
 interface User {
   id: string
   username: string
@@ -31,6 +34,11 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [noUsers, setNoUsers] = useState<boolean>(false)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [bannedUser, setBannedUser] = useState<boolean | null>(false)
+  const [userBanData, setUserBanData] = useState<User | null>(null)
+  const { NotificationsComponent, addNotification } = useNotifications();
+  
 
   // Pagination state
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -104,26 +112,6 @@ export default function AdminUsersPage() {
     }
   }
 
-  const handleBanToggle = async (userId: string, isBanned: boolean) => {
-    setIsSubmitting(true)
-    try {
-      const response = await fetch(`/api/user/${userId}/ban`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isBanned }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to update ban status")
-      }
-
-      setUsers((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, isBanned } : user)))
-    } catch (error) {
-      console.error("Error updating ban status:", error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({ ...prev, currentPage: page }))
@@ -206,6 +194,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="container mx-auto py-6">
+      <NotificationsComponent />
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-bold">User Management</h2>
@@ -258,7 +247,7 @@ export default function AdminUsersPage() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {users.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="p-2 font-medium text-gray-900 max-w-[120px] truncate">{user.username?user.username:user.companyName}</td>
+                      <td className="p-2 font-medium text-gray-900 max-w-[120px] truncate">{user.username ? user.username : user.companyName}</td>
                       <td className="p-2 text-gray-500 max-w-[150px] truncate">{user.email}</td>
                       <td className="p-2 text-gray-500">
                         <select
@@ -286,11 +275,17 @@ export default function AdminUsersPage() {
                       <td className="p-2 text-right">
                         <button
                           className={`w-24 px-3 py-1 text-sm rounded-md ${
-                            user.isBanned
-                              ? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                              : "bg-red-500 text-white hover:bg-red-600"
+                          user.isBanned
+                            ? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                            : "bg-red-500 text-white hover:bg-red-600"
                           }`}
-                          onClick={() => handleBanToggle(user.id, !user.isBanned)}
+                          onClick={() => {
+                          setShowModal(true);
+                          setBannedUser(user.isBanned ? true : false);
+                          setUserBanData(user);
+                          console.log(user);
+                          
+                          }}
                           disabled={isSubmitting}
                         >
                           {user.isBanned ? "Unban" : "Ban"}
@@ -301,7 +296,96 @@ export default function AdminUsersPage() {
                 </tbody>
               </table>
             </div>
+            
           )}
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Ban User">
+            <BanUserForm
+              initialData={{
+              id: userBanData?.id || "",
+              username: userBanData?.username || userBanData?.companyName || "",
+              type: userBanData?.role || "",
+              bannTitle: "",
+              reason: "",
+              duration: "",
+              isBanned: userBanData?.isBanned || false,
+              }}
+              onSave={async (updateData) => {
+              try {
+                const payload = {
+                id: updateData.id,
+                username: updateData.username,
+                type: updateData.type.toLowerCase(),
+                bannTitle: [updateData.bannTitle],
+                reason: [updateData.reason],
+                duration: parseInt(updateData.duration, 10),
+                banned: bannedUser,
+                };
+                console.log("Payload to send:", payload);
+                
+                const response = await axios.patch("/api/bans", payload);
+                if (response.status === 200) {
+                  console.log("Response from server:", response.data);
+                  addNotification({
+                  message: "User banned successfully",
+                  variant: "success",
+                  duration: 7000,
+                  });
+                  setShowModal(false);
+                  fetchUsers();
+                } else {
+                console.error("Failed to ban user");
+                }
+              } catch (error:unknown) {
+                const errorMessage =
+                  axios.isAxiosError(error) && error.response?.data?.error
+                    ? error.response.data.error
+                    : "Error banning user";
+
+                addNotification({
+                  message: errorMessage,
+                  variant: "error",
+                  duration: 7000,
+                });
+                setShowModal(false);
+                console.error("Error banning user:", error);
+              }
+              }}
+              onCancel={() => setShowModal(false)}
+              onUnban={ async () => {
+                try {
+                  const payload = {
+                  id: userBanData?.id,
+                  username: userBanData?.username || userBanData?.companyName || "",
+                  type: userBanData?.role.toLowerCase() || "",
+                  banned: bannedUser,
+                  };
+    
+                  const response = await axios.patch("/api/bans", payload);
+                  console.log("Response from server:", response.data);
+    
+                  addNotification({
+                  message: response.data.message,
+                  variant: "success",
+                  duration: 7000,
+                  });
+                   // Close the modal after success
+                  
+                    setShowModal(false);
+                    fetchUsers();
+                  
+                } catch (error) {
+                  console.error("Error while unbanning the user:", error);
+                  addNotification({
+                  message: "An error occurred while unbanning the user. Please try again.",
+                  variant: "error",
+                  duration: 7000,
+                  });
+                }
+              }}
+            />
+            </Modal>
+            
+
 
           {!loading && !error && !noUsers && renderPagination()}
         </div>

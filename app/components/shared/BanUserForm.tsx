@@ -8,6 +8,7 @@ interface BanFormProps {
         bannTitle: string;
         reason: string;
         duration: string;
+        isBanned: boolean; // Ajout d'une propriété pour indiquer si l'utilisateur est banni
     };
     onSave: (updatedData: {
         id: string,
@@ -18,9 +19,10 @@ interface BanFormProps {
         duration: string;
     }) => void;
     onCancel: () => void;
+    onUnban: () => void; // Ajout d'une fonction pour gérer le débannissement
 }
 
-const BanUserForm: React.FC<BanFormProps> = ({ initialData, onSave, onCancel }) => {
+const BanUserForm: React.FC<BanFormProps> = ({ initialData, onSave, onCancel, onUnban }) => {
     const [formData, setFormData] = useState(initialData);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -32,8 +34,11 @@ const BanUserForm: React.FC<BanFormProps> = ({ initialData, onSave, onCancel }) 
         }));
     };
 
+   
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Form submitted with data:", formData);
+        
         if (!formData.bannTitle || !formData.reason || !formData.duration) {
             setErrorMessage("All fields are required.");
             return;
@@ -41,6 +46,32 @@ const BanUserForm: React.FC<BanFormProps> = ({ initialData, onSave, onCancel }) 
         setErrorMessage("");
         onSave({ ...formData });
     };
+
+    if (formData.isBanned) {
+        return (
+            <div>
+                <p className="text-lg font-medium text-gray-700">
+                    This user is already banned. Are you sure you want to unban them?
+                </p>
+                <div className="mt-6 flex justify-end space-x-4">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onUnban}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                        Unban
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit}>
