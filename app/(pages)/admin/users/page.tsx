@@ -38,8 +38,33 @@ export default function AdminUsersPage() {
   const [bannedUser, setBannedUser] = useState<boolean | null>(false)
   const [userBanData, setUserBanData] = useState<User | null>(null)
   const { NotificationsComponent, addNotification } = useNotifications();
+  const [userData, setUserData] = useState<User | null>(null)
   
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/auth", {withCredentials: true})
+        if (response.status !== 200) {
+          throw new Error("Failed to fetch user data")
+        } else {
+          const data = response.data
+          console.log(data);
+          
+          setUserData(data)
+        }
+        
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+      }
+    }
+
+    fetchUserData()
+    
+    
+  }
+  , [])
+  console.log(userData);
   // Pagination state
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
@@ -93,13 +118,16 @@ export default function AdminUsersPage() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     setIsSubmitting(true)
     try {
-      const response = await fetch(`/api/user/${userId}/role`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
-      })
+      const response = await axios.patch(
+        `/api/user/${userId}/role`,
+        { role: newRole },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true, // Include cookies in the request
+        }
+      )
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Failed to update user role")
       }
 
@@ -257,7 +285,8 @@ export default function AdminUsersPage() {
                           disabled={isSubmitting}
                         >
                           <option value="USER">User</option>
-                          <option value="ADMIN">Admin</option>
+                          {userData?.role === "MODERATOR" || userData?.role === "ADMIN" && <option value="MODERATOR">Moderator</option>}
+                          {userData?.role === "ADMIN" && <option value="ADMIN">Admin</option>}
                         </select>
                       </td>
                       <td className="p-2">

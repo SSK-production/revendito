@@ -1,59 +1,67 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+// app/api/offers/route.ts
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
-export async function GET(req: NextRequest) {
+export async function GET(request: Request) {
   try {
-    // Récupérer le paramètre 'validation' de la requête
-    const { searchParams } = new URL(req.url);
-    const validation = searchParams.get('validation');
+    // Récupération des paramètres de la requête
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1', 10); // Page par défaut 1
+    const limit = parseInt(url.searchParams.get('limit') || '10', 10); // Limite par défaut 10
+    const category = url.searchParams.get('category') || ''; // Filtre par catégorie (optionnel)
+    const validated = url.searchParams.get('validated'); // Filtre pour savoir si l'offre est validée ou non (true/false)
 
-    // Préparer les filtres pour chaque type d'offre
-    let vehicleOfferFilter: any = {};
-    let realEstateOfferFilter: any = {};
-    let commercialOfferFilter: any = {};
+    // Définir le filtrage par validité (true/false)
+    const validationFilter = validated === 'true' ? true : validated === 'false' ? false : undefined;
 
-    // Si un filtre de validation est spécifié, ajoutez-le au filtre de chaque type d'offre
-    if (validation === "validated") {
-      vehicleOfferFilter = { validated: true };
-      realEstateOfferFilter = { validated: true };
-      commercialOfferFilter = { validated: true };
-    } else if (validation === "notValidated") {
-      vehicleOfferFilter = { validated: false };
-      realEstateOfferFilter = { validated: false };
-      commercialOfferFilter = { validated: false };
-    }
-
-    // Récupérer les données des trois tables avec les filtres appliqués
-    const commercialOffer = await prisma.commercialOffer.findMany({
-      where: commercialOfferFilter,
-    });
-    const realEstateOffer = await prisma.realEstateOffer.findMany({
-      where: realEstateOfferFilter,
-    });
-    const vehicleOffer = await prisma.vehicleOffer.findMany({
-      where: vehicleOfferFilter,
+    // Récupérer les offres filtrées
+    const vehicleOffers = await prisma.vehicleOffer.findMany({
+      where: {
+        ...(category && { type: category }), // Filtre par catégorie
+        ...(validationFilter !== undefined && { validated: validationFilter }), // Filtre par validation
+      },
+      skip: (page - 1) * limit, // Pagination: décalage
+      take: limit, // Nombre d'éléments à récupérer
+      include: {
+        user: true,
+        company: true,
+      },
     });
 
-    // Fusionner les données en ajoutant un paramètre typeOffers
-    const allOffers = [
-      ...vehicleOffer.map(offer => ({ ...offer, typeOffers: "vehicleOffer" })),
-      ...realEstateOffer.map(offer => ({ ...offer, typeOffers: "realEstateOffer" })),
-      ...commercialOffer.map(offer => ({ ...offer, typeOffers: "commercialOffer" }))
-    ];
+    const realEstateOffers = await prisma.realEstateOffer.findMany({
+      where: {
+        ...(category && { type: category }), // Filtre par catégorie
+        ...(validationFilter !== undefined && { validated: validationFilter }), // Filtre par validation
+      },
+      skip: (page - 1) * limit, // Pagination: décalage
+      take: limit, // Nombre d'éléments à récupérer
+      include: {
+        user: true,
+        company: true,
+      },
+    });
 
-    // Utilisation de NextResponse pour envoyer la réponse JSON
-    return NextResponse.json(allOffers, { status: 200 });
+    const commercialOffers = await prisma.commercialOffer.findMany({
+      where: {
+        ...(category && { type: category }), // Filtre par catégorie
+        ...(validationFilter !== undefined && { validated: validationFilter }), // Filtre par validation
+      },
+      skip: (page - 1) * limit, // Pagination: décalage
+      take: limit, // Nombre d'éléments à récupérer
+      include: {
+        user: true,
+        company: true,
+      },
+    });
 
+    // Combiner toutes les offres dans un seul tableau
+    const allOffers = [...vehicleOffers, ...realEstateOffers, ...commercialOffers];
+   
+    
+    return NextResponse.json(allOffers);
   } catch (error) {
-    console.error(error);
-    // Utilisation de NextResponse pour renvoyer une erreur
-    return NextResponse.json(
-      { error: 'Erreur lors de la récupération des offres' },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
+    console.error("Error retrieving offers:", error);
+    return NextResponse.json({ error: 'Error retrieving offers' }, { status: 500 });
   }
 }

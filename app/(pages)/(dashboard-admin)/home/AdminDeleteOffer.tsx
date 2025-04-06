@@ -30,23 +30,11 @@ interface BannedOffer {
 const AdminDeleteOfferModal: React.FC<ModalProps> = ({ isOpen, closeModal, container }) => {
     const [expandedOffer, setExpandedOffer] = useState<number | null>(null);
     const [isBanned, setIsBanned] = useState<BannedOffer[]>([]);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
     const [selectedType, setSelectedType] = useState<OfferType | "">(""); // État pour le type sélectionné
     const [searchTerm, setSearchTerm] = useState<string>(""); // État pour la recherche
     const [selectedValidation, setSelectedValidation] = useState<"validated" | "notValidated" | "">(""); // Filtre par validation
 
-    useEffect(() => {
-        const checkIfMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
 
-        checkIfMobile();
-        window.addEventListener("resize", checkIfMobile);
-
-        return () => {
-            window.removeEventListener("resize", checkIfMobile);
-        };
-    }, []);
 
     useEffect(() => {
         if (isOpen) {
