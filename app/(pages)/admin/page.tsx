@@ -1,6 +1,6 @@
 "use client"
 import type React from "react"
-import { Users, ShoppingBag, Settings, BarChart3, ArrowRight, AlertTriangle } from "lucide-react"
+import { Users, ShoppingBag, BarChart3, ArrowRight, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 
@@ -69,13 +69,7 @@ const AdminHomePage: React.FC = () => {
             href: "/admin/offers",
             color: "bg-green-50 text-green-700 border-green-200",
         },
-        {
-            title: "Application Settings",
-            description: "Configure system settings and application parameters",
-            icon: <Settings className="h-6 w-6" />,
-            href: "/admin/settings",
-            color: "bg-purple-50 text-purple-700 border-purple-200",
-        },
+        
         {
             title: "View Reports",
             description: "Access analytics, statistics and generate reports",
@@ -114,7 +108,7 @@ const AdminHomePage: React.FC = () => {
 
                 {/* Quick Actions */}
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {actions.map((action, index) => (
                         <Link
                             href={action.href}

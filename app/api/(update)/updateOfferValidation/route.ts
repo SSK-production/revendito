@@ -3,11 +3,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest) {
   try {
     // Parse la requête et extrait les données nécessaires
     const { id, type, validated }: { id: number; type: string; validated: boolean } = await request.json();
-
+    console.log("Received data:", { id, type, validated });
+    
     // Validation des paramètres reçus
     if (typeof id !== 'number' || typeof type !== 'string' || typeof validated !== 'boolean') {
       return NextResponse.json(
@@ -20,19 +21,19 @@ export async function POST(request: NextRequest) {
     let updatedOffer;
 
     switch (type) {
-      case 'vehicleOffer':
+      case 'vehicle':
         updatedOffer = await prisma.vehicleOffer.update({
           where: { id },
           data: { validated },
         });
         break;
-      case 'realEstateOffer':
+      case 'property':
         updatedOffer = await prisma.realEstateOffer.update({
           where: { id },
           data: { validated },
         });
         break;
-      case 'commercialOffer':
+      case 'commercial':
         updatedOffer = await prisma.commercialOffer.update({
           where: { id },
           data: { validated },

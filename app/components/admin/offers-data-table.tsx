@@ -1,15 +1,15 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowUpDown, ChevronDown, MoreHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { useOffers } from "@/app/hooks/use-offers"
 
 // Mettre à jour l'interface Offer pour inclure un tableau de photos
 export interface Offer {
   id: number
   title: string
+  type: string
   description: string
   price: number
   category: string
@@ -18,7 +18,6 @@ export interface Offer {
 }
 
 export function OffersDataTable() {
-  const router = useRouter()
   const [searchTitle, setSearchTitle] = useState("")
   const [category, setCategory] = useState<string>("all")
   const [validationStatus, setValidationStatus] = useState<string>("all")
@@ -26,6 +25,7 @@ export function OffersDataTable() {
   const [limit] = useState(10)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [offerToDelete, setOfferToDelete] = useState<number | null>(null)
+  const [offerTypeToDelete, setOfferTypeToDelete] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null)
   const [columnMenuOpen, setColumnMenuOpen] = useState(false)
@@ -115,53 +115,67 @@ export function OffersDataTable() {
     setToast({ message, type })
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, type:string) => {
     setOfferToDelete(id)
+    setOfferTypeToDelete(type)
     setDeleteDialogOpen(true)
   }
 
   const confirmDelete = async () => {
-    if (!offerToDelete) return
-
+    if (!offerToDelete || !offerTypeToDelete) return;
+  
     try {
-      const response = await fetch(`/api/offers/${offerToDelete}`, {
+      const response = await fetch(`/api/admin-delete-offer`, {
         method: "DELETE",
-      })
-
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          offerId: offerToDelete,
+          offerType: offerTypeToDelete, // "vehicle", "property", ou "commercial"
+        }),
+      });
+  
       if (!response.ok) {
-        throw new Error("Erreur lors de la suppression")
+        throw new Error("Erreur lors de la suppression");
       }
-
-      showToast("L'offre a été supprimée avec succès", "success")
-      mutate() // Refresh data
+  
+      showToast("L'offre a été supprimée avec succès", "success");
+      mutate(); // Refresh data
     } catch {
-      showToast("Impossible de supprimer l'offre", "error")
+      showToast("Impossible de supprimer l'offre", "error");
     } finally {
-      setDeleteDialogOpen(false)
-      setOfferToDelete(null)
+      setDeleteDialogOpen(false);
+      setOfferToDelete(null);
+      setOfferTypeToDelete(null);
     }
-  }
+  };
 
-  const handleValidate = async (id: number, currentStatus: boolean) => {
+  const handleValidate = async (id: number, type: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/offers/${id}`, {
+      const response = await fetch(`/api/updateOfferValidation`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ validated: !currentStatus }),
-      })
-
+        body: JSON.stringify({
+          id,
+          type,
+          validated: !currentStatus,
+        }),
+      });
+  
       if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour")
+        throw new Error("Erreur lors de la mise à jour");
       }
-
-      showToast(`L'offre a été ${!currentStatus ? "validée" : "invalidée"}`, "success")
-      mutate() // Refresh data
-    } catch  {
-      showToast("Impossible de mettre à jour le statut", "error")
+  
+      showToast(`L'offre a été ${!currentStatus ? "validée" : "invalidée"}`, "success");
+      mutate(); // Refresh data
+    } catch {
+      showToast("Impossible de mettre à jour le statut", "error");
     }
-  }
+  };
+  
 
   const toggleColumn = (column: keyof typeof visibleColumns) => {
     setVisibleColumns({
@@ -281,13 +295,7 @@ export function OffersDataTable() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => router.push("/admin/offers/new")}
-            className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nouvelle offre
-          </button>
+          
 
           <div className="relative" ref={columnMenuRef}>
             <button
@@ -593,16 +601,7 @@ export function OffersDataTable() {
                           <div className="py-1">
                             <button
                               onClick={() => {
-                                router.push(`/admin/offers/${offer.id}`)
-                                setDropdownOpen(null)
-                              }}
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleValidate(offer.id, offer.validated)
+                                handleValidate(offer.id, offer.type, offer.validated)
                                 setDropdownOpen(null)
                               }}
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -611,7 +610,7 @@ export function OffersDataTable() {
                             </button>
                             <button
                               onClick={() => {
-                                handleDelete(offer.id)
+                                handleDelete(offer.id, offer.type)
                                 setDropdownOpen(null)
                               }}
                               className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
