@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import { getUserFromRequest } from '@/app/lib/tokenManager';
 
 const prisma = new PrismaClient();
-
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -19,7 +18,11 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const reports = await prisma.report.findMany();
+    const reports = await prisma.report.findMany({
+      orderBy: {
+        createdAt: "desc", // Order by most recent first
+      },
+    });
 
     if (!reports || reports.length === 0) {
       return NextResponse.json(
@@ -192,3 +195,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
+

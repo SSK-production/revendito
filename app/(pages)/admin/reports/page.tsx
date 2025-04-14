@@ -57,18 +57,19 @@ function getOfferId(report: Report): number | null {
 }
 
 function getOfferLink(report: Report): string {
-  if (report.vehicleOfferId) return `/vehicles/${report.vehicleOfferId}`
-  if (report.realEstateOfferId) return `/real-estate/${report.realEstateOfferId}`
-  if (report.commercialOfferId) return `/commercial/${report.commercialOfferId}`
+  if (report.vehicleOfferId) return `/offer?category=vehicles&offerId=${report.vehicleOfferId}`
+  if (report.realEstateOfferId) return `/offer?category=property&offerId=${report.realEstateOfferId}`
+  if (report.commercialOfferId) return `/offer?category=commercial&offerId=${report.commercialOfferId}`
   return "#"
 }
 
 function getReporterLink(report: Report): string {
   if (report.reporterType === "USER" && report.reporterUserId) {
-    return `/users/${report.reporterUserId}`
+    return `/profile?user=${report.reporterUserId}&role=user`
+    
   }
   if (report.reporterType === "COMPANY" && report.reporterCompanyId) {
-    return `/companies/${report.reporterCompanyId}`
+    return `/profile?user=${report.reporterCompanyId}&role=company`
   }
   return "#"
 }
@@ -240,7 +241,7 @@ export default function AdminReportsPage() {
   const handleDeleteReport = async (reportId: number) => {
     try {
       // Appel API pour supprimer le signalement
-      const response = await fetch(`/api/report/${reportId}`, {
+      const response = await fetch(`/api/report/${reportId}/delete`, {
         method: "DELETE",
         credentials: "include",
       })
