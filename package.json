@@ -21,6 +21,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dompurify": "^3.2.1",
     "dotenv": "^16.4.5",
     "file-type": "^19.6.0",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/date-fns": "^2.5.3",
     "@types/formidable": "^3.4.5",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",

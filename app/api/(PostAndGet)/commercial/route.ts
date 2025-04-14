@@ -146,12 +146,14 @@ export async function POST(req: NextRequest) {
       { ...fields, photos },
       { abortEarly: false }
     );
-
+    console.log(fields.categories);
     if (error) {
       const validationErrors = error.details.map((err) => err.message);
       console.log("Erreurs de validation:", validationErrors);
       return NextResponse.json({ error: validationErrors }, { status: 400 });
     }
+    console.log(fields.categories);
+    
 
     console.log("Début de la création de l'offre");
     console.log({
@@ -164,9 +166,9 @@ export async function POST(req: NextRequest) {
         city: fields.city,
         country: fields.country,
         openingHours: JSON.stringify(fields.openingHours),
-        categories: [JSON.stringify(fields.categories)],
+        categories: fields.categories,
         commercialType: fields.commercialType,
-        duration: parseInt(fields.duration),
+        duration: fields.duration,
         contractType: fields.contractType,
         workSchedule: fields.workSchedule,
         contactNumber: fields.contactNumber,

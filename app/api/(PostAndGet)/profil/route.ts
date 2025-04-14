@@ -16,7 +16,9 @@ export async function GET(req: NextRequest) {
     const role = req.nextUrl.searchParams.get('role');
     const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(req.nextUrl.searchParams.get('pageSize') || '10', 10);
-
+    console.log('username:', username);
+    console.log('role:', role);
+    
     // Vérifiez que l'username et le rôle sont valides
     if (!username || !role) {
       return NextResponse.json(
@@ -36,29 +38,39 @@ export async function GET(req: NextRequest) {
 
     // Récupération des données en fonction du rôle
     if (role === 'user') {
-      userData = await prisma.user.findUnique({
-        where: { username },
+      userData = await prisma.user.findFirst({
+        where: {
+          OR: [
+        { id: username },
+        { username: username },
+          ],
+        },
         include: {
           vehicleOffers: {
-            orderBy: { createdAt: 'desc' },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
           },
           realEstateOffers: {
-            orderBy: { createdAt: 'desc' },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
           },
           commercialOffers: {
-            orderBy: { createdAt: 'desc' },
-            skip: (page - 1) * pageSize,
-            take: pageSize,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
           },
         },
       });
     } else if (role === 'company') {
       userData = await prisma.company.findFirst({
-        where: { companyName: username },
+        where: {
+          OR: [
+        { id: username },
+        { companyName: username },
+          ],
+        },
         include: {
           vehicleOffers: {
             orderBy: { createdAt: 'desc' },

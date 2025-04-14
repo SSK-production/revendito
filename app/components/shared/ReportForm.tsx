@@ -30,6 +30,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
     try {
       const response = await axios.post("/api/report", {
         reporterType : reporterType === "user" ? "USER" : "COMPANY",
+        status: "pending",
         vehicleOfferId: offerType === "vehicle" ? offerId : null,
         realEstateOfferId: offerType === "property" ? offerId : null,
         commercialOfferId: offerType === "commercial" ? offerId : null,    

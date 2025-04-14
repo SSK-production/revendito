@@ -61,7 +61,7 @@ export function useOffers({ page = 1, limit = 10, category, validated }: UseOffe
   const mutate = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/offers?${queryParams}`)
+      const response = await fetch(`/api/allOffers?${queryParams}`)
       if (!response.ok) {
         throw new Error("Erreur lors du chargement des offres")
       }
