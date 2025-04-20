@@ -236,7 +236,7 @@ export async function GET(req: NextRequest) {
       } else if (refreshToken) {
         return refreshAccessToken(refreshToken); // Assurez-vous que cette fonction retourne une réponse !
       } else {
-        return new NextResponse(
+        return new Response(
           JSON.stringify({
             error: "Access token expired, and no refresh token available",
           }),
@@ -254,7 +254,7 @@ export async function GET(req: NextRequest) {
         const user = verifyAccessToken(newAccessToken) as UserPayload | null;
 
         if (!user) {
-          return new NextResponse(
+          return new Response(
             JSON.stringify({ error: "Invalid access token" }),
             {
               status: 401,
@@ -287,7 +287,7 @@ export async function GET(req: NextRequest) {
 
         return response;
       } else {
-        return new NextResponse(
+        return new Response(
           JSON.stringify({ error: "Invalid or expired refresh token" }),
           {
             status: 401,
@@ -296,7 +296,7 @@ export async function GET(req: NextRequest) {
         );
       }
     } else {
-      return new NextResponse(
+      return new Response(
         JSON.stringify({ message: "User not authenticated" }),
         {
           status: 401,
@@ -306,7 +306,7 @@ export async function GET(req: NextRequest) {
     }
   } catch (error) {
     console.error("Error during authentication check:", error);
-    return new NextResponse(
+    return new Response(
       JSON.stringify({ error: "Failed to check authentication" }),
       {
         status: 500,
