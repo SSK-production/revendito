@@ -230,11 +230,11 @@ export async function GET(req: NextRequest) {
         sameSite: 'strict',
         path: '/',
       });
-      console.log("ligne : 221");
       
         return response
       } else if (refreshToken) {
-        return refreshAccessToken(refreshToken); // Assurez-vous que cette fonction retourne une réponse !
+        // Utiliser la nouvelle fonction wrapper
+        return handleRefreshToken(refreshToken);
       } else {
         return new Response(
           JSON.stringify({
@@ -247,54 +247,8 @@ export async function GET(req: NextRequest) {
         );
       }
     } else if (refreshToken) {
-      const newAccessToken = refreshAccessToken(refreshToken);
-      console.log(newAccessToken);
-      console.log( "ligne : 238");
-      if (newAccessToken) {
-        const user = verifyAccessToken(newAccessToken) as UserPayload | null;
-
-        if (!user) {
-          return new Response(
-            JSON.stringify({ error: "Invalid access token" }),
-            {
-              status: 401,
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-        }
-
-        const response = new NextResponse(
-          JSON.stringify({
-            message: "Token successfully refreshed",
-            username: user.username,
-            id: user.id,
-            banEndDate: user.banEndDate || null,
-          }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        response.cookies.set("access_token", newAccessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          maxAge: 3600,
-          sameSite: "strict",
-          path: "/",
-        });
-
-
-        return response;
-      } else {
-        return new Response(
-          JSON.stringify({ error: "Invalid or expired refresh token" }),
-          {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
+      // Utiliser la nouvelle fonction wrapper
+      return handleRefreshToken(refreshToken);
     } else {
       return new Response(
         JSON.stringify({ message: "User not authenticated" }),
@@ -316,3 +270,52 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// Dans votre fichier route.ts
+async function handleRefreshToken(refreshToken: string): Promise<Response> {
+  const newAccessToken = refreshAccessToken(refreshToken);
+  
+  if (newAccessToken) {
+    const user = verifyAccessToken(newAccessToken) as UserPayload | null;
+    
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid access token" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    
+    const response = new NextResponse(
+      JSON.stringify({
+        message: "Token successfully refreshed",
+        username: user.username,
+        id: user.id,
+        banEndDate: user.banEndDate || null,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    
+    response.cookies.set("access_token", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600,
+      sameSite: "strict",
+      path: "/",
+    });
+    
+    return response;
+  } else {
+    return new Response(
+      JSON.stringify({ error: "Invalid or expired refresh token" }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+}
