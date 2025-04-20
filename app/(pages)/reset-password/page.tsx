@@ -1,8 +1,19 @@
 "use client";
-
+import { Suspense } from "react";
 import { useState, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
+
+
+const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <ResetPasswordPage />
+    </Suspense>
+  );
+};
+
+export default Page;
 
 const ResetPasswordPage: React.FC = () => {
     const [password, setPassword] = useState<string>("");
@@ -78,4 +89,3 @@ const ResetPasswordPage: React.FC = () => {
     );
 };
 
-export default ResetPasswordPage;
