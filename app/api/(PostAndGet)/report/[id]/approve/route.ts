@@ -11,7 +11,7 @@ function isValidRole(role: string | null): boolean {
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<Response>  {
   try {
     const user = await getUserFromRequest(req);
     if (!user) {
