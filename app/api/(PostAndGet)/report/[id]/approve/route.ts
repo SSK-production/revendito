@@ -10,7 +10,7 @@ function isValidRole(role: string | null): boolean {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const user = await getUserFromRequest(req);
@@ -32,8 +32,8 @@ export async function PUT(
         { status: 403 }
       );
     }
-    const { id: idParam } = await context.params;
-    const id = Number.parseInt(idParam, 10);
+
+    const id = parseInt(params.id, 10);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -46,18 +46,17 @@ export async function PUT(
       where: { id },
       data: { status: "APPROVED" },
     });
-    console.log("Report approved with success");
-    
 
-    // Pour l'exemple, nous simulons une réponse réussie
+    console.log("Report approved with success");
+
     return NextResponse.json(
       { message: "Report approved with success" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur lors du rejet du rapport:", error);
+    console.error("Erreur lors de l'approbation du rapport :", error);
     return NextResponse.json(
-      { error: "Erreur lors du rejet du rapport" },
+      { error: "Erreur lors de l'approbation du rapport" },
       { status: 500 }
     );
   }

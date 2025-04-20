@@ -10,7 +10,7 @@ function isValidRole(role: string | null): boolean {
   
 export async function DELETE(
     req: NextRequest,
-    context: { params: { id: string } }
+    { params }: { params: { id: string } }
   ) {
     try {
           const user = await getUserFromRequest(req);
@@ -32,8 +32,8 @@ export async function DELETE(
               { status: 403 }
             );
           }
-          const { id: idParam } = await context.params;
-          const id = Number.parseInt(idParam, 10);
+          const id = parseInt(params.id, 10);
+          
       
           if (isNaN(id)) {
             return NextResponse.json(
