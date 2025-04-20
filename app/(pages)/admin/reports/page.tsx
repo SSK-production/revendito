@@ -177,7 +177,7 @@ export default function AdminReportsPage() {
   const handleApproveReport = async (reportId: number) => {
     try {
       // Appel API pour approuver le signalement
-      const response = await fetch(`/api/report/${reportId}/approve`, {
+      const response = await fetch(`/api/report/approve/?id=${reportId}`, {
         method: "PUT",
         credentials: "include",
       })
@@ -209,7 +209,7 @@ export default function AdminReportsPage() {
   const handleRejectReport = async (reportId: number) => {
     try {
       // Appel API pour rejeter le signalement
-      const response = await fetch(`/api/report/${reportId}/reject`, {
+      const response = await fetch(`/api/report/reject/?id=${reportId}`, {
         method: "PUT",
         credentials: "include",
       })
@@ -241,7 +241,7 @@ export default function AdminReportsPage() {
   const handleDeleteReport = async (reportId: number) => {
     try {
       // Appel API pour supprimer le signalement
-      const response = await fetch(`/api/report/${reportId}/delete`, {
+      const response = await fetch(`/api/report/delete/?id=${reportId}`, {
         method: "DELETE",
         credentials: "include",
       })

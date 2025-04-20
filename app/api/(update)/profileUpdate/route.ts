@@ -1,4 +1,3 @@
-'use server';
 import { getUserFromRequest } from "@/app/lib/tokenManager";
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
