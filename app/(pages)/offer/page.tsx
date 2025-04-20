@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
@@ -37,6 +38,14 @@ interface BaseOffer {
 }
 
 const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <OfferContent />
+    </Suspense>
+  );
+};
+
+const OfferContent: React.FC = () => {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const offerId = searchParams.get("offerId");
