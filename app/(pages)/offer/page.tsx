@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
@@ -113,6 +114,7 @@ const Page: React.FC = () => {
   }
 
   return (
+    <Suspense fallback={<div>Chargement...</div>}>
     <div className="flex flex-col items-center justify-center gap-8 p-4">
       {/* Carrousel */}
       <Swiper
@@ -294,6 +296,7 @@ const Page: React.FC = () => {
         )}
       </div>
     </div>
+    </Suspense>
   );
 };
 
