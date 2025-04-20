@@ -1,8 +1,16 @@
 "use client";
-
+import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
+
+const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <ValidateEmailPage />
+    </Suspense>
+  );
+};
 
 const ValidateEmailPage: React.FC = () => {
 
@@ -43,4 +51,4 @@ const ValidateEmailPage: React.FC = () => {
     );
 };
 
-export default ValidateEmailPage;
+export default Page;
