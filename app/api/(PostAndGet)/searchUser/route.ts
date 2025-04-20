@@ -3,39 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-type SearchResult =
-  | {
-      type: 'user';
-      id: string;
-      username: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      role: string;
-      city: string;
-      country: string;
-      isBanned: boolean;
-      banReason: string[] | null;
-      banEndDate: Date | null;
-      banCount: number;
-      bannTitle: string | null; // Modifié pour être une chaîne JSON
-      bannedByUsername: string | null;
-    }
-  | {
-      type: 'company';
-      id: string;
-      companyName: string;
-      email: string;
-      city: string;
-      country: string;
-      street: string;
-      companyNumber: string;
-      isBanned: boolean;
-      banReason: string[] | null;
-      banEndDate: Date | null;
-      bannedByUser: { id: string; username: string } | null; // Accepte un objet au lieu d'une chaîne
-      bannTitle: string | null; // Modifié pour être une chaîne JSON
-    };
+
 
 export async function GET(req: NextRequest): Promise<Response> {
   try {
