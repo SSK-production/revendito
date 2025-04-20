@@ -1,5 +1,5 @@
 "use client";
-
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -29,7 +29,18 @@ interface UserOffersData {
   commercialOffers: Offer[];
 }
 
-export default function ProfilePage() {
+const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <ProfilePage />
+    </Suspense>
+  );
+};
+
+export default Page;
+
+
+const ProfilePage: React.FC = () =>{
   const searchParams = useSearchParams();
   const user = searchParams.get("user");
   const role = searchParams.get("role");
@@ -242,3 +253,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+
