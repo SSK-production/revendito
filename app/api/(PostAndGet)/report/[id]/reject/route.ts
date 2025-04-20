@@ -11,9 +11,10 @@ function isValidRole(role: string | null): boolean {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
-): Promise<Response> {
+) {
   try {
+    const { searchParams } = new URL(req.url);
+    const id = parseInt(searchParams.get("id") || "1", 10);
     const user = await getUserFromRequest(req);
     if (!user) {
       return NextResponse.json(
@@ -33,7 +34,6 @@ export async function PUT(
         { status: 403 }
       );
     }
-    const id = parseInt(context.params.id, 10);
 
     if (isNaN(id)) {
       return NextResponse.json(
