@@ -35,9 +35,9 @@ export default function Categories({ onLoad }: CategoriesProps) {
   const renderOfferCard = (offer: Offer, category: string) => (
     <div
       key={offer.id}
-      className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-[400px]" // Taille fixe
+      className="bg-white rounded-lg shadow-md overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-[400px]" // Fixed size
     >
-      {/* Image avec hauteur fixe */}
+      {/* Image with fixed height */}
       <div className="relative w-full h-48">
         {offer.photos.length > 0 ? (
           <Image
@@ -54,14 +54,14 @@ export default function Categories({ onLoad }: CategoriesProps) {
         )}
       </div>
   
-      {/* Contenu avec gestion de la hauteur */}
+      {/* Content with height management */}
       <div className="p-4 flex-grow flex flex-col">
         <h3 className="text-lg font-semibold mb-2 line-clamp-1">{offer.title}</h3>
         <p className="text-sm text-gray-600 mb-2 line-clamp-3">{offer.description}</p>
         <p className="text-lg font-bold text-blue-600 mt-auto">€ {offer.price.toLocaleString()}</p>
       </div>
   
-      {/* Bouton d'action */}
+      {/* Action button */}
       <div className="p-4 pt-0">
         <Link
           href={`/offer?category=${category}&offerId=${offer.id}`}
@@ -73,15 +73,12 @@ export default function Categories({ onLoad }: CategoriesProps) {
               : "group-hover:bg-orange-600 group-hover:text-white"
           }`}
         >
-          Voir l'annonce
+          View Offer
         </Link>
       </div>
     </div>
   );
   
-  
-  
-
   const renderCategorySection = (
     title: string,
     icon: React.ReactNode,
@@ -105,7 +102,7 @@ export default function Categories({ onLoad }: CategoriesProps) {
           <h2>{title}</h2>
         </Link>
         <Link href={`/offers/${category}`} className="text-blue-600 hover:underline flex items-center">
-          Voir plus <ChevronRight className="ml-2 h-4 w-4" />
+          See more <ChevronRight className="ml-2 h-4 w-4" />
         </Link>
       </div>
       <div className="grid gap-6">
@@ -138,4 +135,3 @@ export default function Categories({ onLoad }: CategoriesProps) {
     </section>
   )
 }
-

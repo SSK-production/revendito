@@ -226,10 +226,10 @@ export async function GET(req: NextRequest) {
         response.cookies.set('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', 
-        maxAge: 3600,
+        maxAge: 10800, // 3 hours in seconds
         sameSite: 'strict',
         path: '/',
-      });
+            });
       
         return response
       } else if (refreshToken) {

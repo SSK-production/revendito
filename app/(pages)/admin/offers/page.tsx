@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function AdminOffersPage() {
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">Gérer les Offres</h1>
+      <h1 className="text-3xl font-bold mb-6">Manage Offers</h1>
       <OffersDataTable />
     </div>
   )

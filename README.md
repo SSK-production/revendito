@@ -1,54 +1,106 @@
 # stage-project
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Description du projet
 
-## Getting Started
+**Revendito** est une application web moderne dédiée à la vente et à l'achat d'articles de seconde main. Ce projet vise à offrir une plateforme intuitive et sécurisée pour connecter les vendeurs et les acheteurs, tout en promouvant une consommation plus durable. Il utilise **Next.js** comme framework principal, avec une architecture modulaire et bien organisée pour garantir une évolutivité et une maintenance aisée.
 
-First, run the development server:
+## Architecture du projet
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Le projet suit une architecture modulaire et bien structurée pour simplifier le développement et la maintenance. Voici les principaux dossiers et fichiers :
+
+### Dossiers principaux
+
+```
+├── app/               # Dossier principal de l'application
+│   ├── (pages)/       # Pages dynamiques ou groupements de routes
+│   ├── api/           # Routes API pour le backend côté serveur
+│   ├── components/    # Composants spécifiques à certaines pages
+│   ├── fonts/         # Gestion des polices de caractères
+│   ├── hooks/         # Hooks personnalisés pour la logique réutilisable
+│   ├── lib/           # Fonctions spécifiques à certaines fonctionnalités
+│   ├── sitemaps/      # Fichiers sitemap pour améliorer le SEO
+│   ├── types/         # Définition des types TypeScript globaux
+│   ├── validation/    # Schémas de validation (ex : Zod)
+│   ├── layout.tsx     # Layout global de l'application
+│   └── page.tsx       # Page d'accueil
+│
+├── components/        # Composants réutilisables à l'échelle de l'application
+├── lib/               # Fonctions utilitaires partagées globalement
+├── prisma/            # Schéma Prisma et gestion de la base de données
+├── public/            # Fichiers statiques accessibles publiquement
+├── utils/             # Helpers génériques (gestion des dates, formats, etc.)
+├── .env               # Fichier des variables d'environnement sensibles
+├── fonts.css          # Définition des styles pour les polices
+├── globals.css        # Styles globaux de l'application
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Cette organisation modulaire permet une séparation claire des responsabilités, rendant le projet plus lisible, maintenable et évolutif.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Fichiers importants
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **`.env`** : Contient les variables d'environnement sensibles nécessaires au bon fonctionnement de l'application.
+- **`next.config.js`** : Fichier de configuration de Next.js pour personnaliser le comportement de l'application.
+- **`tailwind.config.js`** : Fichier de configuration de Tailwind CSS pour la gestion des styles.
+- **`tsconfig.json`** : Fichier de configuration TypeScript pour définir les options du compilateur.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## 🔧 Installation & Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1. Cloner le projet
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone https://github.com/ton-utilisateur/Revendito.git
+cd Revendito
+npm install
 
-## Deploy on Vercel
+create file .env
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+npx prisma generate
+npx prisma migrate dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+npm run dev
+```
 
-## Library used
+### Variables d'environnement (.env)
 
-- @prisma/client@5.22.0
-- @types/bcrypt@5.0.2
-- @types/jsonwebtoken@9.0.7
-- bcrypt@5.1.1
-- dompurify@3.2.1
-- dotenv@16.4.5
-- i18n-iso-countries@7.13.0
-- joi@17.13.3
-- jsonwebtoken@9.0.2
-- prisma@5.22.0
-- tailwindcss@3.4.14
-- typescript@5.6.3
+Le fichier `.env` contient les informations sensibles nécessaires à l'application, telles que les identifiants de base de données, les clés JWT, et les paramètres SMTP pour l'envoi d'emails. Voici un exemple des variables utilisées :
 
+```
+POSTGRES_URL="..."
+POSTGRES_PRISMA_URL="..."
+POSTGRES_URL_NO_SSL="..."
+POSTGRES_URL_NON_POOLING="..."
+POSTGRES_USER="..."
+POSTGRES_HOST="..."
+POSTGRES_PASSWORD="..."
+POSTGRES_DATABASE="..."
+
+ACCESS_JWT_SECRET="..."
+REFRESH_JWT_SECRET="..."
+RESET_PASSWORD_JWT_SECRET="..."
+
+EMAIL_USER="..."
+EMAIL_PASS="..."
+SMTP_HOST="..."
+SMTP_PORT=587
+
+PUSHER_APP_ID="..."
+PUSHER_KEY="..."
+PUSHER_SECRET="..."
+PUSHER_CLUSTER
+
+BASE_URL=""
+
+```
+
+### Doc api
+```
+This code implements functionality for [describe the purpose of the code here].
+
+Features:
+- Provides [list key features or functionalities].
+- Handles [describe any specific handling or processing].
+
+Note:
+- API documentation is accessible via the `/swagger` route for detailed information about available endpoints and their usage.
+```

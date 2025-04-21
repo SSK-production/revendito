@@ -1,0 +1,3882 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Offers API",
+    "version": "1.0.0",
+    "description": "API for fetching different types of offers (vehicle, real estate, and commercial)."
+  },
+  "paths": {
+    "/auth": {
+      "post": {
+        "summary": "Login user or company",
+        "description": "Authenticates the user or company and returns an access token and refresh token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized (Incorrect password)"
+          },
+          "404": {
+            "description": "Not Found (Email not found)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/refresh-token": {
+      "get": {
+        "summary": "Refresh access token using a refresh token",
+        "description": "Validates the refresh token and returns a new access token.",
+        "responses": {
+          "200": {
+            "description": "Token successfully refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Token successfully refreshed"
+                    },
+                    "access_token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Invalid or expired refresh token)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+
+    "/allOffers": {
+      "get": {
+        "summary": "Fetch offers with optional filters and pagination",
+        "description": "Retrieve offers filtered by category, validated status, and paginated.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (default is 1).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page (default is 10).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter offers by category (optional).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "validated",
+            "in": "query",
+            "description": "Filter offers by validated status (true or false).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["true", "false"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "validated": {
+                        "type": "boolean"
+                      },
+                      "user": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "company": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving offers"
+          }
+        }
+      }
+    },
+    "/commercial": {
+      "get": {
+        "summary": "Get all validated commercial offers",
+        "description": "Fetches a list of validated and active commercial offers with pagination.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number for pagination.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of items per page for pagination.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of commercial offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CommercialOffer"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new commercial offer",
+        "description": "Creates a new validated commercial offer based on the form data provided.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CommercialOfferCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Commercial offer created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommercialOffer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error for form data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is banned or account is inactive",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/company": {
+      "get": {
+        "summary": "Obtenir toutes les entreprises",
+        "operationId": "getCompanies",
+        "responses": {
+          "200": {
+            "description": "Liste des entreprises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Company"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      },
+      "post": {
+        "summary": "Créer une nouvelle entreprise",
+        "operationId": "createCompany",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Company"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entreprise créée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Company"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Champs manquants ou validation échouée"
+          },
+          "404": {
+            "description": "L'email est déjà utilisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/forgot-password": {
+        "post": {
+            "summary": "Request password forgot",
+            "description": "Allows sending a password reset email to the user with a reset link.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "description": "The email address of the user requesting the password reset."
+                                }
+                            },
+                            "required": ["email"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Password reset email sent successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "E-mail envoyé avec succès !"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid email address",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Adresse e-mail invalide."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Error sending email",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Erreur lors de l'envoi de l'e-mail."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/last-automotive-offer": {
+        "get": {
+            "summary": "Get all validated vehicle offers",
+            "description": "Fetches a list of validated and active vehicle offers with associated user or company details.",
+            "responses": {
+                "200": {
+                    "description": "A list of vehicle offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "active": {
+                                            "type": "boolean"
+                                        },
+                                        "validated": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "user": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "active": {
+                                                    "type": "boolean"
+                                                },
+                                                "isBanned": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "company": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "active": {
+                                                    "type": "boolean"
+                                                },
+                                                "isBanned": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Error fetching vehicle offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/last-commercial-offers": {
+        "get": {
+            "summary": "Get the last 3 validated commercial offers",
+            "description": "Fetches the last 3 validated and active commercial offers, ordered by creation date.",
+            "responses": {
+                "200": {
+                    "description": "A list of the last 3 commercial offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CommercialOffer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Error fetching last commercial offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/last-estate-offers": {
+        "get": {
+            "summary": "Get the last 3 validated real estate offers",
+            "description": "Fetches the last 3 validated and active real estate offers, ordered by creation date.",
+            "responses": {
+                "200": {
+                    "description": "A list of the last 3 real estate offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "active": {
+                                            "type": "boolean"
+                                        },
+                                        "validated": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "user": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "active": {
+                                                    "type": "boolean"
+                                                },
+                                                "isBanned": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "company": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "active": {
+                                                    "type": "boolean"
+                                                },
+                                                "isBanned": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Error fetching last real estate offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/messages": {
+        "get": {
+            "summary": "Retrieve paginated conversations",
+            "description": "Fetch the latest messages from each conversation for a user with pagination.",
+            "parameters": [
+                {
+                    "name": "userId",
+                    "in": "query",
+                    "description": "The ID of the user whose conversations are being retrieved.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The page number for pagination (default is 1).",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "pageSize",
+                    "in": "query",
+                    "description": "The number of items per page for pagination (default is 10).",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A list of conversations with pagination details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "conversations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string"
+                                                },
+                                                "sentAt": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "conversationId": {
+                                                    "type": "string"
+                                                },
+                                                "otherPersonName": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "page": {
+                                        "type": "integer"
+                                    },
+                                    "pageSize": {
+                                        "type": "integer"
+                                    },
+                                    "total": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post": {
+            "summary": "Send a new message",
+            "description": "Create a new message in a conversation and notify participants.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "receiverId": {
+                                    "type": "string",
+                                    "description": "The ID of the message recipient."
+                                },
+                                "offerId": {
+                                    "type": "integer",
+                                    "description": "The ID of the related offer (optional)."
+                                },
+                                "offerType": {
+                                    "type": "string",
+                                    "description": "The type of the related offer (vehicle, property, or commercial)."
+                                },
+                                "content": {
+                                    "type": "string",
+                                    "description": "The content of the message."
+                                },
+                                "otherPersonName": {
+                                    "type": "string",
+                                    "description": "The name of the other participant in the conversation."
+                                }
+                            },
+                            "required": ["receiverId", "content"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Message created successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "newMessage": {
+                                        "type": "object",
+                                        "$ref": "#/components/schemas/Message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Validation error or invalid recipient",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/messages/conversations": {
+        "get": {
+            "summary": "Retrieve messages for a specific conversation",
+            "description": "Fetch all messages for a given conversation ID, ordered by the sent date.",
+            "parameters": [
+                {
+                    "name": "conversationId",
+                    "in": "query",
+                    "description": "The ID of the conversation to retrieve messages for.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A list of messages for the specified conversation",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "content": {
+                                            "type": "string"
+                                        },
+                                        "sentAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "sender": {
+                                            "type": "object",
+                                            "properties": {
+                                                "username": {
+                                                    "type": "string"
+                                                },
+                                                "companyName": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "receiver": {
+                                            "type": "object",
+                                            "properties": {
+                                                "username": {
+                                                    "type": "string"
+                                                },
+                                                "companyName": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid or missing conversation ID",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/offer": {
+        "get": {
+            "summary": "Get details of a specific offer",
+            "description": "Fetches details of a specific offer based on its ID and category (vehicle, property, or commercial).",
+            "parameters": [
+                {
+                    "name": "offerId",
+                    "in": "query",
+                    "description": "The ID of the offer to retrieve.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "category",
+                    "in": "query",
+                    "description": "The category of the offer (vehicle, property, or commercial).",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "enum": ["vehicle", "property", "commercial"]
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Details of the specified offer",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "validated": {
+                                                "type": "boolean"
+                                            },
+                                            "user": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "active": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "isBanned": {
+                                                        "type": "boolean"
+                                                    }
+                                                }
+                                            },
+                                            "company": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "active": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "isBanned": {
+                                                        "type": "boolean"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid or missing parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Offer associated with an inactive or banned user/company",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Offer not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/profil": {
+        "get": {
+            "summary": "Get user or company profile with offers",
+            "description": "Fetches the profile of a user or company along with their associated offers, filtered by role.",
+            "parameters": [
+                {
+                    "name": "user",
+                    "in": "query",
+                    "description": "The username or ID of the user or company.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "role",
+                    "in": "query",
+                    "description": "The role of the entity (user or company).",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "enum": ["user", "company"]
+                    }
+                },
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The page number for pagination (default is 1).",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "pageSize",
+                    "in": "query",
+                    "description": "The number of items per page for pagination (default is 10).",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Profile and associated offers retrieved successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "user": {
+                                        "type": "object",
+                                        "description": "The profile of the user or company, excluding sensitive fields."
+                                    },
+                                    "offers": {
+                                        "type": "object",
+                                        "properties": {
+                                            "vehicleOffers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/VehicleOffer"
+                                                }
+                                            },
+                                            "realEstateOffers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/RealEstateOffer"
+                                                }
+                                            },
+                                            "commercialOffers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/CommercialOffer"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "pagination": {
+                                        "type": "object",
+                                        "properties": {
+                                            "page": {
+                                                "type": "integer"
+                                            },
+                                            "pageSize": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Profile not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/property": {
+        "get": {
+            "summary": "Get all validated real estate offers",
+            "description": "Fetches a list of validated and active real estate offers with associated user or company details.",
+            "parameters": [
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The page number for pagination.",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "The number of items per page for pagination.",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A list of real estate offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/RealEstateOffer"
+                                        }
+                                    },
+                                    "meta": {
+                                        "type": "object",
+                                        "properties": {
+                                            "page": {
+                                                "type": "integer"
+                                            },
+                                            "limit": {
+                                                "type": "integer"
+                                            },
+                                            "total": {
+                                                "type": "integer"
+                                            },
+                                            "totalPages": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid query parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post": {
+            "summary": "Create a new real estate offer",
+            "description": "Creates a new validated real estate offer based on the form data provided.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "multipart/form-data": {
+                        "schema": {
+                            "$ref": "#/components/schemas/RealEstateOfferCreate"
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Real estate offer created successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RealEstateOffer"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Validation error for form data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden - User is banned or account is inactive",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/report": {
+        "post": {
+            "summary": "Report an offer or user",
+            "description": "Allows users to report an offer or another user for inappropriate content or behavior.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "reportedId": {
+                                    "type": "integer",
+                                    "description": "The ID of the reported offer or user."
+                                },
+                                "reportType": {
+                                    "type": "string",
+                                    "enum": ["offer", "user"],
+                                    "description": "The type of entity being reported (offer or user)."
+                                },
+                                "reason": {
+                                    "type": "string",
+                                    "description": "The reason for reporting the entity."
+                                },
+                                "details": {
+                                    "type": "string",
+                                    "description": "Additional details about the report (optional)."
+                                }
+                            },
+                            "required": ["reportedId", "reportType", "reason"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Report submitted successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Report submitted successfully."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/report/approve": {
+        "put": {
+            "summary": "Approve a report",
+            "description": "Allows an admin or moderator to approve a report, changing its status to 'APPROVED'.",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "The ID of the report to approve.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Report approved successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Report approved with success"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid report ID",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "ID de rapport invalide"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Utilisateur non authentifié."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Access denied",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Accès non autorisé."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Erreur lors de l'approbation du rapport"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/report/delete": {
+        "delete": {
+            "summary": "Delete a report",
+            "description": "Allows an admin or moderator to delete a report by its ID.",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "The ID of the report to delete.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Report deleted successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Report deleted successfully."
+                                    },
+                                    "report": {
+                                        "type": "object",
+                                        "description": "Details of the deleted report."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid report ID",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "ID de rapport invalide"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Utilisateur non authentifié."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Access denied",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Accès non autorisé."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Erreur lors de la suppression du rapport"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/report/reject": {
+        "put": {
+            "summary": "Reject a report",
+            "description": "Allows an admin or moderator to reject a report by changing its status to 'REJECTED'.",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "The ID of the report to reject.",
+                    "required": true,
+                    "schema": {
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Report rejected successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Rapport rejeté avec succès"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid report ID",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "ID de rapport invalide"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Utilisateur non authentifié."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Access denied",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Accès non autorisé."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Erreur lors du rejet du rapport"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/reset-password": {
+        "post": {
+            "summary": "Reset user or company password",
+            "description": "Allows users or companies to reset their password using a token and a new password.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "description": "The reset token sent to the user's email."
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "description": "The new password to set."
+                                }
+                            },
+                            "required": ["token", "password"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Password reset successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Password updated successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid token or password",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Token or password is missing"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "User not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "User not found"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Internal server error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/searchUser": {
+        "get": {
+            "summary": "Search for users or companies",
+            "description": "Fetches users or companies based on username and/or banned status.",
+            "parameters": [
+                {
+                    "name": "username",
+                    "in": "query",
+                    "description": "The username or company name to search for.",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "isBanned",
+                    "in": "query",
+                    "description": "Filter by banned status (true or false).",
+                    "required": false,
+                    "schema": {
+                        "type": "string",
+                        "enum": ["true", "false"]
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Search results for users or companies",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "enum": ["user", "company"]
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "username": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "firstName": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "lastName": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "city": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "country": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "isBanned": {
+                                            "type": "boolean"
+                                        },
+                                        "banReason": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "banEndDate": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "nullable": true
+                                        },
+                                        "banCount": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "bannTitle": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "bannedByUsername": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "companyName": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "street": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "companyNumber": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "bannedByUser": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "No results found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/send-email-verify": {
+        "post": {
+            "summary": "Send email verification",
+            "description": "Sends an email verification link to the user's email address.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "description": "The email address to send the verification link to."
+                                }
+                            },
+                            "required": ["email"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Email verification link sent successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Un e-mail de validation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour valider votre compte."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid email address",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Adresse e-mail invalide."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Error sending email",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Erreur lors de l'envoi de l'e-mail."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/stats": {
+        "get": {
+            "summary": "Retrieve platform statistics",
+            "description": "Fetches statistics such as total users and companies, pending reports, and total offers.",
+            "responses": {
+                "200": {
+                    "description": "Statistics retrieved successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "data": {
+                                        "type": "object",
+                                        "properties": {
+                                            "totalUserAndCompanyCount": {
+                                                "type": "integer",
+                                                "description": "Total number of users and companies."
+                                            },
+                                            "pendingReportCount": {
+                                                "type": "integer",
+                                                "description": "Number of reports with a 'PENDING' status."
+                                            },
+                                            "offerCount": {
+                                                "type": "integer",
+                                                "description": "Total number of offers across all categories."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Erreur interne du serveur"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/user": {
+        "get": {
+            "summary": "Retrieve user and company statistics",
+            "description": "Fetches the total number of users and companies, pending reports, and total offers.",
+            "responses": {
+                "200": {
+                    "description": "Statistics retrieved successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "data": {
+                                        "type": "object",
+                                        "properties": {
+                                            "totalUserAndCompanyCount": {
+                                                "type": "integer",
+                                                "description": "Total number of users and companies."
+                                            },
+                                            "pendingReportCount": {
+                                                "type": "integer",
+                                                "description": "Number of reports with a 'PENDING' status."
+                                            },
+                                            "offerCount": {
+                                                "type": "integer",
+                                                "description": "Total number of offers across all categories."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Erreur interne du serveur"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/user/{id}/role": {
+        "get": {
+            "summary": "Retrieve user role by ID",
+            "description": "Fetches the role of a user or company based on their ID.",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "description": "The ID of the user or company.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Role retrieved successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "User or company not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "User or company not found"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Erreur interne du serveur"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/validate-email": {
+        "post": {
+            "summary": "Validate email address",
+            "description": "Validates the email address of a user or company using a token.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "description": "The token sent to the user's email for validation."
+                                }
+                            },
+                            "required": ["token"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Email verified successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Email verified successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid or missing token",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Token or password is missing"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "User not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "User not found"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Internal server error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/vehicle": {
+        "get": {
+            "summary": "Get all validated vehicle offers",
+            "description": "Fetches a list of validated and active vehicle offers with associated user or company details.",
+            "parameters": [
+                {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The page number for pagination.",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "The number of items per page for pagination.",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A list of vehicle offers",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/VehicleOffer"
+                                        }
+                                    },
+                                    "meta": {
+                                        "type": "object",
+                                        "properties": {
+                                            "page": {
+                                                "type": "integer"
+                                            },
+                                            "limit": {
+                                                "type": "integer"
+                                            },
+                                            "total": {
+                                                "type": "integer"
+                                            },
+                                            "totalPages": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid query parameters",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post": {
+            "summary": "Create a new vehicle offer",
+            "description": "Creates a new validated vehicle offer based on the form data provided.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "multipart/form-data": {
+                        "schema": {
+                            "$ref": "#/components/schemas/VehicleOfferCreate"
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "201": {
+                    "description": "Vehicle offer created successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VehicleOffer"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Validation error for form data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Forbidden - User is banned or account is inactive",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/admin-delete-offer": {
+        "delete": {
+            "summary": "Delete an offer by admin or moderator",
+            "description": "Allows an admin or moderator to delete an offer based on its ID and type (vehicle, property, or commercial).",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "offerId": {
+                                    "type": "integer",
+                                    "description": "The ID of the offer to delete."
+                                },
+                                "offerType": {
+                                    "type": "string",
+                                    "enum": ["vehicle", "property", "commercial"],
+                                    "description": "The type of the offer to delete."
+                                }
+                            },
+                            "required": ["offerId", "offerType"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Offer deleted successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "offer deleted with success"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid offer type",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid offer type"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Unauthorized"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "An error occurred"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Detailed error message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/deleteOffer": {
+        "delete": {
+            "summary": "Delete an offer",
+            "description": "Allows a user or company to delete their own offer by providing the offer ID, type, and password.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "password": {
+                                    "type": "string",
+                                    "description": "The password of the user or company."
+                                },
+                                "offerId": {
+                                    "type": "integer",
+                                    "description": "The ID of the offer to delete."
+                                },
+                                "offerType": {
+                                    "type": "string",
+                                    "enum": ["vehicle", "property", "commercial"],
+                                    "description": "The type of the offer to delete."
+                                }
+                            },
+                            "required": ["password", "offerId", "offerType"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Offer deleted successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "offer deleted with success"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid offer type"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Mot de passe incorrect."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Access denied",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Unauthorized"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "An error occurred"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Detailed error message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/logout": {
+        "get": {
+            "summary": "Logout user",
+            "description": "Logs out the user by clearing access and refresh tokens from cookies.",
+            "responses": {
+                "200": {
+                    "description": "Logout successful",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Logout successful. Cookies deleted."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/pusher/trigger": {
+      "post": {
+        "summary": "Trigger a Pusher event",
+        "description": "Triggers a Pusher event to broadcast a new message to the chat channel.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "The message content to broadcast."
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The username of the sender."
+                  }
+                },
+                "required": ["message", "username"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event triggered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid request payload"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "An error occurred while triggering the event"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activateAccount": {
+        "put": {
+            "summary": "Activate user account",
+            "description": "Activates a user account using an activation token.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string",
+                                    "description": "The activation token sent to the user's email."
+                                }
+                            },
+                            "required": ["token"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Account activated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Account activated successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid or missing token",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Invalid or missing activation token"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "User not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "User not found"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Internal server error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/bans": {
+      "patch": {
+        "summary": "Ban or unban a user or company",
+        "description": "Allows an admin or moderator to ban or unban a user or company.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The ID of the user or company to ban/unban."
+                  },
+                  "bannTitle": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The title(s) of the ban reason."
+                  },
+                  "reason": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The reason(s) for the ban."
+                  },
+                  "duration": {
+                    "type": "integer",
+                    "description": "The duration of the ban in days."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["user", "company"],
+                    "description": "The type of entity being banned (user or company)."
+                  },
+                  "banned": {
+                    "type": "boolean",
+                    "description": "Indicates whether to ban (true) or unban (false)."
+                  }
+                },
+                "required": ["id", "type", "banned"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ban or unban operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Ban with successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Données invalides : id, bannTitle, reason, duration et type sont requis."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Utilisateur non authentifié."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Accès non autorisé."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or company not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Utilisateur introuvable."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Erreur serveur."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/changeOfferStatus": {
+        "put": {
+            "summary": "Change the status of an offer",
+            "description": "Allows a user or company to toggle the active status of their offer.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "active": {
+                                    "type": "boolean",
+                                    "description": "The current active status of the offer."
+                                },
+                                "offerId": {
+                                    "type": "integer",
+                                    "description": "The ID of the offer to update."
+                                },
+                                "offerType": {
+                                    "type": "string",
+                                    "enum": ["vehicle", "property", "commercial"],
+                                    "description": "The type of the offer to update."
+                                }
+                            },
+                            "required": ["active", "offerId", "offerType"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Offer status updated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "offer status updated"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid offer type",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid offer type"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "403": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Unauthorized"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "An error occurred"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Detailed error message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/changePassword": {
+        "put": {
+            "summary": "Change user or company password",
+            "description": "Allows a user or company to change their password by providing the current password and a new password.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "currentPassword": {
+                                    "type": "string",
+                                    "description": "The current password of the user or company."
+                                },
+                                "newPassword": {
+                                    "type": "string",
+                                    "description": "The new password to set."
+                                },
+                                "repeatNewPassword": {
+                                    "type": "string",
+                                    "description": "The new password repeated for confirmation."
+                                }
+                            },
+                            "required": ["currentPassword", "newPassword", "repeatNewPassword"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Password changed successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Account updated successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid entity."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Mot de passe actuel incorrect."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Failed to update account"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Detailed error message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/profileUpdate": {
+        "put": {
+            "summary": "Update user or company profile",
+            "description": "Allows a user or company to update their profile information.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "password": {
+                                    "type": "string",
+                                    "description": "The current password of the user or company."
+                                },
+                                "username": {
+                                    "type": "string",
+                                    "description": "The new username for the user (optional)."
+                                },
+                                "firstName": {
+                                    "type": "string",
+                                    "description": "The first name of the user (optional)."
+                                },
+                                "lastName": {
+                                    "type": "string",
+                                    "description": "The last name of the user (optional)."
+                                },
+                                "birthDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "The birth date of the user or company (optional)."
+                                },
+                                "city": {
+                                    "type": "string",
+                                    "description": "The city of the user or company (optional)."
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "description": "The country of the user or company (optional)."
+                                },
+                                "companyName": {
+                                    "type": "string",
+                                    "description": "The new company name (optional)."
+                                },
+                                "companyNumber": {
+                                    "type": "string",
+                                    "description": "The company registration number (optional)."
+                                },
+                                "street": {
+                                    "type": "string",
+                                    "description": "The street address of the company (optional)."
+                                }
+                            },
+                            "required": ["password"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Profile updated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Profile updated successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid entity."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Mot de passe incorrect."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Failed to update profile"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/updateAccountEmail": {
+        "put": {
+            "summary": "Update account email",
+            "description": "Allows a user or company to update their email address by providing the current password and new email.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "description": "The new email address to update."
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "description": "The current password of the user or company."
+                                }
+                            },
+                            "required": ["email", "password"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Email updated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Account updated successfully"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Email already taken."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Mot de passe incorrect."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Failed to update account"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Detailed error message"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/updateOffer": {
+        "put": {
+            "summary": "Update an existing offer",
+            "description": "Allows a user or company to update an existing offer by providing the offer ID, type, and updated data.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "offerId": {
+                                    "type": "integer",
+                                    "description": "The ID of the offer to update."
+                                },
+                                "offerType": {
+                                    "type": "string",
+                                    "enum": ["vehicle", "property", "commercial"],
+                                    "description": "The type of the offer to update."
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "description": "The password of the user or company."
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "description": "The updated data for the offer.",
+                                    "additionalProperties": true
+                                }
+                            },
+                            "required": ["offerId", "offerType", "password", "data"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Offer updated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Offer updated successfully"
+                                    },
+                                    "data": {
+                                        "type": "object",
+                                        "description": "The updated offer details."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Invalid offer type or missing parameters."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized access",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Mot de passe incorrect."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "404": {
+                    "description": "Offer not found",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "Offer not found for the provided ID."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "error": {
+                                        "type": "string",
+                                        "example": "An error occurred while updating the offer."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/updateOfferValidation": {
+        "patch": {
+            "summary": "Update offer validation status",
+            "description": "Allows an admin or moderator to update the validation status of an offer.",
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "description": "The ID of the offer to update."
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["vehicle", "property", "commercial"],
+                                    "description": "The type of the offer to update."
+                                },
+                                "validated": {
+                                    "type": "boolean",
+                                    "description": "The new validation status of the offer."
+                                }
+                            },
+                            "required": ["id", "type", "validated"]
+                        }
+                    }
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Offer validation status updated successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Offer validation updated successfully"
+                                    },
+                                    "data": {
+                                        "type": "object",
+                                        "description": "The updated offer details."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Invalid request data",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Invalid request body. 'id' must be a number, 'type' must be a string, and 'validated' must be a boolean."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal server error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "success": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "An error occurred while updating the offer validation status."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+  }
+}
+    
+ 
