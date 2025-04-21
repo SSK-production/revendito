@@ -1,20 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import useRoutes from "@/app/hooks/useRoutes";
 import { useEffect, useState } from "react";
-import FooterSkeleton from "@/app/components/skeletons/footerSkeleton";
 
 export default function Footer() {
-    const routes = useRoutes();
-    const [isLoading, setIsLoading] = useState(true);
     const [showCookieBanner, setShowCookieBanner] = useState(true);
 
-    useEffect(() => {
-        if (routes && routes.length > 0) {
-            setIsLoading(false);
-        }
-    }, [routes]);
 
     const handleAcceptCookies = () => {
         setShowCookieBanner(false);
@@ -41,9 +32,7 @@ export default function Footer() {
     
 
 
-    if (isLoading) {
-        return <FooterSkeleton />;
-    }
+   
 
     return (
         <>
